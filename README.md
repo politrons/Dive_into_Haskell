@@ -1,1 +1,1 @@
-# dive-into-haskell
+![My image](img/haskell-logo.svg)
