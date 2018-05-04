@@ -4,6 +4,7 @@ import Lib
 import ArithmeticFunction
 import FunctionsFeature
 import HighOrderFunctionsFeature
+import ConditionsFunction
 
 
 --This is the main entry program for Haskell, just like static void main or Java
@@ -11,4 +12,6 @@ import HighOrderFunctionsFeature
 main :: IO ()
 --main = output
 --main = highOrderOutput
-main = numericOutput
+--main = numericOutput
+main = logicOutput
+
