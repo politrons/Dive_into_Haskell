@@ -5,11 +5,9 @@ module ArithmeticFunction
 
 -- |You have two ways to define functions. With and without lambdas
 --arithmeticFunction number = number * 100 --The same than the line below
-multiplyFunction :: Int -> Int
-multiplyFunction = \number -> number * 100
+multiplyFunction = (\number -> number * 100):: Int -> Int
 
-sumFunction :: Int -> Int
-sumFunction = \number -> number + 1000
+sumFunction = (\number -> number + 1000) :: Int -> Int
 
 -- |combining functions
 responseValue = sumFunction (multiplyFunction (multiplyFunction 5))
@@ -17,5 +15,7 @@ responseValue = sumFunction (multiplyFunction (multiplyFunction 5))
 numericOutput :: IO ()
 -- |Running the expression. Using show operator we transform from Int -> String
 numericOutput = putStrLn (show responseValue)
+
 -- |print it will print in screen all types that implement show. Since Int is one of them, we're good!
+
 --numericOutput = print responseValue

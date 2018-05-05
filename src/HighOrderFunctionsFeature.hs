@@ -10,22 +10,28 @@ import Data.List
 --      function param1 param2 = "hello" ++ param1 ++ " Haskell rocks" ++ param2r
 
 -- | We create a lambda functions that receive variable String name and return String
-highOrderFunc :: String -> (String -> String)
-highOrderFunc = \name -> \sentence -> name ++ " " ++sentence ++ " Combining"
+highOrderFunc = (\name -> \sentence -> name ++ " " ++sentence ++ " Combining") :: String -> (String -> String)
 --highOrderFunc name sentence = name ++ " " ++sentence ++ " Combining high order functions"
 
 -- | The 'isInfixOf' function takes two lists and returns 'True'
 -- if the first list is contained, wholly and intact,anywhere within the second.
-containsFunc :: String -> String
-containsFunc = \sentence -> if(isInfixOf "Combining" sentence ) then sentence ++ " high order functions" else "Nothing"
+containsFunc = (\sentence -> if(isInfixOf "Combining" sentence )
+                             then sentence ++ " high order functions"
+                             else "Nothing")  :: String -> String
 
 -- |Function that receive a String param and response String
 upperCaseFunc :: String -> String
 --upperCaseFunction = \sentence -> map toUpper sentence ++ "!!!"
 upperCaseFunc sentence = map toUpper sentence
 
--- |Here we compose two functions
-outputSentence = upperCaseFunc (containsFunc (highOrderFunc "Hello" "Paul"))
+-- |Here we compose three functions.
+-- We can compose functions just wrapping with func(func(func(value))) or just use [] separator.
+
+--outputSentence = upperCaseFunc (containsFunc (highOrderFunc "Hello" "Paul"))
+
+outputSentence = upperCaseFunc $
+                 containsFunc  $
+                 highOrderFunc "Hello" "Paul"
 
 -- |Creating and defining an Action IO
 highOrderOutput :: IO ()

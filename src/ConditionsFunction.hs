@@ -18,10 +18,20 @@ messageCaseFunc name surname
              |  surname == "Perez" = surname ++".... Ah!, I know your family"
              |  otherwise = "Do I know you?"
 
+-- | Just like in Scala all if/else conditions return a value, so one more time Haskell dont allow mutability
+isPaul = (\name -> name == "Paul") :: String -> Bool
+outputValue = \name -> if(isPaul name)
+                       then "Hey Paul"
+                       else "Who are you"
+
+logicOutput = print (outputValue "Paul")
+
 --logicOutput = putStrLn (messageFunc "Paul" "Perez")
 --logicOutput = putStrLn (messageFunc "John" "Perez")
 --logicOutput = putStrLn (messageFunc "John" "Smith")
 
-logicOutput = putStrLn (messageCaseFunc "Paul" "Perez")
+--logicOutput = putStrLn (messageCaseFunc "Paul" "Perez")
 --logicOutput = putStrLn (messageCaseFunc "John" "Perez")
 --logicOutput = putStrLn (messageCaseFunc "John" "Smith")
+
+
