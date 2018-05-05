@@ -14,14 +14,14 @@ import DataTypeFunctions
 main :: IO ()
 
 -- | Functions
--- ----------------------
+-- ------------
 
 --main = putStrLn welcomeSentence
 
 -- | High order function
 -- ----------------------
 
---main = putStrLn outputSentence
+main = putStrLn outputSentence
 
 -- | Pipeline
 -- -------------
@@ -70,4 +70,4 @@ main :: IO ()
 -- | Data types
 -- ------------
 
-main = print outputMenu
+--main = print outputMenu

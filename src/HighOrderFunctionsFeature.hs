@@ -10,7 +10,7 @@ import Data.List
 --      function param1 param2 = "hello" ++ param1 ++ " Haskell rocks" ++ param2r
 
 -- | We create a lambda functions that receive variable String name and return String
-highOrderFunc = (\name -> \sentence -> name ++ " " ++sentence ++ " Combining") :: String -> (String -> String)
+highOrderFunc = (\name -> (\sentence -> name ++ " " ++sentence ++ " Combining")) :: String -> (String -> String)
 --highOrderFunc name sentence = name ++ " " ++sentence ++ " Combining high order functions"
 
 -- | The 'isInfixOf' function takes two lists and returns 'True'
