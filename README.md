@@ -4,9 +4,9 @@
 ### Functions
 
 * **[Arithmetic](src/ArithmeticFunction.hs)**
-* **[Collections](src/CollectionFunctions)**
-* **[Conditions](src/ConditionsFunction)**
-* **[HighOrder](src/HighOrderFunctionsFeature)**
-* **[Pipelines](src/)**
-* **[](src/PipelineFunctions)**
+* **[Collections](src/CollectionFunctions.hs)**
+* **[Conditions](src/ConditionsFunction.hs)**
+* **[HighOrder](src/HighOrderFunctionsFeature.hs)**
+* **[Pipelines](src/PipelineFunctions.hs)**
+* **[Tuples](src/TuplesFunctions.hs)**
 
