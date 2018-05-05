@@ -1,5 +1,6 @@
-![My image](img/haskell-logo.svg)
+Author Pablo Perez Garcia
 
+# ![My image](img/haskell-logo.svg)
 
 ### Functions
 
