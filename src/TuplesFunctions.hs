@@ -32,7 +32,7 @@ getAge(_,_,age) = age
 
 isNameLengthFunc =  (\name ->  length name == 4) :: Name -> Bool
 
-isOlderAgeThanFunc = (\person -> getAge person >= age ) :: Person -> Bool
+isOlderAgeThanFunc = (\person -> (getAge person) >= age ) :: Person -> Bool
 
 upperCaseFunc = (\person -> ((map toUpper (getName person)),
                                            getSurname person,

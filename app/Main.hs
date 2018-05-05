@@ -21,7 +21,7 @@ main :: IO ()
 -- | High order function
 -- ----------------------
 
-main = putStrLn outputSentence
+--main = putStrLn outputSentence
 
 -- | Pipeline
 -- -------------
