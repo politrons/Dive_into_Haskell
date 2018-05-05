@@ -10,4 +10,5 @@ Author Pablo Perez Garcia
 * **[HighOrder](src/HighOrderFunctionsFeature.hs)**
 * **[Pipelines](src/PipelineFunctions.hs)**
 * **[Tuples](src/TuplesFunctions.hs)**
+* **[Data type](src/DataTypeFunctions.hs)**
 
