@@ -1,4 +1,4 @@
-module PipelineFunctions(pipelineOutput) where
+module PipelineFunctions(pipeline) where
 
 import Data.Char
 import Data.List
@@ -20,5 +20,4 @@ pipeline = map appendFunc $
            drop 1  $
            sort multiValueList
 
-pipelineOutput = print pipeline
 

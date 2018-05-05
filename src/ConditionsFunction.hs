@@ -1,6 +1,8 @@
 module ConditionsFunction
     (
-     logicOutput
+     messageFunc,
+     isPaul,
+     outputValue
     ) where
 
 messageFunc :: String -> String -> String
@@ -23,15 +25,5 @@ isPaul = (\name -> name == "Paul") :: String -> Bool
 outputValue = \name -> if(isPaul name)
                        then "Hey Paul"
                        else "Who are you"
-
-logicOutput = print (outputValue "Paul")
-
---logicOutput = putStrLn (messageFunc "Paul" "Perez")
---logicOutput = putStrLn (messageFunc "John" "Perez")
---logicOutput = putStrLn (messageFunc "John" "Smith")
-
---logicOutput = putStrLn (messageCaseFunc "Paul" "Perez")
---logicOutput = putStrLn (messageCaseFunc "John" "Perez")
---logicOutput = putStrLn (messageCaseFunc "John" "Smith")
 
 

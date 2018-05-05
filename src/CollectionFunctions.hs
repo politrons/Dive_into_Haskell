@@ -47,16 +47,5 @@ filterListOutput = filter (\element ->  length element == 4)  multiValueList
 -- | Check if a element is part of the collection and return a boolean
 isElementThere = "Paul" `elem` multiValueList
 
-collectionOutput = print multiValueList
-collectionOutput1 = putStrLn ("The length of the list is " ++ (show (length multiValueList)))
-collectionOutput2 = print firstElementOutput
-collectionOutput3 = print addValueListOutput
-collectionOutput4 = print reverseListOutput
-collectionOutput5 = print firstListOutput
-collectionOutput6 = print lastListOutput
-collectionOutput7 = print findElementByIndex
-collectionOutput8 = print joinListOutput
-collectionOutput9 = print mapListOutput
-collectionOutput10 = print filterListOutput
-collectionOutput11 = print isElementThere
+
 

@@ -1,6 +1,6 @@
 module FunctionsFeature
     (
-    output
+    welcomeSentence
     ) where
 
 
@@ -11,7 +11,4 @@ nameFunc = (\name -> "Hello " ++name) :: String -> String
 sentenceFunc = \sentence -> sentence ++ " Welcome to Haskell world at last!"
 -- |Here we compose two functions
 welcomeSentence = sentenceFunc (nameFunc "Paul")
--- |Creating and defining an Action IO
-output :: IO ()
--- |Running the expression
-output = putStrLn welcomeSentence
+

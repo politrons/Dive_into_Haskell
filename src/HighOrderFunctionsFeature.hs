@@ -1,5 +1,5 @@
 module HighOrderFunctionsFeature
-    ( highOrderOutput
+    ( outputSentence
     ) where
 
 import Data.Char
@@ -20,9 +20,7 @@ containsFunc = (\sentence -> if(isInfixOf "Combining" sentence )
                              else "Nothing")  :: String -> String
 
 -- |Function that receive a String param and response String
-upperCaseFunc :: String -> String
---upperCaseFunction = \sentence -> map toUpper sentence ++ "!!!"
-upperCaseFunc sentence = map toUpper sentence
+upperCaseFunc = (\sentence -> map toUpper sentence ++ "!!!") :: String -> String
 
 -- |Here we compose three functions.
 -- We can compose functions just wrapping with func(func(func(value))) or just use [] separator.
@@ -33,9 +31,5 @@ outputSentence = upperCaseFunc $
                  containsFunc  $
                  highOrderFunc "Hello" "Paul"
 
--- |Creating and defining an Action IO
-highOrderOutput :: IO ()
 
--- |Running the expression
-highOrderOutput = putStrLn outputSentence
 
