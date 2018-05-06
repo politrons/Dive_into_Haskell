@@ -17,5 +17,6 @@ If you want to reference to the official documentation visit [Here](https://www.
 * **[Pipelines](src/PipelineFunctions.hs)**
 * **[Tuples](src/TuplesFunctions.hs)**
 * **[Data type](src/DataTypeFunctions.hs)**
+* **[Maybe](src/MaybeFunctions.hs)**
 
 You can find the main class to run the app [here](app/Main.hs)

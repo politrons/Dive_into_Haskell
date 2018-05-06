@@ -47,7 +47,8 @@ filterListOutput = filter (\element ->  length element == 4)  multiValueList
 -- | Check if a element is part of the collection and return a boolean
 isElementThere = "Paul" `elem` multiValueList
 
--- | Find operator from Data.List is handy to find an element in the list passing a function that does patter matching
+-- | Find operator from Data.List is handy to find an element in the list passing a function that does patter matching.
+--  This operator it will return a Maybe type. Check Maybe module for more info
 
 people = ["Paul","Peter", "John", "Sussan"] :: [String]
 

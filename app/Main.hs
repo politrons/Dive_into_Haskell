@@ -8,6 +8,8 @@ import CollectionFunctions
 import PipelineFunctions
 import TuplesFunctions
 import DataTypeFunctions
+import MaybeFunctions
+
 
 -- | This is the main entry program for Haskell, just like static void main or Java
 --   You can only have one main declaration, so you have to point to one output or another
@@ -50,7 +52,7 @@ main :: IO ()
 --  --------
 
 --main  = print sorterNameOutput
-main  = print olderOutput
+--main  = print olderOutput
 
 -- | Collections
 --  -------------
@@ -75,3 +77,11 @@ main  = print olderOutput
 --main = print outputMenu
 --main = print outputOlderThan30
 --main = print womenOutput
+
+-- | Maybe
+--  --------
+
+--main  = print withValue
+--main  = print emptyValue
+--main = print outputFindJust
+--main = print outputFindNoting
