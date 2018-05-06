@@ -51,6 +51,6 @@ isElementThere = "Paul" `elem` multiValueList
 
 people = ["Paul","Peter", "John", "Sussan"] :: [String]
 
-outputFind = find isJohnFunc people where isJohnFunc person = person == "John"
+outputFind = find isJohnFunc people where isJohnFunc = \person -> person == "John"
 
 
