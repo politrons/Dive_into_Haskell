@@ -3,7 +3,8 @@ Author Pablo Perez Garcia
 # ![My image](img/haskell-logo.svg)
 
 Haskell is a standardized, general-purpose purely functional programming language, with non-strict semantics and strong static typing.
-Here we cover with some examples the most important features of the language.
+
+Here we cover with examples the most important features of the language.
 
 ### Functions
 
