@@ -4,12 +4,12 @@ import Data.Char
 import Data.List
 
 -- | Haskell is a Strong type language and it encourage of the use of types all the time.
---  It make it really simple create new types just using the operator [data]
+--  It make it really simple create new types just using the operator [type] or algebras using [data]
 
 -- |Data type
 --  ---------
 
--- | We specify to Haskell a new type Fruit, which can only be a type Apple, Banana, Pineapple and Orange
+-- | We specify to Haskell a new data type Fruit, which can only be a type Apple, Banana, Pineapple and Orange
 data Fruit = Apple
           | Banana
           | Pineapple
