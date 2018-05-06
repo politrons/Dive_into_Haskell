@@ -22,7 +22,7 @@ main :: IO ()
 -- ----------------------
 
 --main = putStrLn outputSentence
-main = print outputSentenceSeparator
+--main = print outputSentenceSeparator
 
 -- | Pipeline
 -- -------------
@@ -50,7 +50,7 @@ main = print outputSentenceSeparator
 --  --------
 
 --main  = print sorterNameOutput
---main  = print olderOutput
+main  = print olderOutput
 
 -- | Collections
 --  -------------
