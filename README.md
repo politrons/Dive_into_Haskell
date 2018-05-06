@@ -2,7 +2,6 @@ Author Pablo Perez Garcia
 
 # ![My image](img/haskell-logo.svg)
 
-![My image](img/lambda.png)
 ### Functions
 
 * **[Arithmetic](src/ArithmeticFunction.hs)**
