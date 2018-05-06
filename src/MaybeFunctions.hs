@@ -12,6 +12,17 @@ someValue = Just "Hello effect" :: Maybe String
 -- | In case we want to create an empty Maybe we just need to add [Nothing] as None in Scala
 emptyValue = Nothing :: Maybe String
 
+-- | The pure way to extract the value from a Maybe is using patter matching,
+--   where we can just create the case for [Just value] or [Nothing], as we normally would do from Scala.
+
+valueOfMaybeFilled = case someValue of
+     Just value -> value
+     Nothing -> "Default value"
+
+valueOfMaybeNothing = case emptyValue of
+     Just value -> value
+     Nothing -> "Default value"
+
 -- | In this next example we use the operator [find] which it return a [Mayvbe] type depending if is able or not
 --   to find an element in the list.
 
