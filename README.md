@@ -6,8 +6,7 @@ Haskell is a standardized, general-purpose purely functional programming languag
 
 Here we cover with examples the most important features of the language.
 
-This is a personal journey to learn the language and improve more in Functional programing paradigm.
-If you want to reference to the real documentation visit [Here](https://www.haskell.org/)
+If you want to reference to the official documentation visit [Here](https://www.haskell.org/)
 
 ### Functions
 
