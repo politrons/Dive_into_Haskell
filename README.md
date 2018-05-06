@@ -1,6 +1,6 @@
 Author Pablo Perez Garcia
 
-# ![My image](img/haskell-logo.jpeg)
+# ![My image](img/haskell-logo.svg)
 
 Haskell is a standardized, general-purpose purely functional programming language, with strong static typing.
 
