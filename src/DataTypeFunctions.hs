@@ -17,7 +17,7 @@ data Fruit = Apple
           | Coconut
           | Strawberry
 
--- | We define a function which recieve a Fruit type and return the description of the ingredients
+-- | We define a function which receive a Fruit type and return the description of the ingredients
 menuFunc :: Fruit -> String
 menuFunc fruit =
          case fruit of
