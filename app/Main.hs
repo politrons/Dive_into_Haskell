@@ -66,10 +66,11 @@ main :: IO ()
 --main = print mapListOutput
 --main = print filterListOutput
 --main = print isElementThere
+main = print outputFind
 
 -- | Data types
 -- ------------
 
 --main = print outputMenu
 --main = print outputOlderThan30
-main = print womenOutput
+--main = print womenOutput

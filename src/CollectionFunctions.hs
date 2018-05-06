@@ -1,7 +1,7 @@
 module CollectionFunctions where
 
 import Data.Char
-import Data.List
+import Data.List as ListUtils -- | In case you want to use an alias.
 
 -- | Here we cover how we can create collections in Haskell
 myEmptyList = []
@@ -47,5 +47,10 @@ filterListOutput = filter (\element ->  length element == 4)  multiValueList
 -- | Check if a element is part of the collection and return a boolean
 isElementThere = "Paul" `elem` multiValueList
 
+-- | Find operator from Data.List is handy to find an element in the list passing a function that does patter matching
+
+people = ["Paul","Peter", "John", "Sussan"] :: [String]
+
+outputFind = find isJohnFunc people where isJohnFunc person = person == "John"
 
 

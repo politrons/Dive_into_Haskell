@@ -17,7 +17,7 @@ appendFunc =  (\element -> "|" ++ element ++ "|") :: String -> String
 pipeline = map appendFunc $
            map upperCaseFunc $
            filter filterLengthFunc $
-           drop 1  $
+           drop 1 $
            sort multiValueList
 
 
