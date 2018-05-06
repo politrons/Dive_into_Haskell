@@ -71,3 +71,5 @@ main :: IO ()
 -- ------------
 
 --main = print outputMenu
+--main = print outputOlderThan30
+main = print womenOutput
