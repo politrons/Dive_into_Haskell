@@ -41,6 +41,8 @@ main :: IO ()
 --main = putStrLn (messageCaseFunc "Paul" "Perez")
 --main = putStrLn (messageCaseFunc "John" "Perez")
 --main = putStrLn (messageCaseFunc "John" "Smith")
+main = print outputPatternMatching
+
 
 -- | Arithmetic
 -- -------------
