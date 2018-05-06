@@ -1,6 +1,6 @@
 Author Pablo Perez Garcia
 
-# ![My image](img/haskell-logo.jpg) Dive into Haskell
+# ![My image](img/haskell-logo.jpeg) Dive into Haskell
 
 Haskell is a standardized, general-purpose purely functional programming language, with strong static typing.
 
