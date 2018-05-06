@@ -1,6 +1,4 @@
-module HighOrderFunctionsFeature
-    ( outputSentence
-    ) where
+module HighOrderFunctionsFeature where
 
 import Data.Char
 import Data.List
@@ -23,11 +21,11 @@ containsFunc = (\sentence -> if(isInfixOf "Combining" sentence )
 upperCaseFunc = (\sentence -> map toUpper sentence ++ "!!!") :: String -> String
 
 -- |Here we compose three functions.
--- We can compose functions just wrapping with func(func(func(value))) or just use [] separator.
+-- We can compose functions just wrapping with func(func(func(value))) or just use [$] separator.
 
---outputSentence = upperCaseFunc (containsFunc (highOrderFunc "Hello" "Paul"))
+outputSentence = upperCaseFunc (containsFunc (highOrderFunc "Hello" "Paul"))
 
-outputSentence = upperCaseFunc $
+outputSentenceSeparator = upperCaseFunc $
                  containsFunc  $
                  highOrderFunc "Hello" "Paul"
 

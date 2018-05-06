@@ -18,3 +18,4 @@ If you want to reference to the official documentation visit [Here](https://www.
 * **[Tuples](src/TuplesFunctions.hs)**
 * **[Data type](src/DataTypeFunctions.hs)**
 
+You can find the main class to run the app [here](app/Main.hs)

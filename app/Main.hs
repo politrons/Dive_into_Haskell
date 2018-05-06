@@ -22,6 +22,7 @@ main :: IO ()
 -- ----------------------
 
 --main = putStrLn outputSentence
+main = print outputSentenceSeparator
 
 -- | Pipeline
 -- -------------
@@ -66,7 +67,7 @@ main :: IO ()
 --main = print mapListOutput
 --main = print filterListOutput
 --main = print isElementThere
-main = print outputFind
+--main = print outputFind
 
 -- | Data types
 -- ------------
