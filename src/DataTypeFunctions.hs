@@ -97,7 +97,7 @@ transformPersonFunc  = \person -> Person (toUpperFunc (getName person))
                                    (toUpperFunc (getSurname person))
                                    (getAge person + 100)
                                     (getSex person)
-
+-- Predicate function
 isWomenFunc :: Person -> Bool
 isWomenFunc person = case (getSex person) of
              Male   -> False
