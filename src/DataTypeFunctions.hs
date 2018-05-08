@@ -19,14 +19,13 @@ data Fruit = Apple
 
 -- | We define a function which receive a Fruit type and return the description of the ingredients
 menuFunc :: Fruit -> String
-menuFunc fruit =
-         case fruit of
-             Apple   -> "Sweet, red and hard"
-             Banana  -> "Sweet, yellow and soft"
-             Pineapple   -> "Bitter, yellow and soft"
-             Orange      -> "Bitter, orange and soft"
-             Coconut      -> "Sweet, brown and hard"
-             Strawberry      -> "Bitter, red and soft"
+menuFunc fruit =  case fruit of
+                       Apple   -> "Sweet, red and hard"
+                       Banana  -> "Sweet, yellow and soft"
+                       Pineapple   -> "Bitter, yellow and soft"
+                       Orange      -> "Bitter, orange and soft"
+                       Coconut      -> "Sweet, brown and hard"
+                       Strawberry      -> "Bitter, red and soft"
 
 type Smoothie = [Fruit]
 tropicalSmoothie = [Pineapple, Banana, Coconut] :: Smoothie
