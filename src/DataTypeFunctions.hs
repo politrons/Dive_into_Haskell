@@ -4,7 +4,7 @@ import Data.Char
 import Data.List
 
 -- | Haskell is a Strong type language and it encourage of the use of types all the time.
---  It make it really simple create new types just using the operator [type] or algebras using [data]
+--  It make it really simple create new types alias just using the operator [type] or product types (algebras) using [data]
 
 -- |Data type
 --  ---------
@@ -41,21 +41,30 @@ type Age = Int
 
 -- | Algebras defined as sum type and product type
 --  Sum types are those types like enum where use polymorphism and only can have one specific type. In This case
---  Male or Female
-data Sex = Male | Female -- Data type or Sum type
+--  Male or Female.
+--  Also the operator deriving (Show) it will allow make the algebra being extendable from print
+data Sex = Male | Female deriving (Show) -- Data type or Sum type
 
 -- | Product types are a different
--- | For a reason I don't understand when we define products we have to add the product type as first element
-data Person = Person Name Surname Age Sex -- Data product
+-- | We also have to define as first argument the Person again, as value constructor name.
+data Person = Person{
+                      name::Name,
+                      surname :: Surname,
+                      age::Age,
+                      sex::Sex
+                    } deriving (Show) -- Data product
 
-spanish1 = Person "Pablo" "Perez"  37  Male :: Person
+spanish1 = Person {
+                    name="Pablo",
+                    surname="Perez",
+                    age=37,
+                    sex=Male
+                   } :: Person
+
 spanish2 = Person "Jorge" "Gonzales"  40 Male :: Person
 spanish3 = Person "Susana" "Garcia" 21 Female :: Person
 
 spanishPeople = [spanish1, spanish2, spanish3] :: [Person]
-
--- | We create human type for output since data product cannot be processed by IO print
-type Human = (Name, Surname, Age)
 
 -- | Pipelines
 
@@ -79,10 +88,15 @@ getSurname(Person _ surname _ _ ) = surname
 getSex :: Person -> Sex
 getSex(Person _ _ _ sex) = sex
 
+outputPerson = Person (toUpperFunc "") "Perez"  37  Male :: Person
+
+
 -- | Utils functions
-transformPersonFunc = (\person -> (toUpperFunc (getName person),
-                                   toUpperFunc (getSurname person),
-                                   getAge person + 100)) :: Person -> Human
+transformPersonFunc :: Person -> Person
+transformPersonFunc  = \person -> Person (toUpperFunc (getName person))
+                                   (toUpperFunc (getSurname person))
+                                   (getAge person + 100)
+                                    (getSex person)
 
 isWomenFunc :: Person -> Bool
 isWomenFunc person = case (getSex person) of
