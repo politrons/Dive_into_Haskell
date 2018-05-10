@@ -54,6 +54,7 @@ main :: IO ()
 --main = print subtractResponse
 --main = print overloadIntOutput
 --main = print overloadLongOutput
+
 -- | Tuple
 --  --------
 
@@ -90,8 +91,10 @@ main :: IO ()
 --main = print output
 --main = print sumIntArithmeticTypeClass
 --main = print multiplyIntArithmeticTypeClass
-main = print sumDoubleArithmeticTypeClass
+--main = print sumDoubleArithmeticTypeClass
 --main = print multiplyDoubleArithmeticTypeClass
+--main = print compareIntOutput
+main = print compareDoubleOutput
 
 -- | Maybe
 --  --------
