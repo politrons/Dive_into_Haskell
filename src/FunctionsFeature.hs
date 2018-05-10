@@ -9,7 +9,8 @@ sentenceFunc = \sentence -> sentence ++ " Welcome to Haskell world at last!"
 -- |Here we compose two functions
 welcomeSentence = sentenceFunc (nameFunc "Paul")
 
--- | Haskell allow define multiple functions using same function description
+-- | Haskell allow define multiple functions using same function description.
+--  func1 and func2 both share the contract that has two Int inputs and an Int output
 func1, func2 :: Int -> Int -> Int
 func1 a b = a + b
 func2 a b = a * b
