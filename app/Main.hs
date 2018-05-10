@@ -10,6 +10,7 @@ import TuplesFunctions
 import DataTypeFunctions
 import MaybeFunctions
 import FirstProgram
+import ClassesAndInstances
 
 
 -- | This is the main entry program for Haskell, just like static void main or Java
@@ -20,7 +21,7 @@ main :: IO ()
 -- ------------
 
 --main = putStrLn welcomeSentence
-main = print func1Output
+--main = print func1Output
 --main = print func2Output
 
 -- | High order function
@@ -82,6 +83,15 @@ main = print func1Output
 --main = print outputMenu
 --main = print outputOlderThan30
 --main = print womenOutput
+
+-- | Types classes
+-- ----------------
+
+--main = print output
+--main = print sumIntArithmeticTypeClass
+--main = print multiplyIntArithmeticTypeClass
+main = print sumDoubleArithmeticTypeClass
+--main = print multiplyDoubleArithmeticTypeClass
 
 -- | Maybe
 --  --------
