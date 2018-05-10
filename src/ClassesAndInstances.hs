@@ -15,13 +15,13 @@ class ArithmeticTypeClass _type where
 
 -- |Here we define the implementation for type Integer.
 instance ArithmeticTypeClass Integer where
-        customSum i1 i2 = i1 + i2
+        customSum i1 i2 = i1  + i2
         customMultiply i1 i2 = i1 * i2
 
 -- |Here we define the implementation for type Double.
 instance ArithmeticTypeClass Double where
-        customSum d1 d2 = d1 + d2
-        customMultiply d1 d2 = d1 * d2
+        customSum d1 d2 = (d1 + 100) + (d2 + 100)
+        customMultiply d1 d2 = (d1 + 100) * (d2 + 100)
 
 i1 = 6 :: Integer
 i2 = 7 :: Integer

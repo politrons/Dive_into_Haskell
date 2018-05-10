@@ -94,7 +94,7 @@ main :: IO ()
 --main = print sumDoubleArithmeticTypeClass
 --main = print multiplyDoubleArithmeticTypeClass
 --main = print compareIntOutput
-main = print compareDoubleOutput
+--main = print compareDoubleOutput
 
 -- | Maybe
 --  --------
