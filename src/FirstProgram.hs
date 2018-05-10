@@ -3,22 +3,18 @@ module FirstProgram where
 import Data.Char
 import Data.List
 
+whatTimeIsIt :: IO String
+whatTimeIsIt = do
+  putStrLn "What time is it now?"
+  getLine
+
 outputProgram = do
-
-  print "Welcome:"
-  print "1. exit."
-  print "2. restart."
-
-  command <- getLine
-
-  case command of
-          "1" -> putStrLn "Exit application"
-          "2" -> do
-                  putStrLn "Preparing to restart...."
-                  putStrLn "Restarting...."
-                  outputProgram
-          otherwise -> putStrLn "Command not found"
-
-
+  timeString <- whatTimeIsIt
+  putStrLn "Again!"
+  timeString2 <- whatTimeIsIt
+  putStrLn ("Ok, you said it was "
+            ++ timeString
+            ++ " and then you said it was "
+            ++ timeString2)
 
 

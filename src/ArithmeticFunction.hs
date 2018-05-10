@@ -20,4 +20,18 @@ numericOutput = putStrLn (show responseValue)
 
 -- |print it will print in screen all types that implement show. Since Int is one of them, we're good!
 
---numericOutput = print responseValue
+-- |Overload functions in Haskell is done by value types, om this case since we define just one type Num a
+-- this it can be whatever type we want, as long as is the same type [a]
+
+overloadSumFunc :: Num a => a -> a -> a
+overloadSumFunc  = \a -> \b -> a + b
+
+i1 = 6 :: Integer
+i2 = 5 :: Integer
+
+overloadIntOutput= overloadSumFunc i1 i2
+
+d1 = 6 :: Double
+d2 = 7 :: Double
+
+overloadLongOutput= overloadSumFunc d1 d2
