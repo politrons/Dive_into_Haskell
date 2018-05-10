@@ -20,6 +20,8 @@ main :: IO ()
 -- ------------
 
 --main = putStrLn welcomeSentence
+main = print func1Output
+--main = print func2Output
 
 -- | High order function
 -- ----------------------
@@ -50,7 +52,7 @@ main :: IO ()
 --main = numericOutput
 --main = print subtractResponse
 --main = print overloadIntOutput
-main = print overloadLongOutput
+--main = print overloadLongOutput
 -- | Tuple
 --  --------
 
