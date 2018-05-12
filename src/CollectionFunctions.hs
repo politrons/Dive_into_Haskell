@@ -1,7 +1,13 @@
 module CollectionFunctions where
 
+import Data.Map (Map)
+import qualified Data.Map as Map
+
 import Data.Char
 import Data.List as ListUtils -- | In case you want to use an alias.
+
+-- |   List
+-- ------------
 
 -- | Here we cover how we can create collections in Haskell
 myEmptyList = []
@@ -54,4 +60,40 @@ people = ["Paul","Peter", "John", "Sussan"] :: [String]
 
 outputFind = find isJohnFunc people where isJohnFunc = \person -> person == "John"
 
+-- |   Map
+-- ------------
 
+-- | Use operator [singleton] nn case you want to create a single key->value and keep it clear in your code.
+singletonMap = Map.singleton "single_key" "single_value"
+
+-- | To create a simple map we use [fromList] operator to create a list of elements, with a tuple for (key,value)
+fromListMap  = Map.fromList [("key","value"), ("Paul", "PaulValue")]
+
+-- | Add a new key->value is so simple  like use [insert] operator
+newAppendMap = Map.insert "New_key" "New_value" fromListMap
+
+-- |Size operator it will tell us the size of the map
+mapSize = Map.size newAppendMap
+
+-- |To get a value from a map we just need to use [lookup] operator. This operator it will return a Maybe type.
+--  In this particular example "Just Paul"
+getMapValueByKey = \name -> Map.lookup name newAppendMap
+getMapValueByKeyOutput = getMapValueByKey "Paul"
+
+isMemberPresent = \name -> Map.member name newAppendMap
+isMemberPresentOutput = isMemberPresent "New_key"
+
+-- |This operator [findWithDefault] it will try to find a key and in case cannot find it, it would use the default value passed
+findWithDefaultFunc = \name -> Map.findWithDefault "Default value" "foo" newAppendMap
+findWithDefaultFuncOutput = findWithDefaultFunc "FooPaul"
+
+deleteKeyFunc = \name -> Map.delete name newAppendMap
+newDeletedMap = deleteKeyFunc "Paul"
+
+-- | Pipeline
+
+transformValuesToUpperCase = Map.map (\element -> map toUpper element) newAppendMap
+
+transformToUpperCaseByKey = Map.filterWithKey (\key -> \a -> key == "Paul") newAppendMap
+
+transformToUpperCaseByValue = Map.filter (\key -> key == "PaulValue") newAppendMap

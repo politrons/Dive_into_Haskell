@@ -63,6 +63,7 @@ main :: IO ()
 
 -- | Collections
 --  -------------
+-- List
 
 --main = print multiValueList
 --main = putStrLn ("The length of the list is " ++ (show (length multiValueList)))
@@ -77,6 +78,20 @@ main :: IO ()
 --main = print filterListOutput
 --main = print isElementThere
 --main = print outputFind
+
+-- | Map
+
+--main = print singletonMap
+--main = print fromListMap
+--main = print mapSize
+--main = print getMapValueByKeyOutput
+--main =  print newAppendMap
+--main = print isMemberPresentOutput
+--main = print findWithDefaultFuncOutput
+--main = print newDeletedMap
+--main = print transformValuesToUpperCase
+main = print transformToUpperCaseByKey
+--main = print transformToUpperCaseByKey
 
 -- | Data types
 -- ------------
