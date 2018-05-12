@@ -103,3 +103,4 @@ composeFunc = \_length -> \_key -> Map.map (\element -> map toUpper element) $
 
 mapFoundByKeyAndLength = composeFunc 5 "Paul"
 mapNotFoundByKeyAndLength = composeFunc 10 "Paul"
+
