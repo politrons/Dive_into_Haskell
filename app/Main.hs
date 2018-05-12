@@ -90,8 +90,11 @@ main :: IO ()
 --main = print findWithDefaultFuncOutput
 --main = print newDeletedMap
 --main = print transformValuesToUpperCase
-main = print transformToUpperCaseByKey
 --main = print transformToUpperCaseByKey
+--main = print transformToUpperCaseByKey
+--main = print mapFoundByKeyAndLength
+main = print mapNotFoundByKeyAndLength
+
 
 -- | Data types
 -- ------------

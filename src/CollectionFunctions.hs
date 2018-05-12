@@ -25,7 +25,7 @@ addValueListOutput = multiValueList ++ ["More"]
 firstOrEmpty :: [String] -> String
 firstOrEmpty []     = "default"
 
--- | This means I have a list myList and firstElement is the first element of that list. Let's put it in capital case
+-- | This apeans I have a list myList and firstElement is the first element of that list. Let's put it in capital case
 firstOrEmpty (firstElement:myList)  = map toUpper firstElement
 firstElementOutput = firstOrEmpty multiValueList
 
@@ -64,10 +64,10 @@ outputFind = find isJohnFunc people where isJohnFunc = \person -> person == "Joh
 -- ------------
 
 -- | Use operator [singleton] nn case you want to create a single key->value and keep it clear in your code.
-singletonMap = Map.singleton "single_key" "single_value"
+singletonMap = Map.singleton "single_key" "single_value" :: Map[Char][Char]
 
 -- | To create a simple map we use [fromList] operator to create a list of elements, with a tuple for (key,value)
-fromListMap  = Map.fromList [("key","value"), ("Paul", "PaulValue")]
+fromListMap  = Map.fromList [("key","value"), ("Paul", "PaulValue")] :: Map[Char][Char]
 
 -- | Add a new key->value is so simple  like use [insert] operator
 newAppendMap = Map.insert "New_key" "New_value" fromListMap
@@ -93,7 +93,13 @@ newDeletedMap = deleteKeyFunc "Paul"
 -- | Pipeline
 
 transformValuesToUpperCase = Map.map (\element -> map toUpper element) newAppendMap
-
 transformToUpperCaseByKey = Map.filterWithKey (\key -> \a -> key == "Paul") newAppendMap
+transformToUpperCaseByValue = Map.filter (\value -> value == "PaulValue") newAppendMap
 
-transformToUpperCaseByValue = Map.filter (\key -> key == "PaulValue") newAppendMap
+composeFunc :: Int -> String -> Map[Char][Char]
+composeFunc = \_length -> \_key -> Map.map (\element -> map toUpper element) $
+                                   Map.filter (\value -> length value >= _length) $
+                                   Map.filterWithKey (\key -> \a -> key == _key) newAppendMap
+
+mapFoundByKeyAndLength = composeFunc 5 "Paul"
+mapNotFoundByKeyAndLength = composeFunc 10 "Paul"
