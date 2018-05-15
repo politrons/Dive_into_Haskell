@@ -104,3 +104,22 @@ composeFunc = \_length -> \_key -> Map.map (\element -> map toUpper element) $
 mapFoundByKeyAndLength = composeFunc 5 "Paul"
 mapNotFoundByKeyAndLength = composeFunc 10 "Paul"
 
+-- | Zip
+--  -------
+
+-- |[zip] operator allow us to combine two list and return a list of tuples with values from every index.
+list1 = [1,2,3,4,5] :: [Int]
+list2 = [6,7,8,9,10] :: [Int]
+
+zipList = zip list1 list2
+
+-- |[zipWith] operator allow us something similar than zip but instead create a tuple from every index element we pass
+-- a function that where we specify what we want to do with every two elements in every iteration.
+zipWithOutput = zipWith (\a -> \b -> a + b) list1 list2
+
+tupleList = [(1,4),(2,5),(3,6)]
+
+-- | [unzip] operator get every element of the tuple and put array in the corresponding index position.
+unzipOutput = unzip tupleList
+
+

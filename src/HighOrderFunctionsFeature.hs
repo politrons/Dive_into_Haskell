@@ -29,5 +29,15 @@ outputSentenceSeparator = upperCaseFunc $
                  containsFunc  $
                  highOrderFunc "Hello" "Paul"
 
+-- |In Haskell is even more natural use Partial functions than in Scala. When we apply a function in case does not receive
+--  all arguments need it to executed, it just return another function.
+partialFunc = (\a -> \b -> a + b) :: Int -> Int -> Int
+
+subFunc = partialFunc  10 -- This will return another function.
+
+outputFunc = subFunc 20
+
+
+
 
 

@@ -29,6 +29,7 @@ main :: IO ()
 
 --main = putStrLn outputSentence
 --main = print outputSentenceSeparator
+--main = print outputFunc
 
 -- | Pipeline
 -- -------------
@@ -93,7 +94,13 @@ main :: IO ()
 --main = print transformToUpperCaseByKey
 --main = print transformToUpperCaseByKey
 --main = print mapFoundByKeyAndLength
-main = print mapNotFoundByKeyAndLength
+--main = print mapNotFoundByKeyAndLength
+
+-- | Zip
+
+--main = print zipList
+--main = print zipWithOutput
+main = print unzipOutput
 
 
 -- | Data types
