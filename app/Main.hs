@@ -27,7 +27,7 @@ main :: IO ()
 -- | High order function
 -- ----------------------
 
---main = putStrLn outputSentence
+main = putStrLn outputSentence
 --main = print outputSentenceSeparator
 --main = print outputFunc
 
@@ -79,6 +79,7 @@ main :: IO ()
 --main = print filterListOutput
 --main = print isElementThere
 --main = print outputFind
+--main = print outputListFunc
 
 -- | Map
 
@@ -100,7 +101,7 @@ main :: IO ()
 
 --main = print zipList
 --main = print zipWithOutput
-main = print unzipOutput
+--main = print unzipOutput
 
 
 -- | Data types

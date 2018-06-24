@@ -60,6 +60,12 @@ people = ["Paul","Peter", "John", "Sussan"] :: [String]
 
 outputFind = find isJohnFunc people where isJohnFunc = \person -> person == "John"
 
+-- | In haskell is really easy to have List of functions
+listFunc = [\a -> a * 10, \a -> a * 100, \a -> a * 1000] :: [Int -> Int]
+
+outputListFunc = map (\func -> func 2) listFunc
+
+
 -- |   Map
 -- ------------
 

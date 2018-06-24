@@ -60,4 +60,3 @@ output = isEqual False False
 compareIntOutput = isEqual i1 i2
 compareDoubleOutput = isEqual d1 d2
 
-
