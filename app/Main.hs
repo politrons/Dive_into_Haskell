@@ -20,8 +20,11 @@ main :: IO ()
 
 -- | Futures
 -- ------------
+
 --main = concurrentOutput
-main = raceOutput
+--main = raceOutput
+--main = communicate
+main = asyncResponse
 
 -- | Functions
 -- ------------
