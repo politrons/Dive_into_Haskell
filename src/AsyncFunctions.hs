@@ -27,10 +27,11 @@ raceOutput = do
     res <- race operation2 operation3
     print (res :: Either Int String)
 
+operation :: IO String
 operation = do
+           threadDelay 2000000 -- 2 seconds
            threadId <- myThreadId
            print ("Running operation in thread: " ++ show threadId)
-           threadDelay 2000000 -- 2 seconds
            return "hello async world!!"
 
 operation2 :: IO Int
@@ -38,14 +39,14 @@ operation2 = do
     threadDelay 500000 -- micro seconds (500 ms)
     threadId <- myThreadId
     print ("Running operation2 in thread: " ++ show threadId)
-    return 5
+    return 1981
 
 operation3 :: IO String
 operation3 = do
     threadDelay 1000000 -- micro seconds (1000 ms)
     threadId <- myThreadId
     print ("Running operation3 in thread: " ++ show threadId)
-    return "action2 result"
+    return "operation3 result"
 
 communicate = do
   m <- newEmptyMVar
