@@ -11,11 +11,17 @@ import DataTypeFunctions
 import MaybeFunctions
 import FirstProgram
 import ClassesAndInstances
+import FutureFunctions
 
 
 -- | This is the main entry program for Haskell, just like static void main or Java
 --   You can only have one main declaration, so you have to point to one output or another
 main :: IO ()
+
+-- | Futures
+-- ------------
+--main = concurrentOutput
+main = raceOutput
 
 -- | Functions
 -- ------------
@@ -27,7 +33,7 @@ main :: IO ()
 -- | High order function
 -- ----------------------
 
-main = putStrLn outputSentence
+--main = putStrLn outputSentence
 --main = print outputSentenceSeparator
 --main = print outputFunc
 
