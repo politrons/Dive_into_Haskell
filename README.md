@@ -10,6 +10,7 @@ If you want to reference to the official documentation visit [Here](https://www.
 
 ### Functions
 
+* **[Async](src/AsyncFunctions.hs)**
 * **[Arithmetic](src/ArithmeticFunction.hs)**
 * **[Collections](src/CollectionFunctions.hs)**
 * **[Conditions](src/ConditionsFunction.hs)**
