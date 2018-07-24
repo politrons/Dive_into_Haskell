@@ -3,6 +3,8 @@ module AsyncFunctions where
 -- stack script --resolver lts-8.22
 import Control.Concurrent
 import Control.Concurrent.Async
+import Data.Char
+import Data.List
 import System.Random
 
 newRand = randomRIO (0, 100 :: Int)
@@ -18,11 +20,11 @@ asyncResponse = do
 
 multipleAsyncResponse :: IO ()
 multipleAsyncResponse = do
-                resAsync1 <- async getOperation
-                resAsync2 <- async getOperation3
-                response1 <- wait resAsync1
-                response2 <- wait resAsync2
-                print (response1, response2)
+                resAsync1 <- async getOperation -- Run the operation in a new thread
+                resAsync2 <- async getOperation3 -- Run the operation in a new thread
+                response1 <- wait resAsync1 -- Wait for the other thread to finish
+                response2 <- wait resAsync2 -- Wait for the other thread to finish
+                print ( map toUpper response1, response2)
 
 -- | [Concurrently] allow us execute two operations in parallel, and once we have both of them finish
 --  we can return a tuple of types defined in the actions

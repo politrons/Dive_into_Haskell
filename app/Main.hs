@@ -23,13 +23,15 @@ main :: IO ()
 
 --main = composeMonads
 --main = composeMonads2
+--main = print outputSumCombinations
+main = doubleXOutput
 
 -- | Async
 -- ------------
 
 --main = concurrentOutput
 --main = raceOutput
-main = communicateBetweenThreads
+--main = communicateBetweenThreads
 --main = asyncResponse
 --main =  multipleAsyncResponse
 

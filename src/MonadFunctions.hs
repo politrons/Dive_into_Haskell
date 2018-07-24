@@ -51,6 +51,29 @@ getNumber = do return 100
 getNumber1 :: IO Integer -- A IO monad of type String
 getNumber1 = do return 200
 
+
+-- | We can pass argument to do blocks
+
+sumCombinations :: Integer -> Integer
+sumCombinations = do
+               response1 <- curriedFunction1      -- "Extracting value" from the function f monad
+               response2 <- curriedFunction2      -- "Extracting value" from the function g monad
+               return (response1 + response2)
+
+curriedFunction1 number = number + 2   -- A curried function 10 + 2
+curriedFunction2 = (+3)    -- Another curried function 10 + 3
+
+outputSumCombinations = sumCombinations 10
+
+doubleX :: (Show x, Num x) => x -> IO ()
+doubleX x = do
+  putStrLn ("I will now double " ++ (show x))
+  let double = x * 2
+  putStrLn ("The result is " ++ (show double))
+
+doubleXOutput = doubleX 10
+
+
 --multiplyOperation :: IO Integer -> IO Integer
 --multiplyOperation = \number -> do number where number * 100
 
