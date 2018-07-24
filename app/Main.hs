@@ -12,19 +12,25 @@ import MaybeFunctions
 import FirstProgram
 import ClassesAndInstances
 import AsyncFunctions
-
+import MonadFunctions
 
 -- | This is the main entry program for Haskell, just like static void main or Java
 --   You can only have one main declaration, so you have to point to one output or another
 main :: IO ()
 
+-- | Monads
+-- ------------
+
+main = multipleResponse
+
 -- | Async
 -- ------------
 
-main = concurrentOutput
+--main = concurrentOutput
 --main = raceOutput
 --main = communicate
 --main = asyncResponse
+--main =  multipleAsyncResponse
 
 -- | Functions
 -- ------------

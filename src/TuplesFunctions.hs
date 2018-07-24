@@ -32,11 +32,11 @@ getAge(_,_,age) = age
 
 isNameLengthFunc =  (\name ->  length name == 4) :: Name -> Bool
 
-isOlderAgeThanFunc = (\person -> (getAge person) >= 40 ) :: Person -> Bool
+isOlderAgeThanFunc = (\person -> getAge person >= 40 ) :: Person -> Bool
 
-upperCaseFunc = (\person -> ((map toUpper (getName person)),
-                                           getSurname person,
-                                           getAge person )) :: Person -> Person
+upperCaseFunc = (\person -> (map toUpper (getName person),
+                                          getSurname person,
+                                          getAge person)) :: Person -> Person
 
 -- | Pipelines
 
