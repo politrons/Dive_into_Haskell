@@ -16,8 +16,8 @@ import Data.List
 -- | Here we have a IO () monad which it will combine in this for comprehension type structure 3 other monads.
 -- | Instead of have to flatMap everyone the response it will be propagate in the pipeline to be used in the print
 -- | where before we apply a function to make every word upper case
-multipleResponse :: IO ()
-multipleResponse = do
+composeMonads :: IO ()
+composeMonads = do
                 response1 <- getOperation
                 response2 <- getOperation1
                 response3 <- getOperation2
@@ -38,3 +38,23 @@ getOperation2 = do
            threadDelay 1000000
            return "World!!!"
 
+composeMonads2 :: IO ()
+composeMonads2 = do
+                response1 <- getNumber
+                response2 <- getNumber1
+--                response3 <- multiplyOperation 100
+                print (response1 + response2)
+
+getNumber :: IO Integer -- A IO monad of type String
+getNumber = do return 100
+
+getNumber1 :: IO Integer -- A IO monad of type String
+getNumber1 = do return 200
+
+--multiplyOperation :: IO Integer -> IO Integer
+--multiplyOperation = \number -> do number where number * 100
+
+--
+--class Monad m where
+--  return :: a -> m a
+--  (>>=) :: m a -> a -> m b -> m b

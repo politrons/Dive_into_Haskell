@@ -21,14 +21,15 @@ main :: IO ()
 -- | Monads
 -- ------------
 
-main = multipleResponse
+--main = composeMonads
+--main = composeMonads2
 
 -- | Async
 -- ------------
 
 --main = concurrentOutput
 --main = raceOutput
---main = communicate
+main = communicateBetweenThreads
 --main = asyncResponse
 --main =  multipleAsyncResponse
 

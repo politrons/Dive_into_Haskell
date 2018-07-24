@@ -24,17 +24,33 @@ multipleAsyncResponse = do
                 response2 <- wait resAsync2
                 print (response1, response2)
 
--- | Concurrently allow us execute several operations in parallel, and once we have all of them finish
---  we can return  a tuple of types defined in the actions
+-- | [Concurrently] allow us execute two operations in parallel, and once we have both of them finish
+--  we can return a tuple of types defined in the actions
 concurrentOutput = do
     res <- concurrently getOperation2 getOperation3
     print (res :: (Int, String))
 
--- | Race operator is just like the ScalaZ race operator, is running operations in multiple threads, and the first one
--- that finish win and the other operations are cancelled.
+-- | [Race] operator is just like the ScalaZ race operator, is running two operations in multiple threads, and the first one
+-- that finish win and the other operation is cancelled.
+-- as a result we receive an [Either] of the two possible types defined in the operations.
 raceOutput = do
     res <- race getOperation2 getOperation3
     print (res :: Either Int String)
+
+-- | [forkIO] operator is used to run a do block in an other thread.
+-- | Here we use an empty MVar, we run a new thread with fork and we listen to the MVar for a new value.
+-- | Then from the main thread we put a value into the variable and since is subscribed from the other thread,
+-- | we're able to print the value.
+communicateBetweenThreads = do
+  mainThreadId <- myThreadId
+  input <- newEmptyMVar -- Create an empty MVar
+  forkIO $ do
+    inputOtherThread <- takeMVar input
+    threadId <- myThreadId
+    putStrLn ("Yes? " ++ " " ++ show inputOtherThread ++ " from " ++ show threadId)
+  putStrLn ("Knock knock from:" ++ show mainThreadId)
+  putMVar input "Hello this is Paul!"
+  threadDelay 1000000
 
 getOperation :: IO String -- an IO monad of type String
 getOperation = do
@@ -57,11 +73,5 @@ getOperation3 = do
     print ("Running operation3 in thread: " ++ show threadId)
     return "operation3 result"
 
-communicate = do
-  m <- newEmptyMVar
-  forkIO $ do
-    v <- takeMVar m
-    putStrLn ("received " ++ show v)
-  putStrLn "sending"
-  putMVar m "wake up!"
+
 
