@@ -47,8 +47,8 @@ communicateBetweenThreads = do
   forkIO $ do
     inputOtherThread <- takeMVar input
     threadId <- myThreadId
-    putStrLn ("Yes? " ++ " " ++ show inputOtherThread ++ " from " ++ show threadId)
-  putStrLn ("Knock knock from:" ++ show mainThreadId)
+    putStrLn ("Yes? " ++ " " ++ show inputOtherThread ++ " from: " ++ show threadId)
+  putStrLn ("Knock knock from: " ++ show mainThreadId)
   putMVar input "Hello this is Paul!"
   threadDelay 1000000
 
