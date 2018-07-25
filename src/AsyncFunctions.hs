@@ -12,7 +12,7 @@ newRand = randomRIO (0, 100 :: Int)
 -- | With async operator we ensure the operation is executed in another thread.
 --  Here we wait and block for the resolution of the execution until we get the result from the other thread.
 --  We can also of course compose multiple results as we can see in the second code base.
-asyncResponse :: IO () -- A monad of type void
+asyncResponse :: IO ()
 asyncResponse = do
                 resAsync <- async getOperation
                 response <- wait resAsync
