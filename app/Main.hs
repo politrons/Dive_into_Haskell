@@ -24,7 +24,8 @@ main :: IO ()
 --main = composeMonads
 --main = composeMonads2
 --main = print outputSumCombinations
-main = doubleXOutput
+--main = doubleXOutput
+main = passArgumentToMonad
 
 -- | Async
 -- ------------
