@@ -9,6 +9,8 @@ import System.Random
 
 newRand = randomRIO (0, 100 :: Int)
 
+-- | Async operator
+-- ---------------------
 {-| With async operator we ensure the operation is executed in another thread.
     Here we wait and block for the resolution of the execution until we get the result from the other thread.
     We can also of course compose multiple results as we can see in the second code base. |-}
@@ -26,6 +28,8 @@ multipleAsyncResponse = do
                 response2 <- wait resAsync2 -- Wait for the other thread to finish
                 print ( map toUpper response1, response2)
 
+{-| Another example here we use also async operators, passing two monads to a function that expect to
+    receive this two monad strings and then we use the async and wait for the results.-}
 combiningAsyncResponse :: IO ()
 combiningAsyncResponse = do
                 response <- getMonadsOperation getOperation getOperation3
@@ -42,13 +46,32 @@ getMonadsOperation word1 word2 = let ioWord1 = word1
                                      response2  <- wait asyncResponse2
                                      return (response1 ++ " " ++ response2)
 
+{-| It is also possible combine in a do block io monads ans values -}
+combiningAsyncResponse1 :: IO ()
+combiningAsyncResponse1 = do
+                resAsync2 <- async getOperation3
+                response2 <- wait resAsync2
+                response <- getMonadsOperation1 getOperation response2
+                print response
 
+getMonadsOperation1 :: IO String -> String -> IO String
+getMonadsOperation1 word1 word2 = let ioWord1 = word1
+                                      _word2 = word2
+                                 in do
+                                     asyncResponse1 <- async ioWord1
+                                     response1 <- wait asyncResponse1
+                                     return (response1 ++ " " ++ _word2)
+
+-- | Concurrently operator
+-- -----------------------
 {-|  [Concurrently] allow us execute two operations in parallel, and once we have both of them finish
     we can return a tuple of types defined in the actions |-}
 concurrentOutput = do
     res <- concurrently getOperation2 getOperation3
     print (res :: (Int, String))
 
+-- | Race operator
+-- -----------------------
 {-| [Race] operator is just like the ScalaZ race operator, is running two operations in multiple threads, and the first one
     that finish win and the other operation is cancelled.
     as a result we receive an [Either] of the two possible types defined in the operations. |-}
@@ -56,6 +79,8 @@ raceOutput = do
     res <- race getOperation2 getOperation3
     print (res :: Either Int String)
 
+-- | ForkIO operator
+-- -----------------------
 {-| [forkIO] operator is used to run a do block in another thread.
     Here we use an empty MVar, we run a new thread with fork and we listen to the MVar for a new value.
     Then from the main thread we put a value into the variable and since is subscribed from the other thread,
