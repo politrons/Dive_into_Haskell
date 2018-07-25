@@ -69,7 +69,7 @@ fmapNumberAsync = do
              response1 <- wait (fmap (\number -> number + 100) resAsync1) -- Wait and transform the value that wrap the monad
              print response1
 
-{-| In this example we get the value from the first thread element and we combine in the second one -}
+{-| In this example using again [fmap] we get the value from the first thread element and we combine in the second one -}
 fmapSentenceAsync :: IO ()
 fmapSentenceAsync = do
              resAsync1 <- async getOperation
