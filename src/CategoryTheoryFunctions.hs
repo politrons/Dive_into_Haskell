@@ -81,9 +81,9 @@ monadMaybeNumber = print (Just 1981 >>= \number -> Just (number + 100))
 monadMaybeString = print (Just "Hello" >>= \word ->  Just(word ++ " Monad world!!"))
 {-| FlatMap 3 where we go into the first Maybe monad 3 levels -}
 monadFlatMap3 = print (Just "Hello"
-                              >>= \word -> Just " Monad" --FlatMap
-                              >>= \word1 -> Just " world!!" --FlatMap
-                              >>= \word2 ->  Just(map toUpper (word ++ word1 ++ word2))) --FlatMap
+                       >>= \word -> Just " Monad" --FlatMap
+                       >>= \word1 -> Just " world!!" --FlatMap
+                       >>= \word2 ->  Just(map toUpper (word ++ word1 ++ word2))) --FlatMap
 
 {-| We create a Monad of type Maybe which allow us to use it instead the flatMap operator to unwrap the monad and apply
     a function over the monad -}
