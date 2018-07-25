@@ -39,12 +39,12 @@ raceOutput = do
     res <- race getOperation2 getOperation3
     print (res :: Either Int String)
 
--- | [forkIO] operator is used to run a do block in an other thread.
+-- | [forkIO] operator is used to run a do block in another thread.
 -- | Here we use an empty MVar, we run a new thread with fork and we listen to the MVar for a new value.
 -- | Then from the main thread we put a value into the variable and since is subscribed from the other thread,
--- | we're able to print the value.
+-- | we're able to print the value in the fork thread.
 communicateBetweenThreads = do
-  mainThreadId <- myThreadId
+  mainThreadId <- myThreadId -- Return information of the thread
   input <- newEmptyMVar -- Create an empty MVar
   forkIO $ do
     inputOtherThread <- takeMVar input
