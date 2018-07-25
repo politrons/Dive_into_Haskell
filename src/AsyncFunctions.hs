@@ -26,6 +26,23 @@ multipleAsyncResponse = do
                 response2 <- wait resAsync2 -- Wait for the other thread to finish
                 print ( map toUpper response1, response2)
 
+combiningAsyncResponse :: IO ()
+combiningAsyncResponse = do
+                response <- getMonadsOperation getOperation getOperation3
+                print response
+
+
+getMonadsOperation :: IO String -> IO String -> IO String
+getMonadsOperation word1 word2 = let ioWord1 = word1
+                                     ioWord2 = word2
+                                 in do
+                                     asyncResponse1 <- async ioWord1
+                                     asyncResponse2 <- async ioWord2
+                                     response1 <- wait asyncResponse1
+                                     response2  <- wait asyncResponse2
+                                     return (response1 ++ " " ++ response2)
+
+
 {-|  [Concurrently] allow us execute two operations in parallel, and once we have both of them finish
     we can return a tuple of types defined in the actions |-}
 concurrentOutput = do
@@ -73,7 +90,4 @@ getOperation3 = do
     threadDelay 1000000 -- micro seconds (1000 ms)
     threadId <- myThreadId
     print ("Running operation3 in thread: " ++ show threadId)
-    return "operation3 result"
-
-
-
+    return "haskell rocks!"

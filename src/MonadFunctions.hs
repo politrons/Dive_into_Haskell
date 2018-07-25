@@ -6,15 +6,16 @@ import Data.Char
 import Data.List
 
 
-{-| In Haskell we can say that all code section process in a pipeline with [do] is a monad IO of type X
+{-| In Haskell we can say that all code section process in a pipeline with [do] it could be monad IO of type X
   We can combine monads between each other as you can see in the example bellow.
   The main monad of your program is the main IO () monad which is the runner of your program.
-  You have to think that in Haskell Monads are computational context of a particular type that when it will
-  be executed it will generate the type that you specify with your monad.
+  You have to think that in Haskell Monads are computational context of a particular type, that when it executed
+  it will generate the value type that you specify with your monad.
   This is what is commonly called in Haskell world, pass from pure to impure world.
 
-  Here we have a IO () monad which it will combine in this for comprehension type structure 3 other monads.
-  Instead of have to flatMap everyone the response it will be propagate in the pipeline to be used in the print
+  The Do block in haskell is the original of how Scala works with sugar for comprehension to flat monads in a pipeline.
+  Here we have a IO () monad which it will combine, in this for comprehension type structure of 3 other monads.
+  Instead of have to flatMap everyone, the response it will be propagate in the pipeline to be used in the print
   where before we apply a function to make every word upper case |-}
 composeMonads :: IO ()
 composeMonads = do
@@ -38,34 +39,42 @@ getOperation2 = do
            threadDelay 1000000
            return "World!!!"
 
-composeMonads2 :: IO ()
-composeMonads2 = do
+
+{-| We can pass argument to [do blocks] using function with let as the definition of the variables out of the do block.
+    Here as you can see we flatMap two monads and we pass the values to a third function which expect two elements.  -}
+sumCompositionMonads :: IO ()
+sumCompositionMonads = do
                 response1 <- getNumber
                 response2 <- getNumber1
---                response3 <- multiplyOperation 100
-                print (response1 + response2)
+                response3 <- sumNumbers response1 response2
+                print response3
 
-getNumber :: IO Integer -- A IO monad of type String
-getNumber = do return 100
+{-| do block where We sum the values and return a monad of type Integer -}
+sumNumbers :: Integer -> Integer ->  IO Integer
+sumNumbers num1 num2 = let number1 = num1
+                           number2 = num2
+                       in do return (number1 + number2) --No sugar the [do] operator it could be removed
 
-getNumber1 :: IO Integer -- A IO monad of type String
-getNumber1 = do return 200
+{-| Here we apply the same example but instead pass the third monad the result of the previous monads we pass
+    the monads, and we flatMap the values from the monads to finally multiply the values -}
+multiplyCompositionMonads :: IO ()
+multiplyCompositionMonads = do
+                            response <- multiplyOperations getNumber getNumber1
+                            print response
 
+multiplyOperations :: IO Integer -> IO Integer -> IO Integer
+multiplyOperations ioNum1 ioNum2 = let ioNumber1=ioNum1
+                                       ioNumber2 = ioNum2
+                                   in do
+                                        response1 <- ioNumber1
+                                        response2 <- ioNumber2
+                                        return (response1 * response2)
 
--- | We can pass argument to do blocks using function with let as the definition of the variables out of the do block.
+getNumber :: IO Integer -- A IO monad of type Integer
+getNumber = return 100
 
-
-passArgumentToMonad :: IO ()
-passArgumentToMonad = do
-        response1 <- getNumber
-        response2 <- getNumber1
-        response3 <- multiplyOperation response1 response2
-        print response3
-
-multiplyOperation :: Integer -> Integer -> IO Integer
-multiplyOperation num1 num2 = let number1=num1
-                                  number2 = num2
-                              in return (number1 * number2)
+getNumber1 :: IO Integer -- A IO monad of type Integer
+getNumber1 = do return 200 --No sugar the [do] operator it could be removed
 
 
 sumCombinations :: Integer -> Integer
@@ -78,14 +87,6 @@ curriedFunction1 number = number + 2   -- A curried function 10 + 2
 curriedFunction2 = (+3)    -- Another curried function 10 + 3
 
 outputSumCombinations = sumCombinations 10
-
-doubleX :: (Show x, Num x) => x -> IO ()
-doubleX x = do
-  putStrLn ("I will now double " ++ (show x))
-  let double = x * 2
-  putStrLn ("The result is " ++ (show double))
-
-doubleXOutput = doubleX 10
 
 
 

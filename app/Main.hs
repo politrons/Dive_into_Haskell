@@ -22,10 +22,10 @@ main :: IO ()
 -- ------------
 
 --main = composeMonads
---main = composeMonads2
+--main = sumCompositionMonads
 --main = print outputSumCombinations
 --main = doubleXOutput
-main = passArgumentToMonad
+--main = multiplyCompositionMonads
 
 -- | Async
 -- ------------
@@ -35,6 +35,7 @@ main = passArgumentToMonad
 --main = communicateBetweenThreads
 --main = asyncResponse
 --main =  multipleAsyncResponse
+main = combiningAsyncResponse
 
 -- | Functions
 -- ------------
