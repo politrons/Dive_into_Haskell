@@ -31,14 +31,15 @@ main :: IO ()
 -- ------------
 
 --main = concurrentOutput
---main = raceOutput
+main = raceOutput
 --main = communicateBetweenThreads
 --main = asyncResponse
 --main =  multipleAsyncResponse
 --main = combiningAsyncResponse
 --main = combiningAsyncResponse1
 --main = fmapNumberAsync
-main = fmapSentenceAsync
+--main = fmapSentenceAsync
+
 
 -- | Functions
 -- ------------

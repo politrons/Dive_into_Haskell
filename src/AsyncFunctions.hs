@@ -7,6 +7,7 @@ import Data.Char
 import Data.List
 import System.Random
 
+
 newRand = randomRIO (0, 100 :: Int)
 
 -- | Async operator
@@ -115,24 +116,28 @@ communicateBetweenThreads = do
 
 getOperation :: IO String -- an IO monad of type String
 getOperation = do
-           threadDelay 2000000 -- 2 seconds
+           delayTime <- getRandomNumber
+           threadDelay delayTime
            threadId <- myThreadId
            print ("Running operation in thread: " ++ show threadId)
            return "hello async world!!"
 
 getOperation2 :: IO Int -- an IO monad of type Int
 getOperation2 = do
-    threadDelay 500000 -- micro seconds (500 ms)
-    threadId <- myThreadId
-    print ("Running operation2 in thread: " ++ show threadId)
-    return 1981
+            delayTime <- getRandomNumber
+            threadDelay delayTime
+            threadId <- myThreadId
+            print ("Running operation2 in thread: " ++ show threadId)
+            return 1981
 
 getOperation3 :: IO String
 getOperation3 = do
-    threadDelay 1000000 -- micro seconds (1000 ms)
-    threadId <- myThreadId
-    print ("Running operation3 in thread: " ++ show threadId)
-    return "haskell rocks!"
+            delayTime <- getRandomNumber
+            threadDelay delayTime
+            threadId <- myThreadId
+            print ("Running operation3 in thread: " ++ show threadId)
+            return "haskell rocks!"
 
 
-
+getRandomNumber :: IO Int
+getRandomNumber =  randomRIO (500000, 1000000 :: Int) -- Random time from 500 to 1000 ms

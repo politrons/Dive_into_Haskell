@@ -55,7 +55,7 @@ sumNumbers num1 num2 = let number1 = num1
                            number2 = num2
                        in do return (number1 + number2) --No sugar the [do] operator it could be removed
 
-{-| Here we apply the same example but instead pass the third monad the result of the previous monads we pass
+{-| Here we apply the same example but instead pass to the third monad the result of the previous monads we pass
     the monads, and we flatMap the values from the monads to finally multiply the values -}
 multiplyCompositionMonads :: IO ()
 multiplyCompositionMonads = do
