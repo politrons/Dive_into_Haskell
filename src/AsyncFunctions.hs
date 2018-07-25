@@ -23,18 +23,18 @@ asyncResponse = do
 
 multipleAsyncResponse :: IO ()
 multipleAsyncResponse = do
-                resAsync1 <- async getOperation -- Run the operation in a new thread
-                resAsync2 <- async getOperation3 -- Run the operation in a new thread
-                response1 <- wait resAsync1 -- Wait for the other thread to finish
-                response2 <- wait resAsync2 -- Wait for the other thread to finish
-                print ( map toUpper response1, response2)
+                        resAsync1 <- async getOperation -- Run the operation in a new thread
+                        resAsync2 <- async getOperation3 -- Run the operation in a new thread
+                        response1 <- wait resAsync1 -- Wait for the other thread to finish
+                        response2 <- wait resAsync2 -- Wait for the other thread to finish
+                        print ( map toUpper response1, response2)
 
 {-| Another example here we use also async operators, passing two monads to a function that expect to
     receive this two monad strings and then we use the async and wait for the results.-}
 combiningAsyncResponse :: IO ()
 combiningAsyncResponse = do
-                response <- getMonadsOperation getOperation getOperation3
-                print response
+                        response <- getMonadsOperation getOperation getOperation3
+                        print response
 
 
 getMonadsOperation :: IO String -> IO String -> IO String
@@ -50,10 +50,10 @@ getMonadsOperation word1 word2 = let ioWord1 = word1
 {-| It is also possible combine in a do block io monads ans values -}
 combiningAsyncResponse1 :: IO ()
 combiningAsyncResponse1 = do
-                resAsync2 <- async getOperation3
-                response2 <- wait resAsync2
-                response <- getMonadsOperation1 getOperation response2
-                print response
+                          resAsync2 <- async getOperation3
+                          response2 <- wait resAsync2
+                          response <- getMonadsOperation1 getOperation response2
+                          print response
 
 getMonadsOperation1 :: IO String -> String -> IO String
 getMonadsOperation1 word1 word2 = let ioWord1 = word1
@@ -73,11 +73,12 @@ fmapNumberAsync = do
 {-| In this example using again [fmap] we get the value from the first thread element and we combine in the second one -}
 fmapSentenceAsync :: IO ()
 fmapSentenceAsync = do
-             resAsync1 <- async getOperation
-             resAsync2 <- async getOperation3
-             response2 <- wait resAsync2
-             response1 <- wait (fmap (\sentence -> map toUpper sentence ++ " " ++ response2) resAsync1) -- Wait and transform the value that wrap the monad
-             print response1
+                   resAsync1 <- async getOperation
+                   resAsync2 <- async getOperation3
+                   response2 <- wait resAsync2
+                   -- Wait and transform the value that wrap the monad
+                   response1 <- wait (fmap (\sentence -> map toUpper sentence ++ " " ++ response2) resAsync1)
+                   print response1
 
 
 -- | Concurrently operator
@@ -85,8 +86,8 @@ fmapSentenceAsync = do
 {-|  [Concurrently] allow us execute two operations in parallel, and once we have both of them finish
     we can return a tuple of types defined in the actions |-}
 concurrentOutput = do
-    res <- concurrently getOperation2 getOperation3
-    print (res :: (Int, String))
+                  res <- concurrently getOperation2 getOperation3
+                  print (res :: (Int, String))
 
 -- | Race operator
 -- -----------------------
@@ -94,8 +95,8 @@ concurrentOutput = do
     that finish win and the other operation is cancelled.
     as a result we receive an [Either] of the two possible types defined in the operations. |-}
 raceOutput = do
-    res <- race getOperation2 getOperation3
-    print (res :: Either Int String)
+            res <- race getOperation2 getOperation3
+            print (res :: Either Int String)
 
 -- | ForkIO operator
 -- -----------------------
