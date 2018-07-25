@@ -12,7 +12,7 @@ import MaybeFunctions
 import FirstProgram
 import ClassesAndInstances
 import AsyncFunctions
-import MonadFunctions
+import CategoryTheoryFunctions
 
 -- | This is the main entry program for Haskell, just like static void main or Java
 --   You can only have one main declaration, so you have to point to one output or another
@@ -26,12 +26,17 @@ main :: IO ()
 --main = print outputSumCombinations
 --main = doubleXOutput
 --main = multiplyCompositionMonads
+--main = functorComposition
+--main = justFunctor
+--main = monadMaybeNumber
+--main = monadMaybeString
+main = monadFlatMap3
 
 -- | Async
 -- ------------
 
 --main = concurrentOutput
-main = raceOutput
+--main = raceOutput
 --main = communicateBetweenThreads
 --main = asyncResponse
 --main =  multipleAsyncResponse
