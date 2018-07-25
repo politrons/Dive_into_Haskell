@@ -62,6 +62,23 @@ getMonadsOperation1 word1 word2 = let ioWord1 = word1
                                      response1 <- wait asyncResponse1
                                      return (response1 ++ " " ++ _word2)
 
+{-| Having monads we can also use [fmap] operator to transform the value inside the monad -}
+fmapNumberAsync :: IO ()
+fmapNumberAsync = do
+             resAsync1 <- async getOperation2 -- Run the operation in a new thread
+             response1 <- wait (fmap (\number -> number + 100) resAsync1) -- Wait and transform the value that wrap the monad
+             print response1
+
+{-| In this example we get the value from the first thread element and we combine in the second one -}
+fmapSentenceAsync :: IO ()
+fmapSentenceAsync = do
+             resAsync1 <- async getOperation
+             resAsync2 <- async getOperation3
+             response2 <- wait resAsync2
+             response1 <- wait (fmap (\sentence -> map toUpper sentence ++ " " ++ response2) resAsync1) -- Wait and transform the value that wrap the monad
+             print response1
+
+
 -- | Concurrently operator
 -- -----------------------
 {-|  [Concurrently] allow us execute two operations in parallel, and once we have both of them finish
@@ -116,3 +133,6 @@ getOperation3 = do
     threadId <- myThreadId
     print ("Running operation3 in thread: " ++ show threadId)
     return "haskell rocks!"
+
+
+

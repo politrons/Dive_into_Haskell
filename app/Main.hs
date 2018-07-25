@@ -35,7 +35,10 @@ main :: IO ()
 --main = communicateBetweenThreads
 --main = asyncResponse
 --main =  multipleAsyncResponse
-main = combiningAsyncResponse
+--main = combiningAsyncResponse
+--main = combiningAsyncResponse1
+--main = fmapNumberAsync
+main = fmapSentenceAsync
 
 -- | Functions
 -- ------------
