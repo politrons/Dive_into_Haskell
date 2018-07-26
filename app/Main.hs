@@ -13,10 +13,15 @@ import FirstProgram
 import ClassesAndInstances
 import AsyncFunctions
 import CategoryTheoryFunctions
+import HttpServer
 
 -- | This is the main entry program for Haskell, just like static void main or Java
 --   You can only have one main declaration, so you have to point to one output or another
 main :: IO ()
+
+-- | Http Server
+-- --------------
+main = myServer
 
 -- | Monads
 -- ------------
@@ -33,7 +38,7 @@ main :: IO ()
 --main = monadFlatMap3
 --main = monoidString
 --main = monoidMaybe
-main = applicativeMaybeIO
+--main = applicativeMaybeIO
 
 -- | Async
 -- ------------

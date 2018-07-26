@@ -19,5 +19,11 @@
     <orderEntry type="library" name="stm-2.4.4.1" level="project" />
     <orderEntry type="library" name="random-1.1" level="project" />
     <orderEntry type="library" name="time-1.6.0.1" level="project" />
+    <orderEntry type="library" name="bytestring-0.10.8.1" level="project" />
+    <orderEntry type="library" name="network-2.6.3.2" level="project" />
+    <orderEntry type="library" name="unix-2.7.2.1" level="project" />
+    <orderEntry type="library" name="bytestring-0.10.8.1" level="project" />
+    <orderEntry type="library" name="network-2.6.3.2" level="project" />
+    <orderEntry type="library" name="unix-2.7.2.1" level="project" />
   </component>
 </module>
