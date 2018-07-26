@@ -30,7 +30,10 @@ main :: IO ()
 --main = justFunctor
 --main = monadMaybeNumber
 --main = monadMaybeString
-main = monadFlatMap3
+--main = monadFlatMap3
+--main = monoidString
+--main = monoidMaybe
+main = applicativeMaybeIO
 
 -- | Async
 -- ------------
@@ -39,7 +42,7 @@ main = monadFlatMap3
 --main = raceOutput
 --main = communicateBetweenThreads
 --main = asyncResponse
---main =  multipleAsyncResponse
+--main = multipleAsyncResponse
 --main = combiningAsyncResponse
 --main = combiningAsyncResponse1
 --main = fmapNumberAsync
@@ -116,7 +119,7 @@ main = monadFlatMap3
 --main = print fromListMap
 --main = print mapSize
 --main = print getMapValueByKeyOutput
---main =  print newAppendMap
+--main = print newAppendMap
 --main = print isMemberPresentOutput
 --main = print findWithDefaultFuncOutput
 --main = print newDeletedMap

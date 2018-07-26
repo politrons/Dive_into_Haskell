@@ -4,6 +4,9 @@ import Control.Concurrent
 import Control.Concurrent.Async
 import Data.Char
 import Data.List
+import Data.Monoid
+import Data.Either
+
 
 -- | IO Type Monads
 -- -----------------
@@ -59,6 +62,14 @@ impureUsingPure :: IO ()
 impureUsingPure = do response1 <- return (getNumber3 10)
                      response2 <- return (getNumber3 response1)
                      print response2
+-- | Monoid
+-- --------------
+{-| Monoid is a class for types which have a single most natural operator [<>] for combining values -}
+monoidString :: IO()
+monoidString =  print ("Hello" <> " Monoids " <> "world!!")
+
+monoidMaybe :: IO()
+monoidMaybe = print (Just "Hello" <> Just " Monoid" <> Just " Maybe" <> Just " world!!")
 
 -- | Functor
 -- --------------
@@ -73,6 +84,12 @@ functorComposition :: IO ()
 functorComposition = do flatResponse <- fmap (\ number -> fmap(\number2 -> number * number2) getNumber1 ) getNumber
                         response <- flatResponse
                         print response
+
+-- | Applicative
+-- --------------
+{-| Applicative is an abstraction for a context, and it has the ability to apply functions
+    in the same type of context to all elements in the context -}
+applicativeMaybeIO = print ((++) <$> Just "Hello" <*> Just " Applicative world")
 
 -- | Monad
 -- --------------
@@ -93,6 +110,18 @@ monadMaybe (Just x) f = f x
 
 customMonadMaybeNumber = print (Just 1981 `monadMaybe` \number -> Just (number + 100))
 customMonadMaybeString = print (Just "Hello" `monadMaybe` \word ->  Just(word ++ " Monad world!!"))
+
+
+{-| We create a Monad of type Either -}
+runEitherMonad :: String -> Either String Int
+runEitherMonad input = do
+                      response <- eitherFunc1 input
+                      return response
+
+eitherFunc1 :: String -> Either String Int
+eitherFunc1 "" = Left "String cannot be empty!"
+eitherFunc1 str = Right $ length str
+
 
 --------------------------------------------------------------------------------------------------------------------
 
@@ -133,9 +162,3 @@ curriedFunction1 number = number + 2   -- A curried function 10 + 2
 curriedFunction2 = (+3)    -- Another curried function 10 + 3
 
 outputSumCombinations = sumCombinations 10
-
-
---
---class Monad m where
---  return :: a -> m a
---  (>>=) :: m a -> a -> m b -> m b
