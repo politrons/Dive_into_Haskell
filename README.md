@@ -10,16 +10,16 @@ If you want to reference to the official documentation visit [Here](https://www.
 
 ### Functions
 
-* **[Arithmetic](src/ArithmeticFunction.hs)**
-* **[Collections](src/CollectionFunctions.hs)**
-* **[Conditions](src/ConditionsFunction.hs)**
-* **[HighOrder](src/HighOrderFunctionsFeature.hs)**
-* **[Pipelines](src/PipelineFunctions.hs)**
-* **[Tuples](src/TuplesFunctions.hs)**
-* **[Data type](src/DataTypeFunctions.hs)**
-* **[Maybe](src/MaybeFunctions.hs)**
-* **[Type classes](src/ClassesAndInstances.hs)**
-* **[Async](src/AsyncFunctions.hs)**
-* **[Category Theory](src/CategoryTheoryFunctions.hs)**
+* **[Arithmetic](src/features/ArithmeticFunction.hs)**
+* **[Collections](src/features/CollectionFunctions.hs)**
+* **[Conditions](src/features/ConditionsFunction.hs)**
+* **[HighOrder](src/features/HighOrderFunctionsFeature.hs)**
+* **[Pipelines](src/features/PipelineFunctions.hs)**
+* **[Tuples](src/features/TuplesFunctions.hs)**
+* **[Data type](src/features/DataTypeFunctions.hs)**
+* **[Maybe](src/features/MaybeFunctions.hs)**
+* **[Type classes](src/features/ClassesAndInstances.hs)**
+* **[Async](src/features/AsyncFunctions.hs)**
+* **[Category Theory](src/features/CategoryTheoryFunctions.hs)**
 
 You can find the main class to run the app [here](app/Main.hs)
