@@ -4,7 +4,7 @@ module ScottyHttpServer where
 
 import Web.Scotty
 import Data.Monoid ((<>))
-import Data.Aeson (FromJSON, ToJSON, encode)
+import Data.Aeson (FromJSON, ToJSON, encode,decode)
 import GHC.Generics
 
 port = 3000 :: Int
@@ -30,7 +30,7 @@ routes = do get "/service" responseService
             get "/users" responseUsers
             get "/users/:id" responseUserById
             get "/user/:name" responseUserByName
-
+            post "/user/" createUser
 
 {-| We use [text] operator from scotty we render the response in text/plain-}
 responseService :: ActionM ()
@@ -56,6 +56,15 @@ responseUserByName = do name <- param "name"
 responseUserById :: ActionM ()
 responseUserById = do id <- param "id"
                       json (filter (hasId id) allUsers)
+
+createUser :: ActionM ()
+createUser =  do user <- getUserParam
+                 json user
+
+{-| In scotty we have [body] operator to get the request body.
+    We also use [decode] operator to extract and transform from json to Maybe of type we specify in the type signature-}
+getUserParam = do requestBody <- body
+                  return (decode requestBody :: Maybe User)
 
 ----------------------------------------------------------------------------------------------------------------------
 hasId :: Int -> User -> Bool
