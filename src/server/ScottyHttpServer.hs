@@ -31,6 +31,8 @@ routes = do get "/service" responseService
             get "/users/:id" responseUserById
             get "/user/:name" responseUserByName
             post "/user/" createUser
+            put "/user/" updateUser
+
 
 {-| We use [text] operator from scotty we render the response in text/plain-}
 responseService :: ActionM ()
@@ -53,12 +55,19 @@ responseUserByName = do name <- param "name"
                         else if areEquals name "John" then json john
                         else text "Do I know you?"
 
+{-| In scotty we have [param] operator which used passing the uri param name we can extract the value. -}
 responseUserById :: ActionM ()
 responseUserById = do id <- param "id"
                       json (filter (hasId id) allUsers)
 
 createUser :: ActionM ()
 createUser =  do user <- getUserParam
+                 -- Persist the user
+                 json user
+
+updateUser :: ActionM ()
+updateUser =  do user <- getUserParam
+                 -- Update the user
                  json user
 
 {-| In scotty we have [body] operator to get the request body.
