@@ -61,7 +61,6 @@ responseUserById = do id <- param "id"
 hasId :: Int -> User -> Bool
 hasId id user = userId user == id
 
-
 areEquals :: String -> String -> Bool
 areEquals requestName name = requestName == name
 

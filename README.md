@@ -8,7 +8,7 @@ Here we cover with examples the most important features of the language.
 
 If you want to reference to the official documentation visit [Here](https://www.haskell.org/)
 
-### Functions
+### Features
 
 * **[Arithmetic](src/features/ArithmeticFunction.hs)**
 * **[Collections](src/features/CollectionFunctions.hs)**
@@ -21,5 +21,10 @@ If you want to reference to the official documentation visit [Here](https://www.
 * **[Type classes](src/features/ClassesAndInstances.hs)**
 * **[Async](src/features/AsyncFunctions.hs)**
 * **[Category Theory](src/features/CategoryTheoryFunctions.hs)**
+
+### Server
+
+* **[Http Server](src/server/HttpServer.hs)**
+* **[Scotty Http Server](src/server/ScottyHttpServer.hs)**
 
 You can find the main class to run the app [here](app/Main.hs)
