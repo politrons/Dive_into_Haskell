@@ -28,7 +28,9 @@ routes = do get "/service" responseService
             get "/name" responseName
             get "/hello/:name" responseHello -- Using :val we can set the variable name to be candidate to be extracted
             get "/users" responseUsers
-            get "/user/:name" responseUser
+            get "/users/:id" responseUserById
+            get "/user/:name" responseUserByName
+
 
 {-| We use [text] operator from scotty we render the response in text/plain-}
 responseService :: ActionM ()
@@ -45,13 +47,20 @@ responseHello = do name <- param "name" -- using [param] operator we can extract
 responseUsers :: ActionM ()
 responseUsers = json allUsers
 
-responseUser :: ActionM ()
-responseUser = do name <- param "name"
-                  if areEquals name "Paul" then json paul
-                  else if areEquals name "John" then json john
-                  else text "Do I know you?"
+responseUserByName :: ActionM ()
+responseUserByName = do name <- param "name"
+                        if areEquals name "Paul" then json paul
+                        else if areEquals name "John" then json john
+                        else text "Do I know you?"
+
+responseUserById :: ActionM ()
+responseUserById = do id <- param "id"
+                      json (filter (hasId id) allUsers)
 
 ----------------------------------------------------------------------------------------------------------------------
+hasId :: Int -> User -> Bool
+hasId id user = userId user == id
+
 
 areEquals :: String -> String -> Bool
 areEquals requestName name = requestName == name
