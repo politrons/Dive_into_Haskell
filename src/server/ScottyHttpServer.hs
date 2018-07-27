@@ -15,6 +15,7 @@ data User = User { userId :: Int, userName :: String } deriving (Show, Generic)
 instance ToJSON User
 instance FromJSON User
 
+{-| Using [scotty] passing [port] and [routes] we define the http server-}
 scottyServer :: IO ()
 scottyServer = do
     print ("Starting Server at port " ++ show port)
@@ -27,6 +28,7 @@ routes = do get "/service" responseService
             get "/users" responseUsers
             get "/user/:name" responseUser
 
+{-| We use [text] operator from scotty we render the response in text/plain-}
 responseService :: ActionM ()
 responseService = text "First Haskell service 1.0"
 
@@ -37,7 +39,7 @@ responseHello :: ActionM ()
 responseHello = do name <- param "name" -- using [param] operator we can extract the uri param
                    text ("hello " <> name <> "!")
 
-{-| Thanks to .|-}
+{-| Thanks to Aeson library and encode, we can use [json] operator to allow us to encode object into json.|-}
 responseUsers :: ActionM ()
 responseUsers = json allUsers
 
@@ -49,7 +51,6 @@ responseUser = do name <- param "name"
 
 isPaul = (== "Paul") :: String -> Bool
 isJohn = (== "John") :: String -> Bool
-
 
 ----------------------------------------------------------------------------------------------------------------------
 
