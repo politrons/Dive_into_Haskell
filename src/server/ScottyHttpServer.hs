@@ -32,7 +32,7 @@ routes = do get "/service" responseService
             get "/user/:name" responseUserByName
             post "/user/" createUser
             put "/user/" updateUser
-
+            delete "/users/:id" deleteUserById
 
 {-| We use [text] operator from scotty we render the response in text/plain-}
 responseService :: ActionM ()
@@ -69,6 +69,11 @@ updateUser :: ActionM ()
 updateUser =  do user <- getUserParam
                  -- Update the user
                  json user
+
+deleteUserById :: ActionM ()
+deleteUserById = do id <- param "id"
+                    -- Delete user
+                    json (filter (hasId id) allUsers)
 
 {-| In scotty we have [body] operator to get the request body.
     We also use [decode] operator to extract and transform from json to Maybe of type we specify in the type signature-}
