@@ -8,8 +8,8 @@ Here we cover with examples the most important features of the language.
 
 If you want to reference to the official documentation visit [Here](https://www.haskell.org/)
 
-
-### ![My image](img/feature.png) Features
+![My image](img/feature.png)
+## Features
 
 * **[Arithmetic](src/features/ArithmeticFunction.hs)**
 * **[Collections](src/features/CollectionFunctions.hs)**
@@ -23,7 +23,8 @@ If you want to reference to the official documentation visit [Here](https://www.
 * **[Async](src/features/AsyncFunctions.hs)**
 * **[Category Theory](src/features/CategoryTheoryFunctions.hs)**
 
-### ![My image](img/server.jpg) Server
+![My image](img/server.jpg)
+## Server
 
 * **[Http Server](src/server/HttpServer.hs)**
 * **[Scotty Http Server](src/server/ScottyHttpServer.hs)**
