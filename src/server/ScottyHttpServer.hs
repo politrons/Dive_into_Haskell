@@ -21,6 +21,8 @@ scottyServer = do
     print ("Starting Server at port " ++ show port)
     scotty port routes
 
+{-| We define the routes thanks to REST operators [get, post, put, delete, patch] which expect to
+    receive a [RoutePattern] as a path and a [ActionM] as the action of the request. Then we return a [ScottyM]-}
 routes :: ScottyM()
 routes = do get "/service" responseService
             get "/name" responseName
@@ -45,14 +47,14 @@ responseUsers = json allUsers
 
 responseUser :: ActionM ()
 responseUser = do name <- param "name"
-                  if isPaul name then json paul
-                  else if isJohn name then json john
+                  if areEquals name "Paul" then json paul
+                  else if areEquals name "John" then json john
                   else text "Do I know you?"
 
-isPaul = (== "Paul") :: String -> Bool
-isJohn = (== "John") :: String -> Bool
-
 ----------------------------------------------------------------------------------------------------------------------
+
+areEquals :: String -> String -> Bool
+areEquals requestName name = requestName == name
 
 paul :: User
 paul = User { userId = 1, userName = "Paul" }
