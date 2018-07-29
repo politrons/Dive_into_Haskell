@@ -1,15 +1,13 @@
 {-# LANGUAGE OverloadedStrings #-} -- Mandatory language overload to overload String
-{-# LANGUAGE DeriveGeneric #-}
 module ScottyHttpServer where
 
 import Web.Scotty
 import Data.Monoid ((<>))
 import Data.Aeson (FromJSON, ToJSON, encode,decode)
 import GHC.Generics
+import ModelTypes
 
 port = 3000 :: Int
-
-data User = User { userId :: Int, userName :: String } deriving (Show, Generic)
 
 {-| Thanks to type class we define that any [User] is JSON serializable/deserializable.|-}
 instance ToJSON User
