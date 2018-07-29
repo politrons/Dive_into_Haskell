@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="x509-1.6.5">
+    <CLASSES>
+      <root url="file://$USER_HOME$/.intellij-haskell/lib/Dive_into_Haskell/x509-1.6.5" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="file://$USER_HOME$/.intellij-haskell/lib/Dive_into_Haskell/x509-1.6.5" />
+    </SOURCES>
+  </library>
+</component>

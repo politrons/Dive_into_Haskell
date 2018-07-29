@@ -78,7 +78,6 @@
     <orderEntry type="library" name="template-haskell-2.11.1.0" level="project" />
     <orderEntry type="library" name="text-1.2.2.1" level="project" />
     <orderEntry type="library" name="time-locale-compat-0.1.1.3" level="project" />
-    <orderEntry type="library" name="transformers-0.5.2.0" level="project" />
     <orderEntry type="library" name="transformers-base-0.4.4" level="project" />
     <orderEntry type="library" name="transformers-compat-0.5.1.4" level="project" />
     <orderEntry type="library" name="unix-compat-0.4.3.1" level="project" />
@@ -93,5 +92,42 @@
     <orderEntry type="library" name="warp-3.2.13" level="project" />
     <orderEntry type="library" name="word8-0.1.2" level="project" />
     <orderEntry type="library" name="zlib-0.6.1.2" level="project" />
+    <orderEntry type="library" name="transformers-0.5.2.0" level="project" />
+    <orderEntry type="library" name="io-streams-1.3.6.1" level="project" />
+    <orderEntry type="library" name="zlib-bindings-0.1.1.5" level="project" />
+    <orderEntry type="library" name="Cabal-1.24.2.0" level="project" />
+    <orderEntry type="library" name="asn1-encoding-0.9.5" level="project" />
+    <orderEntry type="library" name="asn1-parse-0.9.4" level="project" />
+    <orderEntry type="library" name="asn1-types-0.3.2" level="project" />
+    <orderEntry type="library" name="binary-ieee754-0.1.0.0" level="project" />
+    <orderEntry type="library" name="binary-parsers-0.2.3.0" level="project" />
+    <orderEntry type="library" name="blaze-textual-0.2.1.0" level="project" />
+    <orderEntry type="library" name="byteable-0.1.1" level="project" />
+    <orderEntry type="library" name="bytestring-lexing-0.5.0.2" level="project" />
+    <orderEntry type="library" name="cereal-0.5.4.0" level="project" />
+    <orderEntry type="library" name="cryptohash-md5-0.11.100.1" level="project" />
+    <orderEntry type="library" name="cryptohash-sha1-0.11.100.1" level="project" />
+    <orderEntry type="library" name="cryptonite-0.21" level="project" />
+    <orderEntry type="library" name="data-binary-ieee754-0.4.4" level="project" />
+    <orderEntry type="library" name="entropy-0.3.8" level="project" />
+    <orderEntry type="library" name="foundation-0.0.13" level="project" />
+    <orderEntry type="library" name="hascas-1.2.0" level="project" />
+    <orderEntry type="library" name="hourglass-0.2.10" level="project" />
+    <orderEntry type="library" name="memory-0.14.6" level="project" />
+    <orderEntry type="library" name="monad-loops-0.4.3" level="project" />
+    <orderEntry type="library" name="mysql-haskell-0.8.3.0" level="project" />
+    <orderEntry type="library" name="network-info-0.2.0.8" level="project" />
+    <orderEntry type="library" name="pem-0.2.2" level="project" />
+    <orderEntry type="library" name="safe-exceptions-0.1.6.0" level="project" />
+    <orderEntry type="library" name="tcp-streams-1.0.1.0" level="project" />
+    <orderEntry type="library" name="tls-1.3.11" level="project" />
+    <orderEntry type="library" name="uuid-1.3.13" level="project" />
+    <orderEntry type="library" name="uuid-types-1.0.3" level="project" />
+    <orderEntry type="library" name="wire-streams-0.1.1.0" level="project" />
+    <orderEntry type="library" name="word24-2.0.1" level="project" />
+    <orderEntry type="library" name="x509-1.6.5" level="project" />
+    <orderEntry type="library" name="x509-store-1.6.2" level="project" />
+    <orderEntry type="library" name="x509-system-1.6.4" level="project" />
+    <orderEntry type="library" name="x509-validation-1.6.5" level="project" />
   </component>
 </module>
