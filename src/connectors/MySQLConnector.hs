@@ -27,11 +27,11 @@ getUserById id =
             print =<< Streams.toList inputStream
 
 {-| For insert we use [execute] operator followed by the connection, query and an array of QueryParam-}
-createUserNow :: User -> IO ()
-createUserNow _user = let user = _user in do
+insertUser :: User -> IO()
+insertUser _user = let user = _user in do
     conn <- createConnection
     status <- execute conn insertUserQuery [MySQLInt32 (intToInt32 $ getUserId user), MySQLText "hello_haskell_world"]
-    print (show status)
+    print user
 
 {-| Transform from Int to Int32 format-}
 intToInt32 :: Int -> Int32

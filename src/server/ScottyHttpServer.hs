@@ -6,6 +6,7 @@ import Data.Monoid ((<>))
 import Data.Aeson (FromJSON, ToJSON, encode,decode)
 import GHC.Generics
 import ModelTypes
+import MySQLConnector
 
 port = 3000 :: Int
 
@@ -59,7 +60,8 @@ responseUserById = do id <- param "id"
                       json (filter (hasId id) allUsers)
 
 createUser :: ActionM ()
-createUser =  do user <- getUserParam
+createUser =  do
+                 user <- getUserParam
                  -- Persist the user
                  json user
 

@@ -27,7 +27,7 @@ main :: IO ()
 
 --main = mysqlIO
 --main = getUserById 2
-main = createUserNow User { userId = 100, userName = "Paul" }
+main = insertUser User { userId = 1002, userName = "Paul2" }
 
 -- | Http Server
 -- --------------
