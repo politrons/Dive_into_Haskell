@@ -20,18 +20,17 @@ getAllUsers = do
 
 {-| For select we use [query] operator followed by the connection, query and a QueryParam-}
 getUserById :: Int -> IO ()
-getUserById id =
-            let userId = id in do
+getUserById id = let userId = id in do
             conn <- createConnection
             (columnDef, inputStream) <- query conn selectByIdQuery [One $ MySQLInt32 (intToInt32 userId)]
             print =<< Streams.toList inputStream
 
 {-| For insert we use [execute] operator followed by the connection, query and an array of QueryParam-}
-insertUser :: User -> IO()
+insertUser :: User -> IO User
 insertUser _user = let user = _user in do
     conn <- createConnection
     status <- execute conn insertUserQuery [MySQLInt32 (intToInt32 $ getUserId user), MySQLText "hello_haskell_world"]
-    print user
+    return user
 
 {-| Transform from Int to Int32 format-}
 intToInt32 :: Int -> Int32

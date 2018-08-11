@@ -8,6 +8,10 @@ import GHC.Generics
 import ModelTypes
 import MySQLConnector
 
+import Data.ByteString.Lazy.Char8 (ByteString)
+import Web.Scotty.Internal.Types (ScottyT, ActionT, Param, RoutePattern, Options, File)
+import Data.Text.Lazy (Text)
+
 port = 3000 :: Int
 
 {-| Thanks to type class we define that any [User] is JSON serializable/deserializable.|-}
@@ -60,10 +64,10 @@ responseUserById = do id <- param "id"
                       json (filter (hasId id) allUsers)
 
 createUser :: ActionM ()
-createUser =  do
-                 user <- getUserParam
+createUser =  do maybeUser <- getUserParam
                  -- Persist the user
-                 json user
+                 _ <- persistUser maybeUser
+                 json maybeUser
 
 updateUser :: ActionM ()
 updateUser =  do user <- getUserParam
@@ -75,10 +79,16 @@ deleteUserById = do id <- param "id"
                     -- Delete user
                     json (filter (hasId id) allUsers)
 
+persistUser :: Maybe User -> ActionT Text IO (Maybe User)
+persistUser _maybeUser = let maybeUser = _maybeUser in do
+                           user <- do  return (fmap (\user -> insertUser user) maybeUser)
+                           return maybeUser
+
 {-| In scotty we have [body] operator to get the request body.
     We also use [decode] operator to extract and transform from json to Maybe of type we specify in the type signature-}
+getUserParam :: ActionT Text IO (Maybe User)
 getUserParam = do requestBody <- body
-                  return (decode requestBody :: Maybe User)
+                  return (decode requestBody)
 
 ----------------------------------------------------------------------------------------------------------------------
 hasId :: Int -> User -> Bool

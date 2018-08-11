@@ -27,13 +27,14 @@ main :: IO ()
 
 --main = mysqlIO
 --main = getUserById 2
---main = insertUser User { userId = 1002, userName = "Paul2" }
+--main = do user <- insertUser User { userId = 1002, userName = "Paul2" }
+--          print  user
 
 -- | Http Server
 -- --------------
 
 --main = myServer
---main = scottyServer
+main = scottyServer
 
 -- | Monads
 -- ------------
@@ -62,7 +63,7 @@ main :: IO ()
 --main = multipleAsyncResponse
 --main = combiningAsyncResponse
 --main = combiningAsyncResponse1
-main = forkOSThreads
+--main = forkOSThreads
 --main = fmapNumberAsync
 --main = fmapSentenceAsync
 --main = sync 5
