@@ -123,6 +123,21 @@ eitherFunc1 "" = Left "String cannot be empty!"
 eitherFunc1 str = Right $ length str
 
 
+-- | Do Block Vs FlatMap(>>=)
+-- ----------------------------
+{-| Just like in Scala we can use sugar syntax to flat over monads. Obviously for comprehension was inspired in [do block],
+    Both behave exactly the same, flat a monad to extract the values to operate with them in deeper levels-}
+
+{-| FlatMap 2 with sugar-}
+doActionVsFlatMap = do { x1 <- getOperation
+                       ; x2 <- getOperation1
+                       ; concatString x1 x2 }
+
+{-| FlatMap 2 without sugar-}
+flatMapVsDoAction = getOperation
+                                >>= \x1 -> getOperation1
+                                >>= \x2 -> concatString x1 x2
+
 --------------------------------------------------------------------------------------------------------------------
 
 getOperation :: IO String -- A IO monad of type String
@@ -139,6 +154,10 @@ getOperation2 :: IO String -- A IO monad of type String
 getOperation2 = do
            threadDelay 1000000
            return "World!!!"
+
+concatString :: String -> String -> IO String
+concatString _a _b = let a=_a
+                         b=_b in return (a ++ b)
 
 getNumber :: IO Integer -- A IO monad of type Integer
 getNumber = return 100
