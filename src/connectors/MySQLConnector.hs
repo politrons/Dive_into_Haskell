@@ -6,6 +6,8 @@ import Database.MySQL.Base
 import qualified System.IO.Streams as Streams
 import Data.Int
 import ModelTypes
+import qualified Data.Text as T
+
 
 selectAllQuery = "SELECT * FROM haskell_users"
 selectByIdQuery = "SELECT * FROM haskell_users WHERE userId=(?)"
@@ -29,7 +31,7 @@ getUserById id = let userId = id in do
 insertUser :: User -> IO User
 insertUser _user = let user = _user in do
     conn <- createConnection
-    status <- execute conn insertUserQuery [MySQLInt32 (intToInt32 $ getUserId user), MySQLText "hello_haskell_world"]
+    status <- execute conn insertUserQuery [MySQLInt32 (intToInt32 $ getUserId user), MySQLText (T.pack $ getUserName user)]
     return user
 
 {-| Transform from Int to Int32 format-}
