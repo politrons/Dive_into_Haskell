@@ -65,9 +65,8 @@ responseUserById = do id <- param "id"
 
 createUser :: ActionM ()
 createUser =  do maybeUser <- getUserParam
-                 -- Persist the user
-                 _ <- persistUser maybeUser
-                 json maybeUser
+                 user <- persistUser maybeUser
+                 json user
 
 updateUser :: ActionM ()
 updateUser =  do user <- getUserParam
@@ -79,10 +78,16 @@ deleteUserById = do id <- param "id"
                     -- Delete user
                     json (filter (hasId id) allUsers)
 
+{-| This part of the program is really interested, we are using function where first we need to csll insertUser
+    passing a [User] but we have a [Maybe User] so we use a functor [<*>] to extract the User from the Maybe.
+     Then we have [sequence] operator which does:
+    -- | Evaluate each monadic action in the structure from left toright, and collect the results.
+    Then finally we need to lift the response from insertUser  [IO User] to [User] and to do that we use
+    the operator [liftAndCatchIO] which does:
+    -- | Like 'liftIO', but catch any IO exceptions and turn them into Scotty exceptions.
+-}
 persistUser :: Maybe User -> ActionT Text IO (Maybe User)
-persistUser _maybeUser = let maybeUser = _maybeUser in do
-                           user <- do  return (fmap (\user -> insertUser user) maybeUser)
-                           return maybeUser
+persistUser maybeUser =  liftAndCatchIO $ sequence $ insertUser <$> maybeUser
 
 {-| In scotty we have [body] operator to get the request body.
     We also use [decode] operator to extract and transform from json to Maybe of type we specify in the type signature-}

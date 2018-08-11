@@ -27,14 +27,14 @@ main :: IO ()
 
 --main = mysqlIO
 --main = getUserById 2
-main = do user <- insertUser User { userId = 1002, userName = "Paul2" }
-          print  user
+--main = do user <- insertUser User { userId = 1002, userName = "Paul2" }
+--          print  user
 
 -- | Http Server
 -- --------------
 
 --main = myServer
---main = scottyServer
+main = scottyServer
 
 -- | Monads
 -- ------------
