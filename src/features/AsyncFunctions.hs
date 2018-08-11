@@ -10,6 +10,26 @@ import System.Random
 
 newRand = randomRIO (0, 100 :: Int)
 
+
+-- | Sync operation
+-- -----------------------
+{-| In do block of Haskell by default operations are done sequentially in this example we can see how
+ applying some delays in operations finish after that delay time in a sequential order--}
+syncOperation :: String -> IO String
+syncOperation input = do
+    delay <- getStdRandom (randomR (1000000,1001000))
+    _ <- threadDelay delay
+    threadId <- myThreadId
+    print ("Running " ++ input  ++ " in thread: " ++ show threadId)
+    return input
+
+-- runs n operations synchronously
+sync :: Int -> IO ()
+sync 0 = return () -- If we reach 0 this function it will be called
+sync number = do
+    _ <- syncOperation (show number)
+    sync (pred number)
+
 -- | Async operator
 -- ---------------------
 {-| With async operator we ensure the operation is executed in another thread.
@@ -104,7 +124,7 @@ raceOutput = do
     Here we use an empty MVar, we run a new thread with fork and we listen to the MVar for a new value.
     Then from the main thread we put a value into the variable and since is subscribed from the other thread,
     we're able to print the value in the fork thread. |-}
-communicateBetweenThreads = do
+forkIOThreads = do
   mainThreadId <- myThreadId -- Return information of the thread
   input <- newEmptyMVar -- Create an empty MVar
   forkIO $ do
@@ -114,6 +134,23 @@ communicateBetweenThreads = do
   putStrLn ("Knock knock from: " ++ show mainThreadId)
   putMVar input "Hello this is Paul!"
   threadDelay 1000000
+
+
+-- | ForkIO operator
+-- -----------------------
+{-| [forkOS] unlike the ForkIO use the Operation system threads. |-}
+forkOSThreads = do
+  mainThreadId <- myThreadId -- Return information of the thread
+  input <- newEmptyMVar -- Create an empty MVar
+  forkOS $ do
+    inputOtherThread <- takeMVar input
+    threadId <- myThreadId
+    putStrLn ("Yes? " ++ " " ++ inputOtherThread ++ " from: " ++ show threadId)
+  putStrLn ("Knock knock from: " ++ show mainThreadId)
+  putMVar input "Hello this is Paul!"
+  threadDelay 1000000
+
+
 
 getOperation :: IO String -- an IO monad of type String
 getOperation = do
@@ -142,3 +179,4 @@ getOperation3 = do
 
 getRandomNumber :: IO Int
 getRandomNumber =  randomRIO (500000, 1000000 :: Int) -- Random time from 500 to 1000 ms
+
