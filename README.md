@@ -29,9 +29,10 @@ If you want to reference to the official documentation visit [Here](https://www.
 * **[Http Server](src/server/HttpServer.hs)**
 * **[Scotty Http Server](src/server/ScottyHttpServer.hs)**
 
-You can find the main class to run the app [here](app/Main.hs)
-
 ![My image](img/connector.png)
 ## Connectors
 
 * **[MySQL](src/connectors/MySQLConnector.hs)**
+
+
+You can find the main class to run the app [here](app/Main.hs)
