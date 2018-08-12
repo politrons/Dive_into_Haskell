@@ -35,8 +35,8 @@ transformToUser maybeMySQLValue = User 1 "We need to get the real use data"
 
 extractMaybeUser :: Maybe User -> User
 extractMaybeUser maybeUser = case maybeUser of
-     Just value -> value
-     Nothing -> User 1 "default User"
+                                            Just value -> value
+                                            Nothing -> User 1 "default User"
 
 --extractUserId :: [MySQLValue] -> MySQLInt32
 extractUserId mySQLValue = mySQLValue getTextField [mySQLTypeLong]
@@ -44,9 +44,9 @@ extractUserId mySQLValue = mySQLValue getTextField [mySQLTypeLong]
 {-| For insert we use [execute] operator followed by the connection, query and an array of QueryParam-}
 insertUser :: User -> IO User
 insertUser _user = let user = _user in do
-    conn <- createConnection
-    status <- execute conn insertUserQuery [MySQLInt32 (intToInt32 $ getUserId user), MySQLText (T.pack $ getUserName user)]
-    return user
+        conn <- createConnection
+        status <- execute conn insertUserQuery [MySQLInt32 (intToInt32 $ getUserId user), MySQLText (T.pack $ getUserName user)]
+        return user
 
 {-| Transform from Int to Int32 format-}
 intToInt32 :: Int -> Int32
