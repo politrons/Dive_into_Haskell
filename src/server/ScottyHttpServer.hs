@@ -61,7 +61,9 @@ responseUserByName = do name <- param "name"
 {-| In scotty we have [param] operator which used passing the uri param name we can extract the value. -}
 responseUserById :: ActionM ()
 responseUserById = do id <- param "id"
-                      json (filter (hasId id) allUsers)
+                      user <- liftAndCatchIO $ getUserById id
+                      json user
+--                      json (filter (hasId id) allUsers)
 
 createUser :: ActionM ()
 createUser =  do maybeUser <- getUserParam
@@ -78,7 +80,7 @@ deleteUserById = do id <- param "id"
                     -- Delete user
                     json (filter (hasId id) allUsers)
 
-{-| This part of the program is really interested, we are using function where first we need to csll insertUser
+{-| This part of the program is really interested, we are using function where first we need to call insertUser
     passing a [User] but we have a [Maybe User] so we use a functor [<*>] to extract the User from the Maybe.
      Then we have [sequence] operator which does:
     -- | Evaluate each monadic action in the structure from left toright, and collect the results.

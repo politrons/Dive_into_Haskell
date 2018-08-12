@@ -6,7 +6,7 @@ import Data.Char
 import Data.List
 import Data.Monoid
 import Data.Either
-
+import Control.Monad.IO.Class
 
 -- | IO Type Monads
 -- -----------------
@@ -84,14 +84,6 @@ functorComposition :: IO ()
 functorComposition = do flatResponse <- fmap (\ number -> fmap(\number2 -> number * number2) getNumber1 ) getNumber
                         response <- flatResponse
                         print response
---
---functorStar :: IO ()
---functorStar = do maybeString <- Just "Hello functor world"
---                 user <- extractWithFunctor <*> maybeString
---                 print user
-
-extractWithFunctor:: String -> IO String
-extractWithFunctor _value = let value = _value in do return (value ++ "!!!")
 
 -- | Applicative
 -- --------------

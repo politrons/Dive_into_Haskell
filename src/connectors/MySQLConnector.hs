@@ -7,6 +7,7 @@ import qualified System.IO.Streams as Streams
 import Data.Int
 import ModelTypes
 import qualified Data.Text as T
+import Data.List
 
 
 selectAllQuery = "SELECT * FROM haskell_users"
@@ -21,11 +22,24 @@ getAllUsers = do
     print =<< Streams.toList is
 
 {-| For select we use [query] operator followed by the connection, query and a QueryParam-}
-getUserById :: Int -> IO ()
+getUserById :: Int -> IO (Maybe User)
 getUserById id = let userId = id in do
             conn <- createConnection
             (columnDef, inputStream) <- query conn selectByIdQuery [One $ MySQLInt32 (intToInt32 userId)]
-            print =<< Streams.toList inputStream
+            maybeMySQLValue <- Streams.read inputStream
+            user <- do return (transformToUser <$> maybeMySQLValue)
+            return user
+
+transformToUser :: [MySQLValue] -> User
+transformToUser maybeMySQLValue = User 1 "We need to get the real use data"
+
+extractMaybeUser :: Maybe User -> User
+extractMaybeUser maybeUser = case maybeUser of
+     Just value -> value
+     Nothing -> User 1 "default User"
+
+--extractUserId :: [MySQLValue] -> MySQLInt32
+extractUserId mySQLValue = mySQLValue getTextField [mySQLTypeLong]
 
 {-| For insert we use [execute] operator followed by the connection, query and an array of QueryParam-}
 insertUser :: User -> IO User
