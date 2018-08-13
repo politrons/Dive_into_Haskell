@@ -22,24 +22,25 @@ getAllUsers = do
     print =<< Streams.toList is
 
 {-| For select we use [query] operator followed by the connection, query and a QueryParam-}
-getUserById :: Int -> IO (Maybe User)
+getUserById :: Int -> IO User
 getUserById id = let userId = id in do
             conn <- createConnection
             (columnDef, inputStream) <- query conn selectByIdQuery [One $ MySQLInt32 (intToInt32 userId)]
             maybeMySQLValue <- Streams.read inputStream
-            user <- do return (transformToUser <$> maybeMySQLValue)
+            user <- do return (extractMaybeUser maybeMySQLValue)
             return user
 
---extractMaybeUser :: Maybe User -> User
---extractMaybeUser maybeUser = case maybeUser of
---                                            Just value -> value
---                                            Nothing -> User 1 "default User"
+{-| Function to extract the MySQLValue from Maybe and transform into User calling another function-}
+extractMaybeUser :: Maybe [MySQLValue] -> User
+extractMaybeUser maybeMySQLValue = case maybeMySQLValue of
+                                            Just mysqlValue -> transformToUser mysqlValue
+                                            Nothing -> User 0 "default User"
 
 {-| Function to receive the row [MySQLValue] and we define the fields of the row to be extracted, and after change
     format of types using some utils functions we create the User instance.
     In order to transform from Text to String we just need to use the operator [unpack] to extract the String -}
 transformToUser :: [MySQLValue] -> User
-transformToUser [MySQLInt32 row_userId, MySQLText row_userName] = User (int32ToInt row_userId) (T.unpack row_userName)--We unpack from Text to String
+transformToUser [MySQLInt32 row_userId, MySQLText row_userName] = User (int32ToInt row_userId) (T.unpack row_userName)
 
 {-| For insert we use [execute] operator followed by the connection, query and an array of QueryParam-}
 insertUser :: User -> IO User
