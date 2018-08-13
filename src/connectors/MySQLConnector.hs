@@ -12,7 +12,9 @@ import Data.List
 
 selectAllQuery = "SELECT * FROM haskell_users"
 selectByIdQuery = "SELECT * FROM haskell_users WHERE userId=(?)"
+deleteByIdQuery = "DELETE FROM haskell_users WHERE userId=(?)"
 insertUserQuery = "INSERT INTO mysql.haskell_users (userId,userName) VALUES(?,?)"
+
 
 getAllUsers :: IO ()
 getAllUsers = do
@@ -48,6 +50,13 @@ insertUser _user = let user = _user in do
         conn <- createConnection
         status <- execute conn insertUserQuery [MySQLInt32 (intToInt32 $ getUserId user), MySQLText (T.pack $ getUserName user)]
         return user
+
+{-| For select we use [query] operator followed by the connection, query and a QueryParam-}
+deleteUserById :: Int -> IO OK
+deleteUserById id = let userId = id in do
+            conn <- createConnection
+            status <- execute conn  deleteByIdQuery [One $ MySQLInt32 (intToInt32 userId)]
+            return status
 
 {-| Transform from Int to Int32 format-}
 intToInt32 :: Int -> Int32

@@ -35,7 +35,7 @@ routes = do get "/service" responseService
             get "/user/:name" responseUserByName
             post "/user/" createUser
             put "/user/" updateUser
-            delete "/users/:id" deleteUserById
+            delete "/users/:id" deleteById
 
 {-| We use [text] operator from scotty we render the response in text/plain-}
 responseService :: ActionM ()
@@ -75,10 +75,10 @@ updateUser =  do user <- getUserParam
                  -- Update the user
                  json user
 
-deleteUserById :: ActionM ()
-deleteUserById = do id <- param "id"
-                    -- Delete user
-                    json (filter (hasId id) allUsers)
+deleteById :: ActionM ()
+deleteById = do id <- param "id"
+                status <- liftAndCatchIO $ deleteUserById id
+                json (show status)
 
 {-| This part of the program is really interested, we are using function where first we need to call insertUser
     passing a [User] but we have a [Maybe User] so we use a functor [<*>] to extract the User from the Maybe.
