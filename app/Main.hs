@@ -35,7 +35,7 @@ main :: IO ()
 -- --------------
 
 --main = myServer
-main = scottyServer
+--main = scottyServer
 
 -- | Monads
 -- ------------
@@ -75,6 +75,7 @@ main = scottyServer
 --main = putStrLn welcomeSentence
 --main = print func1Output
 --main = print func2Output
+main = functorDolar
 
 -- | High order function
 -- ----------------------

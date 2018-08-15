@@ -86,6 +86,7 @@ mapSize = Map.size newAppendMap
 getMapValueByKey = \name -> Map.lookup name newAppendMap
 getMapValueByKeyOutput = getMapValueByKey "Paul"
 
+isMemberPresent :: String -> Bool
 isMemberPresent = \name -> Map.member name newAppendMap
 isMemberPresentOutput = isMemberPresent "New_key"
 

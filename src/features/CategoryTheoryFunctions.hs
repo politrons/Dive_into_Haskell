@@ -85,6 +85,15 @@ functorComposition = do flatResponse <- fmap (\ number -> fmap(\number2 -> numbe
                         response <- flatResponse
                         print response
 
+{-| [Functor <$> operator is sugar to map the value inside the Functor[Maybe, Optional, etc]] -}
+functorDollar :: IO()
+functorDollar = do maybeValue<- return $ Just "Hello functor <$> operator"
+                   newMaybeValue <- return (toUpperCaseFunctor <$> maybeValue)
+                   print (show newMaybeValue)
+
+toUpperCaseFunctor:: String -> String
+toUpperCaseFunctor value = map toUpper value
+
 -- | Applicative
 -- --------------
 {-| Applicative is an abstraction for a context, and it has the ability to apply functions
