@@ -19,17 +19,17 @@ updateUserQuery = "UPDATE mysql.haskell_users SET userId=(?),userName=(?) WHERE 
 
 -- | MySQL CRUD
 -- -------------
-getAllUsers :: IO [[MySQLValue]]
+getAllUsers :: IO [User]
 getAllUsers = do
     conn <- createConnection
     s <- prepareStmt conn selectAllQuery
-    (defs, inputStream) <- queryStmt conn s [MySQLInt32U 18]
+    (_, inputStream) <- queryStmt conn s [MySQLInt32U 18]
     maybeUsers <- return (Streams.toList inputStream)
     users <- liftIO $ transformMySQLValueArrayToUsers <$> maybeUsers
     return users
 
-transformMySQLValueArrayToUsers :: [[MySQLValue]] -> [[MySQLValue]]
-transformMySQLValueArrayToUsers array = map (\user -> user)array
+transformMySQLValueArrayToUsers :: [[MySQLValue]] -> [User]
+transformMySQLValueArrayToUsers array = map (\mysqlValue -> (User 1 " " )) array
 
 {-| For select we use [query] operator followed by the connection, query and a QueryParam-}
 getUserById :: Int -> IO User

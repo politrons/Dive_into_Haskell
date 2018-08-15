@@ -48,9 +48,12 @@ responseHello :: ActionM ()
 responseHello = do name <- param "name" -- using [param] operator we can extract the uri param
                    text ("hello " <> name <> "!")
 
-{-| Thanks to Aeson library and encode, we can use [json] operator to allow us to encode object into json.|-}
+{-| Thanks to Aeson library and encode, we can use [json] operator to allow us to encode object into json
+    [liftAndCatchIO] operator is used to extract from the IO monad the type and add it to ActionM monad
+.|-}
 responseUsers :: ActionM ()
-responseUsers = json allUsers
+responseUsers = do users <- liftAndCatchIO $ getAllUsers
+                   json (show users)
 
 responseUserByName :: ActionM ()
 responseUserByName = do name <- param "name"
@@ -106,5 +109,5 @@ paul = User { userId = 1, userName = "Paul" }
 john :: User
 john = User { userId = 2, userName = "John" }
 
-allUsers :: [User]
-allUsers = [paul, john]
+--allUsers :: [User]
+--allUsers = [paul, john]
