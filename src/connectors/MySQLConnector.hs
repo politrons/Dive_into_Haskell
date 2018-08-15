@@ -24,7 +24,7 @@ getAllUsers = do
     conn <- createConnection
     s <- prepareStmt conn selectAllQuery
     (defs, inputStream) <- queryStmt conn s [MySQLInt32U 18]
-    maybeUsers <- do return (Streams.toList inputStream)
+    maybeUsers <- return (Streams.toList inputStream)
     users <- liftIO $ transformMySQLValueArrayToUsers <$> maybeUsers
     return users
 
@@ -37,7 +37,7 @@ getUserById id = let userId = id in do
             conn <- createConnection
             (columnDef, inputStream) <- query conn selectByIdQuery [One $ MySQLInt32 (intToInt32 userId)]
             maybeMySQLValue <- Streams.read inputStream
-            user <- do return (extractMaybeUser maybeMySQLValue)
+            user <- return (extractMaybeUser maybeMySQLValue)
             return user
 
 {-| For insert we use [execute] operator followed by the connection, query and an array of QueryParam-}
