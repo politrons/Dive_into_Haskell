@@ -81,7 +81,7 @@ intToInt32 userId = fromIntegral (userId :: Int) :: Int32
 int32ToInt :: Int32 -> Int
 int32ToInt userId = fromIntegral (userId :: Int32) :: Int
 
-{-| WE use [connect] operator together with [defaultConnectInfo] with the info to connect to the MySQL Server-}
+{-| We use [connect] operator together with [defaultConnectInfo] with the info to connect to the MySQL Server-}
 createConnection :: IO MySQLConn
 createConnection = connect defaultConnectInfo {ciUser = "root", ciPassword = "root", ciDatabase = "mysql"}
 
