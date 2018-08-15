@@ -64,10 +64,18 @@ responseUserById = do id <- param "id"
                       user <- liftAndCatchIO $ getUserById id
                       json user
 
+{-| This part of the program is really interested, we are using function where first we need to call insertUser
+    passing a [User] but we have a [Maybe User] so we use a functor [<*>] to extract the User from the Maybe.
+     Then we have [sequence] operator which does:
+    -- | Evaluate each monadic action in the structure from left to right, and collect the results.
+    Then finally we need to lift the response from insertUser  [IO OK] to [OK] and to do that we use
+    the operator [liftAndCatchIO] which does:
+    -- | Like 'liftIO', but catch any IO exceptions and turn them into Scotty exceptions.
+-}
 createUser :: ActionM ()
 createUser =  do maybeUser <- getUserParam
-                 user <- persistUser maybeUser
-                 json user
+                 status <- liftAndCatchIO $ sequence $ insertUser <$> maybeUser
+                 json (show status)
 
 updateUser :: ActionM ()
 updateUser =  do maybeUser <- getUserParam
@@ -78,17 +86,6 @@ deleteById :: ActionM ()
 deleteById = do id <- param "id"
                 status <- liftAndCatchIO $ deleteUserById id
                 json (show status)
-
-{-| This part of the program is really interested, we are using function where first we need to call insertUser
-    passing a [User] but we have a [Maybe User] so we use a functor [<*>] to extract the User from the Maybe.
-     Then we have [sequence] operator which does:
-    -- | Evaluate each monadic action in the structure from left toright, and collect the results.
-    Then finally we need to lift the response from insertUser  [IO User] to [User] and to do that we use
-    the operator [liftAndCatchIO] which does:
-    -- | Like 'liftIO', but catch any IO exceptions and turn them into Scotty exceptions.
--}
-persistUser :: Maybe User -> ActionT Text IO (Maybe User)
-persistUser maybeUser =  liftAndCatchIO $ sequence $ insertUser <$> maybeUser
 
 {-| In scotty we have [body] operator to get the request body.
     We also use [decode] operator to extract and transform from json to Maybe of type we specify in the type signature-}

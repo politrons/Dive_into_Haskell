@@ -35,11 +35,11 @@ getUserById id = let userId = id in do
             return user
 
 {-| For insert we use [execute] operator followed by the connection, query and an array of QueryParam-}
-insertUser :: User -> IO User
+insertUser :: User -> IO OK
 insertUser _user = let user = _user in do
         conn <- createConnection
         status <- execute conn insertUserQuery [MySQLInt32 (intToInt32 $ getUserId user), MySQLText (T.pack $ getUserName user)]
-        return user
+        return status
 
 {-| For select we use [query] operator followed by the connection, query and a QueryParam-}
 deleteUserById :: Int -> IO OK
@@ -48,6 +48,7 @@ deleteUserById id = let userId = id in do
             status <- execute conn  deleteByIdQuery [One $ MySQLInt32 (intToInt32 userId)]
             return status
 
+{-| For update we use [execute] operator followed by the connection,update query and an array of QueryParam with data to update and filter-}
 updateUserById :: User -> IO OK
 updateUserById _user = let user = _user in do
             conn <- createConnection
