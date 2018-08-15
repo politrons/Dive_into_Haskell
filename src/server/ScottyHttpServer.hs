@@ -28,8 +28,7 @@ scottyServer = do
     receive a [RoutePattern] as a path and a [ActionM] as the action of the request. Then we return a [ScottyM]-}
 routes :: ScottyM()
 routes = do get "/service" responseService
-            get "/name" responseName
-            get "/hello/:name" responseHello -- Using :val we can set the variable name to be candidate to be extracted
+            get "/author" responseName
             get "/users" responseUsers
             get "/users/:id" responseUserById
             get "/user/:name" responseUserByName
@@ -43,10 +42,6 @@ responseService = text "First Haskell service 1.0"
 
 responseName :: ActionM ()
 responseName = text "Paul Perez Garcia"
-
-responseHello :: ActionM ()
-responseHello = do name <- param "name" -- using [param] operator we can extract the uri param
-                   text ("hello " <> name <> "!")
 
 {-| Thanks to Aeson library and encode, we can use [json] operator to allow us to encode object into json
     [liftAndCatchIO] operator is used to extract from the IO monad the type and add it to ActionM monad

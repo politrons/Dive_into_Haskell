@@ -28,9 +28,6 @@ getAllUsers = do
     users <- liftIO $ transformMySQLValueArrayToUsers <$> maybeUsers
     return users
 
-transformMySQLValueArrayToUsers :: [[MySQLValue]] -> [User]
-transformMySQLValueArrayToUsers array = map (\mysqlValue -> (User 1 " " )) array
-
 {-| For select we use [query] operator followed by the connection, query and a QueryParam-}
 getUserById :: Int -> IO User
 getUserById id = let userId = id in do
@@ -66,6 +63,10 @@ extractMaybeUser :: Maybe [MySQLValue] -> User
 extractMaybeUser maybeMySQLValue = case maybeMySQLValue of
                                             Just mysqlValue -> transformToUser mysqlValue
                                             Nothing -> User 0 "default User"
+
+{-| Function that take an array of [[MySQLValue]] and transform every element into [User]-}
+transformMySQLValueArrayToUsers :: [[MySQLValue]] -> [User]
+transformMySQLValueArrayToUsers mysqlValues = map (\mysqlValue -> transformToUser mysqlValue) mysqlValues
 
 {-| Function to receive the row [MySQLValue] and we define the fields of the row to be extracted, and after change
     format of types using some utils functions we create the User instance.
