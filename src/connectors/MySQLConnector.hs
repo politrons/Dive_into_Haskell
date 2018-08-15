@@ -14,8 +14,10 @@ selectAllQuery = "SELECT * FROM haskell_users"
 selectByIdQuery = "SELECT * FROM haskell_users WHERE userId=(?)"
 deleteByIdQuery = "DELETE FROM haskell_users WHERE userId=(?)"
 insertUserQuery = "INSERT INTO mysql.haskell_users (userId,userName) VALUES(?,?)"
+updateUserQuery = "UPDATE mysql.haskell_users SET userId=(?),userName=(?) WHERE userId=(?)"
 
-
+-- | MySQL CRUD
+-- -------------
 getAllUsers :: IO ()
 getAllUsers = do
     conn <- createConnection
@@ -32,18 +34,6 @@ getUserById id = let userId = id in do
             user <- do return (extractMaybeUser maybeMySQLValue)
             return user
 
-{-| Function to extract the MySQLValue from Maybe and transform into User calling another function-}
-extractMaybeUser :: Maybe [MySQLValue] -> User
-extractMaybeUser maybeMySQLValue = case maybeMySQLValue of
-                                            Just mysqlValue -> transformToUser mysqlValue
-                                            Nothing -> User 0 "default User"
-
-{-| Function to receive the row [MySQLValue] and we define the fields of the row to be extracted, and after change
-    format of types using some utils functions we create the User instance.
-    In order to transform from Text to String we just need to use the operator [unpack] to extract the String -}
-transformToUser :: [MySQLValue] -> User
-transformToUser [MySQLInt32 row_userId, MySQLText row_userName] = User (int32ToInt row_userId) (T.unpack row_userName)
-
 {-| For insert we use [execute] operator followed by the connection, query and an array of QueryParam-}
 insertUser :: User -> IO User
 insertUser _user = let user = _user in do
@@ -57,6 +47,24 @@ deleteUserById id = let userId = id in do
             conn <- createConnection
             status <- execute conn  deleteByIdQuery [One $ MySQLInt32 (intToInt32 userId)]
             return status
+
+updateUserById :: User -> IO OK
+updateUserById _user = let user = _user in do
+            conn <- createConnection
+            status <- execute conn  updateUserQuery [MySQLInt32 (intToInt32 $ getUserId user), MySQLText (T.pack $ getUserName user),MySQLInt32 (intToInt32 $ getUserId user)]
+            return status
+
+{-| Function to extract the MySQLValue from Maybe and transform into User calling another function-}
+extractMaybeUser :: Maybe [MySQLValue] -> User
+extractMaybeUser maybeMySQLValue = case maybeMySQLValue of
+                                            Just mysqlValue -> transformToUser mysqlValue
+                                            Nothing -> User 0 "default User"
+
+{-| Function to receive the row [MySQLValue] and we define the fields of the row to be extracted, and after change
+    format of types using some utils functions we create the User instance.
+    In order to transform from Text to String we just need to use the operator [unpack] to extract the String -}
+transformToUser :: [MySQLValue] -> User
+transformToUser [MySQLInt32 row_userId, MySQLText row_userName] = User (int32ToInt row_userId) (T.unpack row_userName)
 
 {-| Transform from Int to Int32 format-}
 intToInt32 :: Int -> Int32

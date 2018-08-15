@@ -63,7 +63,6 @@ responseUserById :: ActionM ()
 responseUserById = do id <- param "id"
                       user <- liftAndCatchIO $ getUserById id
                       json user
---                      json (filter (hasId id) allUsers)
 
 createUser :: ActionM ()
 createUser =  do maybeUser <- getUserParam
@@ -71,9 +70,9 @@ createUser =  do maybeUser <- getUserParam
                  json user
 
 updateUser :: ActionM ()
-updateUser =  do user <- getUserParam
-                 -- Update the user
-                 json user
+updateUser =  do maybeUser <- getUserParam
+                 status <- liftAndCatchIO $ sequence $ updateUserById <$> maybeUser
+                 json (show status)
 
 deleteById :: ActionM ()
 deleteById = do id <- param "id"
