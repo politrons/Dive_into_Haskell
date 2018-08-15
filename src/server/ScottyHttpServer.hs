@@ -30,8 +30,8 @@ routes :: ScottyM()
 routes = do get "/service" responseService
             get "/author" responseName
             get "/users" responseUsers
-            get "/users/:id" responseUserById
-            get "/user/:name" responseUserByName
+            get "/user/id/:id" responseUserById
+            get "/user/name/:name" responseUserByName
             post "/user/" createUser
             put "/user/" updateUser
             delete "/users/:id" deleteById
@@ -44,17 +44,15 @@ responseName :: ActionM ()
 responseName = text "Paul Perez Garcia"
 
 {-| Thanks to Aeson library and encode, we can use [json] operator to allow us to encode object into json
-    [liftAndCatchIO] operator is used to extract from the IO monad the type and add it to ActionM monad
-.|-}
+    [liftAndCatchIO] operator is used to extract from the IO monad the type and add it to ActionM monad.|-}
 responseUsers :: ActionM ()
 responseUsers = do users <- liftAndCatchIO $ getAllUsers
                    json (show users)
 
 responseUserByName :: ActionM ()
 responseUserByName = do name <- param "name"
-                        if areEquals name "Paul" then json paul
-                        else if areEquals name "John" then json john
-                        else text "Do I know you?"
+                        user <- liftAndCatchIO $ getUserByUserName name
+                        json user
 
 {-| In scotty we have [param] operator which used passing the uri param name we can extract the value. -}
 responseUserById :: ActionM ()

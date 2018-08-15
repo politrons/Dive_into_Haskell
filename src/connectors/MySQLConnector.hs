@@ -13,6 +13,7 @@ import Control.Monad.IO.Class
 
 selectAllQuery = "SELECT * FROM haskell_users"
 selectByIdQuery = "SELECT * FROM haskell_users WHERE userId=(?)"
+selectByNameQuery = "SELECT * FROM haskell_users WHERE userName=(?)"
 deleteByIdQuery = "DELETE FROM haskell_users WHERE userId=(?)"
 insertUserQuery = "INSERT INTO mysql.haskell_users (userId,userName) VALUES(?,?)"
 updateUserQuery = "UPDATE mysql.haskell_users SET userId=(?),userName=(?) WHERE userId=(?)"
@@ -28,30 +29,37 @@ getAllUsers = do
     users <- liftIO $ transformMySQLValueArrayToUsers <$> maybeUsers
     return users
 
-{-| For select we use [query] operator followed by the connection, query and a QueryParam-}
+{-| Function for select. We select we use [query] operator followed by the connection, query and a QueryParam-}
 getUserById :: Int -> IO User
 getUserById id = let userId = id in do
             conn <- createConnection
             (columnDef, inputStream) <- query conn selectByIdQuery [One $ MySQLInt32 (intToInt32 userId)]
             maybeMySQLValue <- Streams.read inputStream
-            user <- return (extractMaybeUser maybeMySQLValue)
-            return user
+            return (extractMaybeUser maybeMySQLValue)
 
-{-| For insert we use [execute] operator followed by the connection, query and an array of QueryParam-}
+{-| Function for select. We use [query] operator followed by the connection, query and a QueryParam-}
+getUserByUserName :: String -> IO User
+getUserByUserName _name = let name = _name in do
+            conn <- createConnection
+            (columnDef, inputStream) <- query conn selectByNameQuery [One $ MySQLText (T.pack $ name)]
+            maybeMySQLValue <- Streams.read inputStream
+            return (extractMaybeUser maybeMySQLValue)
+
+{-|Function for insert. We use [execute] operator followed by the connection, query and an array of QueryParam-}
 insertUser :: User -> IO OK
 insertUser _user = let user = _user in do
             conn <- createConnection
             status <- execute conn insertUserQuery [MySQLInt32 (intToInt32 $ getUserId user), MySQLText (T.pack $ getUserName user)]
             return status
 
-{-| For select we use [query] operator followed by the connection, query and a QueryParam-}
+{-| Function for delete. We use [query] operator followed by the connection, query and a QueryParam-}
 deleteUserById :: Int -> IO OK
 deleteUserById id = let userId = id in do
               conn <- createConnection
               status <- execute conn  deleteByIdQuery [One $ MySQLInt32 (intToInt32 userId)]
               return status
 
-{-| For update we use [execute] operator followed by the connection,update query and an array of QueryParam with data to update and filter-}
+{-| Function for update. we use [execute] operator followed by the connection,update query and an array of QueryParam with data to update and filter-}
 updateUserById :: User -> IO OK
 updateUserById _user = let user = _user in do
             conn <- createConnection
