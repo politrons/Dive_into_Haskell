@@ -89,18 +89,4 @@ getUserParam :: ActionT Text IO (Maybe User)
 getUserParam = do requestBody <- body
                   return (decode requestBody)
 
-----------------------------------------------------------------------------------------------------------------------
-hasId :: Int -> User -> Bool
-hasId id user = userId user == id
 
-areEquals :: String -> String -> Bool
-areEquals requestName name = requestName == name
-
-paul :: User
-paul = User { userId = 1, userName = "Paul" }
-
-john :: User
-john = User { userId = 2, userName = "John" }
-
---allUsers :: [User]
---allUsers = [paul, john]
