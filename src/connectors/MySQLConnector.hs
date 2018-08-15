@@ -35,16 +35,16 @@ getUserById :: Int -> IO User
 getUserById id = let userId = id in do
             conn <- createConnection
             (columnDef, inputStream) <- querySelectById userId conn
-            maybeMySQLValue <- Streams.read inputStream
-            return (extractMaybeUser maybeMySQLValue)
+            maybeMySQLValue <- readInputStream inputStream
+            return (transformMaybeMySQLValueToUser maybeMySQLValue)
 
 {-| Function for select. We use [query] operator followed by the connection, query and a QueryParam-}
 getUserByUserName :: String -> IO User
 getUserByUserName _name = let name = _name in do
             conn <- createConnection
             (columnDef, inputStream) <- querySelectByUserName name conn
-            maybeMySQLValue <- Streams.read inputStream
-            return (extractMaybeUser maybeMySQLValue)
+            maybeMySQLValue <- readInputStream inputStream
+            return (transformMaybeMySQLValueToUser maybeMySQLValue)
 
 {-|Function for insert. We use [execute] operator followed by the connection, query and an array of QueryParam-}
 insertUser :: User -> IO OK
@@ -88,8 +88,8 @@ executeUpdateQuery :: User -> MySQLConn -> IO OK
 executeUpdateQuery user  conn = execute conn  updateUserQuery [MySQLInt32 (intToInt32 $ getUserId user), MySQLText (T.pack $ getUserName user),MySQLInt32 (intToInt32 $ getUserId user)]
 
 {-| Function to extract the MySQLValue from Maybe and transform into User calling another function-}
-extractMaybeUser :: Maybe [MySQLValue] -> User
-extractMaybeUser maybeMySQLValue = case maybeMySQLValue of
+transformMaybeMySQLValueToUser :: Maybe [MySQLValue] -> User
+transformMaybeMySQLValueToUser maybeMySQLValue = case maybeMySQLValue of
                                             Just mysqlValue -> transformToUser mysqlValue
                                             Nothing -> User 0 "default User"
 
@@ -114,3 +114,6 @@ int32ToInt userId = fromIntegral (userId :: Int32) :: Int
 createConnection :: IO MySQLConn
 createConnection = connect defaultConnectInfo {ciUser = "root", ciPassword = "root", ciDatabase = "mysql"}
 
+{-| Using mysql-haskell [Streams.read] operator we able to transform the inputStream into Maybe[Type]-}
+readInputStream :: InputStream a -> IO (Maybe a)
+readInputStream inputStream = Streams.read inputStream
