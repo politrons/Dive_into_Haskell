@@ -1,5 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
-{-| The version of MySQL-Haskell 0.8.3.0 only works properly with MySQL server 5.5-}
+{-| Connector working in top of library MySQL-Haskell https://github.com/winterland1989/mysql-haskell
+    The version of MySQL-Haskell 0.8.3.0 only works properly with MySQL server 5.5-}
 module MySQLConnector where
 
 import Database.MySQL.Base
@@ -8,7 +9,7 @@ import Data.Int
 import ModelTypes
 import qualified Data.Text as T
 import Data.List
-
+import Control.Monad.IO.Class
 
 selectAllQuery = "SELECT * FROM haskell_users"
 selectByIdQuery = "SELECT * FROM haskell_users WHERE userId=(?)"
@@ -18,12 +19,17 @@ updateUserQuery = "UPDATE mysql.haskell_users SET userId=(?),userName=(?) WHERE 
 
 -- | MySQL CRUD
 -- -------------
-getAllUsers :: IO ()
+getAllUsers :: IO [[MySQLValue]]
 getAllUsers = do
     conn <- createConnection
     s <- prepareStmt conn selectAllQuery
-    (defs, is) <- queryStmt conn s [MySQLInt32U 18]
-    print =<< Streams.toList is
+    (defs, inputStream) <- queryStmt conn s [MySQLInt32U 18]
+    maybeUsers <- do return (Streams.toList inputStream)
+    users <- liftIO $ transformMySQLValueArrayToUsers <$> maybeUsers
+    return users
+
+transformMySQLValueArrayToUsers :: [[MySQLValue]] -> [[MySQLValue]]
+transformMySQLValueArrayToUsers array = map (\user -> user)array
 
 {-| For select we use [query] operator followed by the connection, query and a QueryParam-}
 getUserById :: Int -> IO User
@@ -37,16 +43,16 @@ getUserById id = let userId = id in do
 {-| For insert we use [execute] operator followed by the connection, query and an array of QueryParam-}
 insertUser :: User -> IO OK
 insertUser _user = let user = _user in do
-        conn <- createConnection
-        status <- execute conn insertUserQuery [MySQLInt32 (intToInt32 $ getUserId user), MySQLText (T.pack $ getUserName user)]
-        return status
+            conn <- createConnection
+            status <- execute conn insertUserQuery [MySQLInt32 (intToInt32 $ getUserId user), MySQLText (T.pack $ getUserName user)]
+            return status
 
 {-| For select we use [query] operator followed by the connection, query and a QueryParam-}
 deleteUserById :: Int -> IO OK
 deleteUserById id = let userId = id in do
-            conn <- createConnection
-            status <- execute conn  deleteByIdQuery [One $ MySQLInt32 (intToInt32 userId)]
-            return status
+              conn <- createConnection
+              status <- execute conn  deleteByIdQuery [One $ MySQLInt32 (intToInt32 userId)]
+              return status
 
 {-| For update we use [execute] operator followed by the connection,update query and an array of QueryParam with data to update and filter-}
 updateUserById :: User -> IO OK
