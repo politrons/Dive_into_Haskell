@@ -10,6 +10,7 @@ import ModelTypes
 import qualified Data.Text as T
 import Data.List
 import Control.Monad.IO.Class
+import System.IO.Streams (InputStream)
 
 selectAllQuery = "SELECT * FROM haskell_users"
 selectByIdQuery = "SELECT * FROM haskell_users WHERE userId=(?)"
@@ -33,7 +34,7 @@ getAllUsers = do
 getUserById :: Int -> IO User
 getUserById id = let userId = id in do
             conn <- createConnection
-            (columnDef, inputStream) <- query conn selectByIdQuery [One $ MySQLInt32 (intToInt32 userId)]
+            (columnDef, inputStream) <- querySelectById userId conn
             maybeMySQLValue <- Streams.read inputStream
             return (extractMaybeUser maybeMySQLValue)
 
@@ -41,7 +42,7 @@ getUserById id = let userId = id in do
 getUserByUserName :: String -> IO User
 getUserByUserName _name = let name = _name in do
             conn <- createConnection
-            (columnDef, inputStream) <- query conn selectByNameQuery [One $ MySQLText (T.pack $ name)]
+            (columnDef, inputStream) <- querySelectByUserName name conn
             maybeMySQLValue <- Streams.read inputStream
             return (extractMaybeUser maybeMySQLValue)
 
@@ -49,22 +50,42 @@ getUserByUserName _name = let name = _name in do
 insertUser :: User -> IO OK
 insertUser _user = let user = _user in do
             conn <- createConnection
-            status <- execute conn insertUserQuery [MySQLInt32 (intToInt32 $ getUserId user), MySQLText (T.pack $ getUserName user)]
+            status <- executeCreateQuery user conn
             return status
 
 {-| Function for delete. We use [query] operator followed by the connection, query and a QueryParam-}
 deleteUserById :: Int -> IO OK
 deleteUserById id = let userId = id in do
               conn <- createConnection
-              status <- execute conn  deleteByIdQuery [One $ MySQLInt32 (intToInt32 userId)]
+              status <- executeDeleteQuery userId conn
               return status
 
 {-| Function for update. we use [execute] operator followed by the connection,update query and an array of QueryParam with data to update and filter-}
 updateUserById :: User -> IO OK
 updateUserById _user = let user = _user in do
             conn <- createConnection
-            status <- execute conn  updateUserQuery [MySQLInt32 (intToInt32 $ getUserId user), MySQLText (T.pack $ getUserName user),MySQLInt32 (intToInt32 $ getUserId user)]
+            status <- executeUpdateQuery user conn
             return status
+
+{-| Function to  Query the select by id query-}
+querySelectById :: Int -> MySQLConn -> IO ([ColumnDef], InputStream [MySQLValue])
+querySelectById userId  conn = query conn selectByIdQuery [One $ MySQLInt32 (intToInt32 userId)]
+
+{-| Function to  Query the select by name query-}
+querySelectByUserName :: String -> MySQLConn -> IO ([ColumnDef], InputStream [MySQLValue])
+querySelectByUserName name  conn = query conn selectByNameQuery [One $ MySQLText (T.pack $ name)]
+
+{-| Function to  Execute the create query-}
+executeCreateQuery :: User -> MySQLConn -> IO OK
+executeCreateQuery user  conn = execute conn insertUserQuery [MySQLInt32 (intToInt32 $ getUserId user), MySQLText (T.pack $ getUserName user)]
+
+{-| Function to  Execute the delete query-}
+executeDeleteQuery :: Int -> MySQLConn -> IO OK
+executeDeleteQuery userId  conn = execute conn  deleteByIdQuery [One $ MySQLInt32 (intToInt32 userId)]
+
+{-| Function to  Execute the update query-}
+executeUpdateQuery :: User -> MySQLConn -> IO OK
+executeUpdateQuery user  conn = execute conn  updateUserQuery [MySQLInt32 (intToInt32 $ getUserId user), MySQLText (T.pack $ getUserName user),MySQLInt32 (intToInt32 $ getUserId user)]
 
 {-| Function to extract the MySQLValue from Maybe and transform into User calling another function-}
 extractMaybeUser :: Maybe [MySQLValue] -> User
