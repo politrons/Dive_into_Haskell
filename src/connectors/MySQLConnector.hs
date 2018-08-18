@@ -11,6 +11,7 @@ import qualified Data.Text as T
 import Data.List
 import Control.Monad.IO.Class
 import System.IO.Streams (InputStream)
+import Control.Concurrent (myThreadId,newEmptyMVar,forkIO,threadDelay,putMVar,takeMVar)
 
 selectAllQuery = "SELECT * FROM haskell_users"
 selectByIdQuery = "SELECT * FROM haskell_users WHERE userId=(?)"
@@ -21,51 +22,79 @@ updateUserQuery = "UPDATE mysql.haskell_users SET userId=(?),userName=(?) WHERE 
 
 -- | MySQL CRUD
 -- -------------
+{-| Function for select all. We select we use [queryStmt] operator followed by the statement created previously.
+    For the prepare statement we use the [prepareStmt] operator followed by the connection and query.
+    For all this operations since access to database is blocking, we use green threads by [ForkIO] -}
 getAllUsers :: IO [User]
 getAllUsers = do
-    conn <- createConnection
-    s <- prepareStmt conn selectAllQuery
-    (_, inputStream) <- queryStmt conn s [MySQLInt32U 18]
-    maybeUsers <- return (Streams.toList inputStream)
-    users <- liftIO $ transformMySQLValueArrayToUsers <$> maybeUsers
-    return users
+            emptyVar <- newEmptyMVar
+            forkIO $ do
+                conn <- createConnection
+                liftIO $ putStrLn ("Preparing connection:")
+                s <- prepareStmt conn selectAllQuery
+                (_, inputStream) <- queryStmt conn s [MySQLInt32U 18]
+                maybeUsers <- return (Streams.toList inputStream)
+                users <- liftIO $ transformMySQLValueArrayToUsers <$> maybeUsers
+                putMVar emptyVar users
+            users <- takeMVar emptyVar
+            return users
 
 {-| Function for select. We select we use [query] operator followed by the connection, query and a QueryParam-}
 getUserById :: Int -> IO User
 getUserById id = let userId = id in do
-            conn <- createConnection
-            (columnDef, inputStream) <- querySelectById userId conn
-            maybeMySQLValue <- readInputStream inputStream
-            return (transformMaybeMySQLValueToUser maybeMySQLValue)
+              emptyVar <- newEmptyMVar
+              forkIO $ do
+                  conn <- createConnection
+                  (columnDef, inputStream) <- querySelectById userId conn
+                  maybeMySQLValue <- readInputStream inputStream
+                  putMVar emptyVar maybeMySQLValue
+              maybeMySQLValue <- takeMVar emptyVar
+              return (transformMaybeMySQLValueToUser maybeMySQLValue)
 
 {-| Function for select. We use [query] operator followed by the connection, query and a QueryParam-}
 getUserByUserName :: String -> IO User
 getUserByUserName _name = let name = _name in do
-            conn <- createConnection
-            (columnDef, inputStream) <- querySelectByUserName name conn
-            maybeMySQLValue <- readInputStream inputStream
-            return (transformMaybeMySQLValueToUser maybeMySQLValue)
+              emptyVar <- newEmptyMVar
+              forkIO $ do
+                  conn <- createConnection
+                  (columnDef, inputStream) <- querySelectByUserName name conn
+                  maybeMySQLValue <- readInputStream inputStream
+                  putMVar emptyVar maybeMySQLValue
+              maybeMySQLValue <- takeMVar emptyVar
+              return (transformMaybeMySQLValueToUser maybeMySQLValue)
 
 {-|Function for insert. We use [execute] operator followed by the connection, query and an array of QueryParam-}
 insertUser :: User -> IO OK
 insertUser _user = let user = _user in do
-            conn <- createConnection
-            status <- executeCreateQuery user conn
-            return status
+              emptyVar <- newEmptyMVar
+              forkIO $ do
+                    conn <- createConnection
+                    status <- executeCreateQuery user conn
+                    putMVar emptyVar status
+              status <- takeMVar emptyVar
+              return status
 
 {-| Function for delete. We use [query] operator followed by the connection, query and a QueryParam-}
 deleteUserById :: Int -> IO OK
 deleteUserById id = let userId = id in do
-              conn <- createConnection
-              status <- executeDeleteQuery userId conn
+              emptyVar <- newEmptyMVar
+              forkIO $ do
+                  conn <- createConnection
+                  status <- executeDeleteQuery userId conn
+                  putMVar emptyVar status
+              status <- takeMVar emptyVar
               return status
 
 {-| Function for update. we use [execute] operator followed by the connection,update query and an array of QueryParam with data to update and filter-}
 updateUserById :: User -> IO OK
 updateUserById _user = let user = _user in do
-            conn <- createConnection
-            status <- executeUpdateQuery user conn
-            return status
+              emptyVar <- newEmptyMVar
+              forkIO $ do
+                  conn <- createConnection
+                  status <- executeUpdateQuery user conn
+                  putMVar emptyVar status
+              status <- takeMVar emptyVar
+              return status
 
 {-| Function to  Query the select by id query-}
 querySelectById :: Int -> MySQLConn -> IO ([ColumnDef], InputStream [MySQLValue])

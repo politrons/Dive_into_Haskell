@@ -76,6 +76,8 @@ main = scottyServer
 --main = print func1Output
 --main = print func2Output
 --main = functorDollar
+--main = do value <- forkIOThreadsCallback
+--          print value
 
 -- | High order function
 -- ----------------------

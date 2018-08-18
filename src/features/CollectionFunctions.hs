@@ -4,7 +4,7 @@ import Data.Map (Map)
 import qualified Data.Map as Map
 
 import Data.Char
-import Data.List as ListUtils -- | In case you want to use an alias.
+import Data.List as ListUtils
 
 -- |   List
 -- ------------

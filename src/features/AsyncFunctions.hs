@@ -6,6 +6,7 @@ import Control.Concurrent.Async
 import Data.Char
 import Data.List
 import System.Random
+import Control.Monad.IO.Class (liftIO)
 
 
 newRand = randomRIO (0, 100 :: Int)
@@ -150,7 +151,16 @@ forkOSThreads = do
   putMVar input "Hello this is Paul!"
   threadDelay 1000000
 
-
+forkIOThreadsCallback :: IO String
+forkIOThreadsCallback = do
+      mainThreadId <- myThreadId -- Return information of the thread
+      input <- newEmptyMVar -- Create an empty MVar
+      forkIO $ do
+            threadDelay 10000000
+            putMVar input "hello async world"
+            print "Thread finished:"
+      output <- takeMVar input
+      return output
 
 getOperation :: IO String -- an IO monad of type String
 getOperation = do
