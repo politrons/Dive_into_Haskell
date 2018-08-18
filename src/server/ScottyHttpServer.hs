@@ -1,4 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-} -- Mandatory language overload to overload String
+
+{-| This http server has been build in top of open source library http://hackage.haskell.org/package/scotty-}
 module ScottyHttpServer where
 
 import Web.Scotty
@@ -11,6 +13,7 @@ import MySQLConnector
 import Data.ByteString.Lazy.Char8 (ByteString)
 import Web.Scotty.Internal.Types (ScottyT, ActionT, Param, RoutePattern, Options, File)
 import Data.Text.Lazy (Text)
+import Control.Concurrent (myThreadId,newEmptyMVar,forkIO,threadDelay,putMVar,takeMVar)
 
 port = 3000 :: Int
 
@@ -43,15 +46,25 @@ responseService = text "First Haskell service 1.0"
 responseName :: ActionM ()
 responseName = text "Paul Perez Garcia"
 
-{-| Thanks to Aeson library and encode, we can use [json] operator to allow us to encode object into json
-    [liftAndCatchIO] operator is used to extract from the IO monad the type and add it to ActionM monad.|-}
+{-|  -[Aeson] library and encode operator, we can use [json] operator to allow us to encode object into json.
+    - [liftAndCatchIO] operator is used to extract from the IO monad the type and add it to ActionM monad.
+    - [forkIO] operator allow use run a do block in a green thread allowing not block the OS threads for transport layer.
+    |-}
 responseUsers :: ActionM ()
-responseUsers = do users <- liftAndCatchIO $ getAllUsers
+responseUsers = do emptyVar <- liftAndCatchIO $newEmptyMVar
+                   liftAndCatchIO $ forkIO $ do
+                                             users <- getAllUsers
+                                             putMVar emptyVar users
+                   users <- liftAndCatchIO $ takeMVar emptyVar
                    json (show users)
 
 responseUserByName :: ActionM ()
-responseUserByName = do name <- param "name"
-                        user <- liftAndCatchIO $ getUserByUserName name
+responseUserByName = do emptyVar <- liftAndCatchIO $newEmptyMVar
+                        name <- param "name"
+                        liftAndCatchIO $ forkIO $ do
+                                 user <- getUserByUserName name
+                                 putMVar emptyVar user
+                        user <- liftAndCatchIO $ takeMVar emptyVar
                         json user
 
 {-| In scotty we have [param] operator which used passing the uri param name we can extract the value. -}
