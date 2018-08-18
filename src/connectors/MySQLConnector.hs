@@ -95,6 +95,16 @@ updateUserById _user = let user = _user in do
                   putMVar emptyVar status
               status <- takeMVar emptyVar
               return status
+--
+--insertAddress :: Address -> IO OK
+--insertAddress _address = let address = _address in do
+--              emptyVar <- newEmptyMVar
+--              forkIO $ do
+--                    conn <- createConnection
+--                    status <- executeCreateQuery address conn
+--                    putMVar emptyVar status
+--              status <- takeMVar emptyVar
+--              return status
 
 {-| Function to  Query the select by id query-}
 querySelectById :: Int -> MySQLConn -> IO ([ColumnDef], InputStream [MySQLValue])

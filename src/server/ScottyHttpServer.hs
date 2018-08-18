@@ -14,6 +14,7 @@ import Data.ByteString.Lazy.Char8 (ByteString)
 import Web.Scotty.Internal.Types (ScottyT, ActionT, Param, RoutePattern, Options, File)
 import Data.Text.Lazy (Text)
 import Control.Concurrent (myThreadId,newEmptyMVar,forkIO,threadDelay,putMVar,takeMVar)
+import System.Random (randomRIO)
 
 port = 3000 :: Int
 
@@ -51,7 +52,8 @@ responseName = text "Paul Perez Garcia"
     - [forkIO] operator allow use run a do block in a green thread allowing not block the OS threads for transport layer.
     |-}
 responseUsers :: ActionM ()
-responseUsers = do emptyVar <- liftAndCatchIO $newEmptyMVar
+responseUsers = do
+                   emptyVar <- liftAndCatchIO $newEmptyMVar
                    liftAndCatchIO $ forkIO $ do
                                              users <- getAllUsers
                                              putMVar emptyVar users
@@ -59,8 +61,9 @@ responseUsers = do emptyVar <- liftAndCatchIO $newEmptyMVar
                    json (show users)
 
 responseUserByName :: ActionM ()
-responseUserByName = do emptyVar <- liftAndCatchIO $newEmptyMVar
+responseUserByName = do
                         name <- param "name"
+                        emptyVar <- liftAndCatchIO $newEmptyMVar
                         liftAndCatchIO $ forkIO $ do
                                  user <- getUserByUserName name
                                  putMVar emptyVar user
@@ -69,18 +72,22 @@ responseUserByName = do emptyVar <- liftAndCatchIO $newEmptyMVar
 
 {-| In scotty we have [param] operator which used passing the uri param name we can extract the value. -}
 responseUserById :: ActionM ()
-responseUserById = do id <- param "id"
-                      user <- liftAndCatchIO $ getUserById id
+responseUserById = do
+                      id <- param "id"
+                      emptyVar <- liftAndCatchIO $newEmptyMVar
+                      liftAndCatchIO $ forkIO $ do
+                                      user <- getUserById id
+                                      putMVar emptyVar user
+                      user <- liftAndCatchIO $ takeMVar emptyVar
                       json user
 
 {-| This part of the program is really interested, we are using function where first we need to call insertUser
     passing a [User] but we have a [Maybe User] so we use a functor [<*>] to extract the User from the Maybe.
      Then we have [sequence] operator which does:
     -- | Evaluate each monadic action in the structure from left to right, and collect the results.
-    Then finally we need to lift the response from insertUser  [IO OK] to [OK] and to do that we use
-    the operator [liftAndCatchIO] which does:
-    -- | Like 'liftIO', but catch any IO exceptions and turn them into Scotty exceptions.
--}
+        Then finally we need to lift the response from insertUser  [IO OK] to [OK] and to do that we use
+        the operator [liftAndCatchIO] which does:
+    -- | Like 'liftIO', but catch any IO exceptions and turn them into Scotty exceptions.-}
 createUser :: ActionM ()
 createUser =  do maybeUser <- getUserParam
                  status <- liftAndCatchIO $ sequence $ insertUser <$> maybeUser
@@ -101,5 +108,4 @@ deleteById = do id <- param "id"
 getUserParam :: ActionT Text IO (Maybe User)
 getUserParam = do requestBody <- body
                   return (decode requestBody)
-
 
