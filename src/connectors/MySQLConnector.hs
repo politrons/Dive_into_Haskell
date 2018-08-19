@@ -86,7 +86,7 @@ deleteUserById id = let userId = id in do
               emptyVar <- newEmptyMVar
               forkIO $ do
                   conn <- createConnection
-                  status <- executeDeleteQuery userId conn
+                  status <- executeCreateQuery (toUserId userId) conn
                   putMVar emptyVar status
               status <- takeMVar emptyVar
               return status
@@ -131,44 +131,54 @@ getAddressById id = let addressId = id in do
 
 -- | Commands
 
+{-| Type class definition for commands-}
 class Commands x y z where
     executeCreateQuery :: x -> y -> IO z
 
+{-| Type class implementation to Execute the insert user query-}
 instance Commands User MySQLConn OK where
     executeCreateQuery user conn = execute conn insertUserQuery [MySQLInt32 (intToInt32 $ getUserId user), MySQLText (T.pack $ getUserName user)]
 
+{-| Type class implementation to Execute the insert Address query-}
 instance Commands Address MySQLConn OK where
     executeCreateQuery address conn = execute conn insertAddressQuery [MySQLInt32 (intToInt32 $ getAddressId address),
                                                                 MySQLInt32(intToInt32 $ getAddressNumber address),
                                                                 MySQLText (T.pack $ getAddressStreet address)]
+
+{-| Type class implementation to Execute the delete query-}
+instance Commands UserId MySQLConn OK where
+    executeCreateQuery userId conn = execute conn  deleteByIdQuery [One $ MySQLInt32 (intToInt32 $ fromUserId userId)]
+
 -- | Queries
 
+{-| Type class definition for queries-}
 class Queries x y z k where
     querySelect :: x -> y -> IO (z [k])
 
+{-| Type class implementation to Execute the select By Id query-}
 instance Queries UserId MySQLConn Maybe MySQLValue where
   querySelect userId conn = do (columnDef, inputStream) <- query conn selectByIdQuery [One $ MySQLInt32 (intToInt32 (fromUserId userId))]
                                maybe <- (Streams.read inputStream)
                                return maybe
 
+{-| Type class implementation to Execute the select By Address query-}
 instance Queries AddressId MySQLConn Maybe MySQLValue where
   querySelect addressId conn = do (columnDef, inputStream) <- query conn selectByAddressIdQuery [One $ MySQLInt32 (intToInt32 (fromAddressId addressId))]
                                   maybe <- (Streams.read inputStream)
                                   return maybe
 
-
+{-| Type class implementation to Execute the select By name query-}
 instance Queries Username MySQLConn Maybe MySQLValue where
   querySelect userName conn = do (columnDef, inputStream) <- query conn selectByNameQuery [One $ MySQLText (T.pack $ fromUserName userName)]
                                  maybe <- (Streams.read inputStream)
                                  return maybe
 
-{-| Function to  Execute the delete query-}
-executeDeleteQuery :: Int -> MySQLConn -> IO OK
-executeDeleteQuery userId  conn = execute conn  deleteByIdQuery [One $ MySQLInt32 (intToInt32 userId)]
-
 {-| Function to  Execute the update query-}
 executeUpdateQuery :: User -> MySQLConn -> IO OK
 executeUpdateQuery user  conn = execute conn  updateUserQuery [MySQLInt32 (intToInt32 $ getUserId user), MySQLText (T.pack $ getUserName user),MySQLInt32 (intToInt32 $ getUserId user)]
+
+-- | Transformation utils
+-- -------------------------
 
 {-| Function to extract the MySQLValue from Maybe and transform into User calling another function-}
 transformMaybeMySQLValueToUser :: Maybe [MySQLValue] -> User
