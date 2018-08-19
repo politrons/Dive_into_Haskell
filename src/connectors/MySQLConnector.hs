@@ -158,20 +158,20 @@ class Queries x y z k where
 {-| Type class implementation to Execute the select By Id query-}
 instance Queries UserId MySQLConn Maybe MySQLValue where
   executeQuery userId conn = do (columnDef, inputStream) <- query conn selectByIdQuery [One $ MySQLInt32 (intToInt32 (fromUserId userId))]
-                               maybe <- (Streams.read inputStream)
-                               return maybe
+                                maybe <- (Streams.read inputStream)
+                                return maybe
 
 {-| Type class implementation to Execute the select By Address query-}
 instance Queries AddressId MySQLConn Maybe MySQLValue where
   executeQuery addressId conn = do (columnDef, inputStream) <- query conn selectByAddressIdQuery [One $ MySQLInt32 (intToInt32 (fromAddressId addressId))]
-                                  maybe <- (Streams.read inputStream)
-                                  return maybe
+                                   maybe <- (Streams.read inputStream)
+                                   return maybe
 
 {-| Type class implementation to Execute the select By name query-}
 instance Queries Username MySQLConn Maybe MySQLValue where
   executeQuery userName conn = do (columnDef, inputStream) <- query conn selectByNameQuery [One $ MySQLText (T.pack $ fromUserName userName)]
-                                 maybe <- (Streams.read inputStream)
-                                 return maybe
+                                  maybe <- (Streams.read inputStream)
+                                  return maybe
 
 {-| Function to  Execute the update query-}
 executeUpdateQuery :: User -> MySQLConn -> IO OK
