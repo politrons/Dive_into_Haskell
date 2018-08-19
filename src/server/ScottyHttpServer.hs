@@ -43,7 +43,7 @@ routes = do get "/service" responseService
             post "/user/" createUser
             put "/user/" updateUser
             delete "/users/:id" deleteById
-            post "/profile/" createProfil
+            post "/profile/" createProfile
 
 {-| We use [text] operator from scotty we render the response in text/plain-}
 responseService :: ActionM ()
