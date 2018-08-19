@@ -19,7 +19,7 @@ import Control.Concurrent.Async (async,wait)
 
 port = 3000 :: Int
 
-{-| Thanks to type class we define that any [User] is JSON serializable/deserializable.|-}
+{-| Thanks to type class we define that any [User, Profile and Address] are JSON serializable/deserializable.|-}
 instance ToJSON User
 instance FromJSON User
 instance ToJSON Profile
