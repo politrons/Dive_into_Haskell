@@ -55,7 +55,7 @@ responseName = text "Paul Perez Garcia"
 
 {-|  -[Aeson] library and encode operator, we can use [json] operator to allow us to encode object into json.
     - [liftAndCatchIO] operator is used to extract from the IO monad the type and add it to ActionM monad.
-    - [forkIO] operator allow use run a do block in a green thread allowing not block the OS threads for transport layer.
+    - [forkIO] operator allow use run a do block in a green thread allowing tun multiple process in parallel like here.
     |-}
 createProfile :: ActionM ()
 createProfile =  do
