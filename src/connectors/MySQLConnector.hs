@@ -21,10 +21,15 @@ deleteByIdQuery = "DELETE FROM haskell_users WHERE userId=(?)"
 insertUserQuery = "INSERT INTO mysql.haskell_users (userId,userName) VALUES(?,?)"
 updateUserQuery = "UPDATE mysql.haskell_users SET userId=(?),userName=(?) WHERE userId=(?)"
 insertAddressQuery = "INSERT INTO mysql.haskell_address (id,number,street) VALUES(?,?,?)"
+selectByAddressIdQuery = "SELECT * FROM haskell_address WHERE id=(?)"
 
 
 -- | MySQL CRUD
 -- -------------
+
+-- | User
+-- ---------
+
 {-| Function for select all. We select we use [queryStmt] operator followed by the statement created previously.
     For the prepare statement we use the [prepareStmt] operator followed by the connection and query.
     For all this operations since access to database is blocking, we use green threads by [ForkIO] -}
@@ -48,11 +53,10 @@ getUserById id = let userId = id in do
               emptyVar <- newEmptyMVar
               forkIO $ do
                   conn <- createConnection
-                  (columnDef, inputStream) <- querySelectById userId conn
-                  maybeMySQLValue <- readInputStream inputStream
+                  maybeMySQLValue <- querySelect (toUserId userId) conn
                   putMVar emptyVar maybeMySQLValue
               maybeMySQLValue <- takeMVar emptyVar
-              return (transformMaybeMySQLValueToUser maybeMySQLValue)
+              return $ transformMaybeMySQLValueToUser maybeMySQLValue
 
 {-| Function for select. We use [query] operator followed by the connection, query and a QueryParam-}
 getUserByUserName :: String -> IO User
@@ -60,11 +64,10 @@ getUserByUserName _name = let name = _name in do
               emptyVar <- newEmptyMVar
               forkIO $ do
                   conn <- createConnection
-                  (columnDef, inputStream) <- querySelectByUserName name conn
-                  maybeMySQLValue <- readInputStream inputStream
+                  maybeMySQLValue <- querySelect (toUserName name) conn
                   putMVar emptyVar maybeMySQLValue
               maybeMySQLValue <- takeMVar emptyVar
-              return (transformMaybeMySQLValueToUser maybeMySQLValue)
+              return $ transformMaybeMySQLValueToUser maybeMySQLValue
 
 {-|Function for insert. We use [execute] operator followed by the connection, query and an array of QueryParam-}
 insertUser :: User -> IO OK
@@ -99,6 +102,9 @@ updateUserById _user = let user = _user in do
               status <- takeMVar emptyVar
               return status
 
+-- | Address
+-- ---------
+
 insertAddress :: Address -> IO OK
 insertAddress _address = let address = _address in do
               emptyVar <- newEmptyMVar
@@ -109,26 +115,52 @@ insertAddress _address = let address = _address in do
               status <- takeMVar emptyVar
               return status
 
-class CreateQuery x y  where
-    executeCreateQuery :: x -> y -> IO OK
+getAddressById :: Int -> IO Address
+getAddressById id = let addressId = id in do
+              emptyVar <- newEmptyMVar
+              forkIO $ do
+                  conn <- createConnection
+                  maybeMySQLValue <- querySelect (toAddressId addressId) conn
+                  putMVar emptyVar maybeMySQLValue
+              maybeMySQLValue <- takeMVar emptyVar
+              return $ transformMaybeMySQLValueToAddress maybeMySQLValue
 
--- |Here we create an implementation to compare Integer
-instance CreateQuery User MySQLConn where
+
+-- | Type classes
+-- ----------------
+
+-- | Commands
+
+class Commands x y z where
+    executeCreateQuery :: x -> y -> IO z
+
+instance Commands User MySQLConn OK where
     executeCreateQuery user conn = execute conn insertUserQuery [MySQLInt32 (intToInt32 $ getUserId user), MySQLText (T.pack $ getUserName user)]
 
-instance CreateQuery Address MySQLConn where
+instance Commands Address MySQLConn OK where
     executeCreateQuery address conn = execute conn insertAddressQuery [MySQLInt32 (intToInt32 $ getAddressId address),
                                                                 MySQLInt32(intToInt32 $ getAddressNumber address),
                                                                 MySQLText (T.pack $ getAddressStreet address)]
+-- | Queries
+
+class Queries x y z k where
+    querySelect :: x -> y -> IO (z [k])
+
+instance Queries UserId MySQLConn Maybe MySQLValue where
+  querySelect userId conn = do (columnDef, inputStream) <- query conn selectByIdQuery [One $ MySQLInt32 (intToInt32 (fromUserId userId))]
+                               maybe <- (Streams.read inputStream)
+                               return maybe
+
+instance Queries AddressId MySQLConn Maybe MySQLValue where
+  querySelect addressId conn = do (columnDef, inputStream) <- query conn selectByAddressIdQuery [One $ MySQLInt32 (intToInt32 (fromAddressId addressId))]
+                                  maybe <- (Streams.read inputStream)
+                                  return maybe
 
 
-{-| Function to  Query the select by id query-}
-querySelectById :: Int -> MySQLConn -> IO ([ColumnDef], InputStream [MySQLValue])
-querySelectById userId  conn = query conn selectByIdQuery [One $ MySQLInt32 (intToInt32 userId)]
-
-{-| Function to  Query the select by name query-}
-querySelectByUserName :: String -> MySQLConn -> IO ([ColumnDef], InputStream [MySQLValue])
-querySelectByUserName name  conn = query conn selectByNameQuery [One $ MySQLText (T.pack $ name)]
+instance Queries Username MySQLConn Maybe MySQLValue where
+  querySelect userName conn = do (columnDef, inputStream) <- query conn selectByNameQuery [One $ MySQLText (T.pack $ fromUserName userName)]
+                                 maybe <- (Streams.read inputStream)
+                                 return maybe
 
 {-| Function to  Execute the delete query-}
 executeDeleteQuery :: Int -> MySQLConn -> IO OK
@@ -144,6 +176,12 @@ transformMaybeMySQLValueToUser maybeMySQLValue = case maybeMySQLValue of
                                             Just mysqlValue -> transformToUser mysqlValue
                                             Nothing -> User 0 "default User"
 
+{-| Function to extract the MySQLValue from Maybe and transform into Address calling another function-}
+transformMaybeMySQLValueToAddress :: Maybe [MySQLValue] -> Address
+transformMaybeMySQLValueToAddress maybeMySQLValue = case maybeMySQLValue of
+                                            Just mysqlValue -> transformToAddress mysqlValue
+                                            Nothing -> Address 0  0 "default address"
+
 {-| Function that take an array of [[MySQLValue]] and transform every element into [User]-}
 transformMySQLValueArrayToUsers :: [[MySQLValue]] -> [User]
 transformMySQLValueArrayToUsers mysqlValues = map (\mysqlValue -> transformToUser mysqlValue) mysqlValues
@@ -153,6 +191,9 @@ transformMySQLValueArrayToUsers mysqlValues = map (\mysqlValue -> transformToUse
     In order to transform from Text to String we just need to use the operator [unpack] to extract the String -}
 transformToUser :: [MySQLValue] -> User
 transformToUser [MySQLInt32 row_userId, MySQLText row_userName] = User (int32ToInt row_userId) (T.unpack row_userName)
+
+transformToAddress :: [MySQLValue] -> Address
+transformToAddress [MySQLInt32 row_id, MySQLInt32 row_number, MySQLText row_street] = Address (int32ToInt row_id)(int32ToInt row_number) (T.unpack row_street)
 
 {-| Transform from Int to Int32 format-}
 intToInt32 :: Int -> Int32

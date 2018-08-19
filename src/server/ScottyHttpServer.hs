@@ -43,6 +43,7 @@ routes = do get "/service" responseService
             post "/user/" createUser
             put "/user/" updateUser
             delete "/users/:id" deleteById
+            get "/address/id/:id" responseAddressById
             post "/profile/" createProfile
 
 {-| We use [text] operator from scotty we render the response in text/plain-}
@@ -52,7 +53,10 @@ responseService = text "First Haskell service 1.0"
 responseName :: ActionM ()
 responseName = text "Paul Perez Garcia"
 
-{-|  -[Aeson] library and encode operator, we can use [json] operator to allow us to encode object into json.
+-- | Profile
+-- ---------
+
+{-| -[Aeson] library and encode operator, we can use [json] operator to allow us to encode object into json.
     - [liftAndCatchIO] operator is used to extract from the IO monad the type and add it to ActionM monad.
     - [forkIO] operator allow use run a do block in a green thread allowing tun multiple process in parallel like here.
     |-}
@@ -72,6 +76,9 @@ createProfile =  do
                  userStatus <- liftAndCatchIO $ takeMVar emptyUserVar
                  addressStatus <- liftAndCatchIO $ takeMVar emptyAddressVar
                  json (show userStatus)
+
+-- | User
+-- ---------
 
 responseUsers :: ActionM ()
 responseUsers = do users <- liftAndCatchIO getAllUsers
@@ -111,6 +118,15 @@ deleteById :: ActionM ()
 deleteById = do id <- param "id"
                 status <- liftAndCatchIO $ deleteUserById id
                 json (show status)
+
+-- | Address
+-- ---------
+
+responseAddressById :: ActionM ()
+responseAddressById = do
+                      id <- param "id"
+                      address <- liftAndCatchIO $ getAddressById id
+                      json address
 
 {-| In scotty we have [body] operator to get the request body.
     We also use [decode] operator to extract and transform from json to Maybe of type we specify in the type signature-}

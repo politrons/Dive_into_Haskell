@@ -32,6 +32,9 @@ main :: IO ()
 --          print  user
 --main = do address <- insertAddress $ Address 1 2 ""
 --          print address
+--main = do address <- getAddressById 1981
+--          print address
+
 
 -- | Http Server
 -- --------------

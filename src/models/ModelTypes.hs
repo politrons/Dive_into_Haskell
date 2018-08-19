@@ -11,6 +11,12 @@ data User = User { userId :: Int, userName :: String } deriving (Show, Generic)
 
 data Address = Address { id :: Int, number::Int, street::String} deriving (Show, Generic)
 
+data Username = Username String
+
+data AddressId = AddressId Int
+
+data UserId =  UserId Int
+
 getUserFromMaybeProfile :: Maybe Profile -> User
 getUserFromMaybeProfile profile =  case profile of
                             Just profile -> getUser profile
@@ -40,3 +46,23 @@ getAddressNumber(Address _ number _) = number
 
 getAddressStreet :: Address -> String
 getAddressStreet(Address _ _ street) = street
+
+toUserName :: String -> Username
+toUserName name = Username name
+
+fromUserName :: Username -> String
+fromUserName(Username name) = name
+
+
+toAddressId :: Int -> AddressId
+toAddressId id = AddressId id
+
+fromAddressId :: AddressId -> Int
+fromAddressId(AddressId id) = id
+
+
+toUserId :: Int -> UserId
+toUserId id = UserId id
+
+fromUserId :: UserId -> Int
+fromUserId(UserId id) = id
