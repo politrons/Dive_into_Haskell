@@ -43,8 +43,7 @@ routes = do get "/service" responseService
             post "/user/" createUser
             put "/user/" updateUser
             delete "/users/:id" deleteById
-            post "/profile/" createProfile
-
+            post "/profile/" createProfil
 
 {-| We use [text] operator from scotty we render the response in text/plain-}
 responseService :: ActionM ()
@@ -73,7 +72,6 @@ createProfile =  do
                  userStatus <- liftAndCatchIO $ takeMVar emptyUserVar
                  addressStatus <- liftAndCatchIO $ takeMVar emptyAddressVar
                  json (show userStatus)
-
 
 responseUsers :: ActionM ()
 responseUsers = do users <- liftAndCatchIO getAllUsers
