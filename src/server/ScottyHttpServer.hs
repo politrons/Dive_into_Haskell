@@ -15,6 +15,7 @@ import Web.Scotty.Internal.Types (ScottyT, ActionT, Param, RoutePattern, Options
 import Data.Text.Lazy (Text)
 import Control.Concurrent (myThreadId,newEmptyMVar,forkIO,threadDelay,putMVar,takeMVar)
 import System.Random (randomRIO)
+import Control.Concurrent.Async (async,wait)
 
 port = 3000 :: Int
 
@@ -45,6 +46,8 @@ routes = do get "/service" responseService
             delete "/users/:id" deleteById
             get "/address/id/:id" responseAddressById
             post "/profile/" createProfile
+            get "/profile/id/:id" responseProfileById
+
 
 {-| We use [text] operator from scotty we render the response in text/plain-}
 responseService :: ActionM ()
@@ -76,6 +79,20 @@ createProfile =  do
                  userStatus <- liftAndCatchIO $ takeMVar emptyUserVar
                  addressStatus <- liftAndCatchIO $ takeMVar emptyAddressVar
                  json (show userStatus)
+
+{-| Here we go to the MySQL connector to search with the same id for User and Address tables. Because both are
+    separate tables and that process can be done in parallel we run every search in a green thread, this time
+    to improve our knowledge in the concurrency we use [Async] operator, which just like forkIO run the process
+    into another thread, and return a Monad Async that contains the value of the response process.
+    Then using [wait] operator we wait until that green threads finish his job.-}
+responseProfileById :: ActionM ()
+responseProfileById = do id <- param "id"
+                         userAsync <- liftAndCatchIO $ async $ getUserById id
+                         addressAsync <- liftAndCatchIO $ async $ getAddressById id
+                         user <- liftAndCatchIO $ wait userAsync
+                         address <- liftAndCatchIO $ wait addressAsync
+                         profile <- liftAndCatchIO $ return $ Profile user address
+                         json profile
 
 -- | User
 -- ---------
