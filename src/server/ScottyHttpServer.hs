@@ -21,6 +21,10 @@ port = 3000 :: Int
 {-| Thanks to type class we define that any [User] is JSON serializable/deserializable.|-}
 instance ToJSON User
 instance FromJSON User
+instance ToJSON Profile
+instance FromJSON Profile
+instance ToJSON Address
+instance FromJSON Address
 
 {-| Using [scotty] passing [port] and [routes] we define the http server-}
 scottyServer :: IO ()
@@ -39,6 +43,8 @@ routes = do get "/service" responseService
             post "/user/" createUser
             put "/user/" updateUser
             delete "/users/:id" deleteById
+            post "/profile/" createProfile
+
 
 {-| We use [text] operator from scotty we render the response in text/plain-}
 responseService :: ActionM ()
@@ -51,34 +57,39 @@ responseName = text "Paul Perez Garcia"
     - [liftAndCatchIO] operator is used to extract from the IO monad the type and add it to ActionM monad.
     - [forkIO] operator allow use run a do block in a green thread allowing not block the OS threads for transport layer.
     |-}
+createProfile :: ActionM ()
+createProfile =  do
+                 maybeProfile <- getProfileParam
+                 user <- return (getUserFromMaybeProfile maybeProfile)
+                 address <- return (getAddressFromMaybeProfile maybeProfile)
+                 emptyUserVar <- liftAndCatchIO $ newEmptyMVar
+                 liftAndCatchIO $ forkIO $ do
+                                          status <- insertUser user
+                                          putMVar emptyUserVar status
+                 emptyAddressVar <- liftAndCatchIO $ newEmptyMVar
+                 liftAndCatchIO $ forkIO $ do
+                                           status <- insertAddress address
+                                           putMVar emptyAddressVar status
+                 userStatus <- liftAndCatchIO $ takeMVar emptyUserVar
+                 addressStatus <- liftAndCatchIO $ takeMVar emptyAddressVar
+                 json (show userStatus)
+
+
 responseUsers :: ActionM ()
-responseUsers = do
-                   emptyVar <- liftAndCatchIO $newEmptyMVar
-                   liftAndCatchIO $ forkIO $ do
-                                             users <- getAllUsers
-                                             putMVar emptyVar users
-                   users <- liftAndCatchIO $ takeMVar emptyVar
+responseUsers = do users <- liftAndCatchIO getAllUsers
                    json (show users)
 
 responseUserByName :: ActionM ()
 responseUserByName = do
                         name <- param "name"
-                        emptyVar <- liftAndCatchIO $newEmptyMVar
-                        liftAndCatchIO $ forkIO $ do
-                                 user <- getUserByUserName name
-                                 putMVar emptyVar user
-                        user <- liftAndCatchIO $ takeMVar emptyVar
+                        user <- liftAndCatchIO $ getUserByUserName name
                         json user
 
 {-| In scotty we have [param] operator which used passing the uri param name we can extract the value. -}
 responseUserById :: ActionM ()
 responseUserById = do
                       id <- param "id"
-                      emptyVar <- liftAndCatchIO $newEmptyMVar
-                      liftAndCatchIO $ forkIO $ do
-                                      user <- getUserById id
-                                      putMVar emptyVar user
-                      user <- liftAndCatchIO $ takeMVar emptyVar
+                      user <- liftAndCatchIO $ getUserById id
                       json user
 
 {-| This part of the program is really interested, we are using function where first we need to call insertUser
@@ -108,4 +119,8 @@ deleteById = do id <- param "id"
 getUserParam :: ActionT Text IO (Maybe User)
 getUserParam = do requestBody <- body
                   return (decode requestBody)
+
+getProfileParam :: ActionT Text IO (Maybe Profile)
+getProfileParam = do requestBody <- body
+                     return (decode requestBody)
 

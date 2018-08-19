@@ -1,4 +1,5 @@
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
 {-| Connector working in top of library MySQL-Haskell https://github.com/winterland1989/mysql-haskell
     The version of MySQL-Haskell 0.8.3.0 only works properly with MySQL server 5.5-}
 module MySQLConnector where
@@ -19,6 +20,8 @@ selectByNameQuery = "SELECT * FROM haskell_users WHERE userName=(?)"
 deleteByIdQuery = "DELETE FROM haskell_users WHERE userId=(?)"
 insertUserQuery = "INSERT INTO mysql.haskell_users (userId,userName) VALUES(?,?)"
 updateUserQuery = "UPDATE mysql.haskell_users SET userId=(?),userName=(?) WHERE userId=(?)"
+insertAddressQuery = "INSERT INTO mysql.haskell_address (id,number,street) VALUES(?,?,?)"
+
 
 -- | MySQL CRUD
 -- -------------
@@ -95,16 +98,29 @@ updateUserById _user = let user = _user in do
                   putMVar emptyVar status
               status <- takeMVar emptyVar
               return status
---
---insertAddress :: Address -> IO OK
---insertAddress _address = let address = _address in do
---              emptyVar <- newEmptyMVar
---              forkIO $ do
---                    conn <- createConnection
---                    status <- executeCreateQuery address conn
---                    putMVar emptyVar status
---              status <- takeMVar emptyVar
---              return status
+
+insertAddress :: Address -> IO OK
+insertAddress _address = let address = _address in do
+              emptyVar <- newEmptyMVar
+              forkIO $ do
+                    conn <- createConnection
+                    status <- executeCreateQuery address conn
+                    putMVar emptyVar status
+              status <- takeMVar emptyVar
+              return status
+
+class CreateQuery x y  where
+    executeCreateQuery :: x -> y -> IO OK
+
+-- |Here we create an implementation to compare Integer
+instance CreateQuery User MySQLConn where
+    executeCreateQuery user conn = execute conn insertUserQuery [MySQLInt32 (intToInt32 $ getUserId user), MySQLText (T.pack $ getUserName user)]
+
+instance CreateQuery Address MySQLConn where
+    executeCreateQuery address conn = execute conn insertAddressQuery [MySQLInt32 (intToInt32 $ getAddressId address),
+                                                                MySQLInt32(intToInt32 $ getAddressNumber address),
+                                                                MySQLText (T.pack $ getAddressStreet address)]
+
 
 {-| Function to  Query the select by id query-}
 querySelectById :: Int -> MySQLConn -> IO ([ColumnDef], InputStream [MySQLValue])
@@ -113,10 +129,6 @@ querySelectById userId  conn = query conn selectByIdQuery [One $ MySQLInt32 (int
 {-| Function to  Query the select by name query-}
 querySelectByUserName :: String -> MySQLConn -> IO ([ColumnDef], InputStream [MySQLValue])
 querySelectByUserName name  conn = query conn selectByNameQuery [One $ MySQLText (T.pack $ name)]
-
-{-| Function to  Execute the create query-}
-executeCreateQuery :: User -> MySQLConn -> IO OK
-executeCreateQuery user  conn = execute conn insertUserQuery [MySQLInt32 (intToInt32 $ getUserId user), MySQLText (T.pack $ getUserName user)]
 
 {-| Function to  Execute the delete query-}
 executeDeleteQuery :: Int -> MySQLConn -> IO OK

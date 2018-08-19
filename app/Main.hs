@@ -30,6 +30,8 @@ main :: IO ()
 --          print  user
 --main = do user <- insertUser User { userId = 1002, userName = "Paul2" }
 --          print  user
+--main = do address <- insertAddress $ Address 1 2 ""
+--          print address
 
 -- | Http Server
 -- --------------
