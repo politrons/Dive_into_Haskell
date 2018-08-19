@@ -102,15 +102,13 @@ responseUsers = do users <- liftAndCatchIO getAllUsers
                    json (show users)
 
 responseUserByName :: ActionM ()
-responseUserByName = do
-                        name <- param "name"
+responseUserByName = do name <- param "name"
                         user <- liftAndCatchIO $ getUserByUserName name
                         json user
 
 {-| In scotty we have [param] operator which used passing the uri param name we can extract the value. -}
 responseUserById :: ActionM ()
-responseUserById = do
-                      id <- param "id"
+responseUserById = do id <- param "id"
                       user <- liftAndCatchIO $ getUserById id
                       json user
 
@@ -140,10 +138,9 @@ deleteById = do id <- param "id"
 -- ---------
 
 responseAddressById :: ActionM ()
-responseAddressById = do
-                      id <- param "id"
-                      address <- liftAndCatchIO $ getAddressById id
-                      json address
+responseAddressById = do id <- param "id"
+                         address <- liftAndCatchIO $ getAddressById id
+                         json address
 
 {-| In scotty we have [body] operator to get the request body.
     We also use [decode] operator to extract and transform from json to Maybe of type we specify in the type signature-}
