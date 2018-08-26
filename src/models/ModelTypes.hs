@@ -10,6 +10,8 @@ data Profile = Profile {user::User, address::Address} deriving (Show, Generic)
 
 data User = User { userId :: Int, userName :: String } deriving (Show, Generic)
 
+data UserNotFound = UserNotFound { description :: String } deriving (Show, Generic)
+
 data Address = Address { id :: Int, number::Int, street::String} deriving (Show, Generic)
 
 data Username = Username String
