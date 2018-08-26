@@ -39,8 +39,11 @@ main :: IO ()
 -- | Cassandra Connector
 -- -----------------------
 
-main = do c <- cassandraConnector
-          print c
+--main = do c <- cassandraConnector
+--          print c
+
+main  = do response <- selectAllUser
+           print response
 
 -- | Http Server
 -- --------------
