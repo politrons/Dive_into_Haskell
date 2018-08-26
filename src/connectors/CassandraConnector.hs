@@ -17,6 +17,19 @@ import Database.CQL.Protocol( ColumnType( VarCharColumn ) )
 import Data.Int (Int64,Int32)
 import ModelTypes
 
+-- | Queries
+-- -------------
+{- | In cql-io we have [QueryString] function which first element is the type of action
+      R - Read
+      W - Write
+      S - Schema
+    After that we define in case we have arguments in the query the tuple of types
+    Finally we define another tuple for the output of the data.
+-}
+versionQuery = "SELECT cql_version from system.local" :: QueryString R () (Identity Text)
+allUsersQuery = "SELECT * from haskell_cassandra.haskell_users;" :: QueryString R () ((Int32, Text))
+userByIdQuery = "SELECT * from haskell_cassandra.haskell_users  WHERE userid=?" :: QueryString R (Identity Int32) ((Int32, Text))
+
 -- | User
 -- -------------
 
@@ -24,7 +37,6 @@ getVersion:: IO [Identity Text]
 getVersion = do
                 logger <- Logger.new Logger.defSettings
                 conn <- createConnection logger
-                let versionQuery = "SELECT cql_version from system.local" :: QueryString R () (Identity Text)
                 let queryParam = defQueryParams One ()
                 runClient conn (query versionQuery queryParam)
 
@@ -32,9 +44,8 @@ selectAllUser :: IO [User]
 selectAllUser = do
                   logger <- Logger.new Logger.defSettings
                   conn <- createConnection logger
-                  let selectAllQuery = "SELECT * from haskell_cassandra.haskell_users;" :: QueryString R () ((Int32, Text))
                   let queryParam = defQueryParams One ()
-                  array <- runClient conn (query selectAllQuery queryParam)
+                  array <- runClient conn (query allUsersQuery queryParam)
                   users <- transformArrayToUsers array
                   return users
 
@@ -42,9 +53,8 @@ selectUserById :: Int32 -> IO (Either UserNotFound User)
 selectUserById userId = do
                   logger <- Logger.new Logger.defSettings
                   conn <- createConnection logger
-                  let selectQuery = "SELECT * from haskell_cassandra.haskell_users  WHERE userid=?" :: PrepQuery R (Identity Int32) ((Int32, Text))
                   let queryParam = defQueryParams One (Identity userId)
-                  do maybe <- runClient conn (query1 selectQuery queryParam)
+                  do maybe <- runClient conn (query1 userByIdQuery queryParam)
                      response <- transformTupleToUser maybe
                      return response
 
@@ -53,7 +63,7 @@ selectUserById userId = do
 -- -------------
 {- | As usual using [map] operator we transform the Tuple into User data type-}
 transformArrayToUsers :: [(Int32, Text)] -> IO [User]
-transformArrayToUsers array =   return $ map (\tuple -> User 1 "change me") array
+transformArrayToUsers array =   return $ map (\tuple -> User (getFirstElement tuple) (getLastElement tuple)) array
 
 {- | Using [Either] operator we define the possibility that we have two possible effects. We can return a User
      in case the id is correct, or if is not we will return an UserNotFound.-}

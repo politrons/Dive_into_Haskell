@@ -40,10 +40,10 @@ main :: IO ()
 -- -----------------------
 
 --main = do c <- cassandraConnector
---          print c
+----          print c
 --main  = do response <- selectAllUser
 --           print response
-main  = do response <- selectUserById 80000
+main  = do response <- selectUserById 10000
            print response
 
 -- | Http Server
