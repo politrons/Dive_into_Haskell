@@ -15,12 +15,30 @@ import Control.Monad.IO.Class (liftIO)
 
 cassandraConnector:: IO [Identity Text]
 cassandraConnector = do
-                    g <- Logger.new Logger.defSettings
-                    c <- Client.init g defSettings
-                    let q = "SLECT cql_version from system.local" :: QueryString R () (Identity Text)
-                    let p = defQueryParams One ()
-                    runClient c (query q p)
+                    logger <- Logger.new Logger.defSettings
+                    conn <- Client.init logger createConnectionSettings
+                    let selectQuery = "SLECT cql_version from system.local" :: QueryString R () (Identity Text)
+                    let queryParam = defQueryParams One ()
+                    runClient conn (query selectQuery queryParam)
 
 
 
+-- | Connection
+-- -------------
+createConnectionSettings :: Settings
+createConnectionSettings = addRetryStrategy $
+                           addMaxTimeout $
+                           addMaxConnections $
+                           addPortNumber defSettings
 
+addPortNumber :: Settings -> Settings
+addPortNumber settings =  (setPortNumber 9042) settings
+
+addMaxConnections :: Settings -> Settings
+addMaxConnections settings = (setMaxConnections 100) settings
+
+addMaxTimeout :: Settings -> Settings
+addMaxTimeout settings = (setMaxTimeouts 10000) settings
+
+addRetryStrategy :: Settings -> Settings
+addRetryStrategy settings = (setRetrySettings retryForever) settings
