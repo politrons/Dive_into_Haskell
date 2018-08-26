@@ -17,6 +17,7 @@ import HttpServer
 import ScottyHttpServer
 import MySQLConnector
 import ModelTypes
+import CassandraConnector
 
 -- | This is the main entry program for Haskell, just like static void main or Java
 --   You can only have one main declaration, so you have to point to one output or another
@@ -35,12 +36,17 @@ main :: IO ()
 --main = do address <- getAddressById 1981
 --          print address
 
+-- | Cassandra Connector
+-- -----------------------
+
+main = do c <- cassandraConnector
+          print c
 
 -- | Http Server
 -- --------------
 
 --main = myServer
-main = scottyServer
+--main = scottyServer
 
 -- | Monads
 -- ------------
