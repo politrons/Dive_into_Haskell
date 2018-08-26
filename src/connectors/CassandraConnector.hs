@@ -28,13 +28,15 @@ getVersion = do
                 let queryParam = defQueryParams One ()
                 runClient conn (query versionQuery queryParam)
 
-selectAllUser :: IO [(Int32, Text)]
+selectAllUser :: IO [User]
 selectAllUser = do
                   logger <- Logger.new Logger.defSettings
                   conn <- Client.init logger createConnectionSettings
                   let selectAllQuery = "SELECT * from haskell_cassandra.haskell_users;" :: QueryString R () ((Int32, Text))
                   let queryParam = defQueryParams One ()
-                  runClient conn (query selectAllQuery queryParam)
+                  array <- runClient conn (query selectAllQuery queryParam)
+                  users <- transformArrayToUsers array
+                  return users
 
 selectUserById :: Int32 -> IO User
 selectUserById userId = do
@@ -50,6 +52,9 @@ selectUserById userId = do
 -- | Utils
 -- -------------
 
+transformArrayToUsers :: [(Int32, Text)] -> IO [User]
+transformArrayToUsers array =   return $ map (\tuple -> User 1 "change me") array
+
 transformTupleToUser :: Maybe((Int32, Text)) -> IO User
 transformTupleToUser maybe = case maybe of
                                Just value -> return $ User (getFirstElement value) (getLastElement value)
@@ -63,6 +68,9 @@ getLastElement tuple = unpack(snd tuple)
 
 -- | Connection
 -- -------------
+--createConnection :: Looger -> ClientState
+--createConnection logger = Client.init logger createConnectionSettings
+
 createConnectionSettings :: Settings
 createConnectionSettings = addRetryStrategy $
                            addMaxTimeout $
