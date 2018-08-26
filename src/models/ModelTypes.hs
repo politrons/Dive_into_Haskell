@@ -3,6 +3,7 @@
 module ModelTypes where
 
 import GHC.Generics
+import Data.Int (Int32)
 
 {-| Thanks to the deriving Generic we can use this data as structure to serialize/deserialize from/into json by Aeson-}
 data Profile = Profile {user::User, address::Address} deriving (Show, Generic)
@@ -66,3 +67,10 @@ toUserId id = UserId id
 
 fromUserId :: UserId -> Int
 fromUserId(UserId id) = id
+
+{-| Transform from Int to Int32 format-}
+intToInt32 :: Int -> Int32
+intToInt32 userId = fromIntegral (userId :: Int) :: Int32
+
+int32ToInt :: Int32 -> Int
+int32ToInt userId = fromIntegral (userId :: Int32) :: Int

@@ -6,7 +6,7 @@
 {-# LANGUAGE TemplateHaskell     #-}
 module CassandraConnector where
 
-import Data.Text (Text)
+import Data.Text (Text,pack,unpack)
 import Data.Functor.Identity
 import Database.CQL.IO as Client
 import qualified System.Logger as Logger
@@ -15,15 +15,18 @@ import System.Logger (eval)
 import Database.CQL.Protocol( ColumnType( IntColumn ) )
 import Database.CQL.Protocol( ColumnType( VarCharColumn ) )
 import Data.Int (Int64,Int32)
+import ModelTypes
 
+-- | User
+-- -------------
 
-cassandraConnector:: IO [Identity Text]
-cassandraConnector = do
-                    logger <- Logger.new Logger.defSettings
-                    conn <- Client.init logger createConnectionSettings
-                    let versionQuery = "SELECT cql_version from system.local" :: QueryString R () (Identity Text)
-                    let queryParam = defQueryParams One ()
-                    runClient conn (query versionQuery queryParam)
+getVersion:: IO [Identity Text]
+getVersion = do
+                logger <- Logger.new Logger.defSettings
+                conn <- Client.init logger createConnectionSettings
+                let versionQuery = "SELECT cql_version from system.local" :: QueryString R () (Identity Text)
+                let queryParam = defQueryParams One ()
+                runClient conn (query versionQuery queryParam)
 
 selectAllUser :: IO [(Int32, Text)]
 selectAllUser = do
@@ -33,42 +36,30 @@ selectAllUser = do
                   let queryParam = defQueryParams One ()
                   runClient conn (query selectAllQuery queryParam)
 
-selectUserById :: IO (Identity Text)
-selectUserById = do
+selectUserById :: Int32 -> IO User
+selectUserById userId = do
                   logger <- Logger.new Logger.defSettings
                   conn <- Client.init logger createConnectionSettings
-                  let selectQuery = "SELECT * from haskell_cassandra.haskell_users" :: QueryString R () (Identity Text)
-                  let queryParam = defQueryParams One ()
+                  let selectQuery = "SELECT * from haskell_cassandra.haskell_users  WHERE userid=?" :: PrepQuery R (Identity Int32) ((Int32, Text))
+                  let queryParam = defQueryParams One (Identity userId)
                   do maybe <- runClient conn (query1 selectQuery queryParam)
-                     response <- getResponse maybe
+                     response <- transformTupleToUser maybe
                      return response
 
---selectRows :: ClientState -> IO [(Int, String)]
---selectRows conn = runClient conn (query (defQueryParams Quorum ()) cql)
---  where
---    cql :: QueryString R () (Int, String)
---    cql = "SELECT userid, username from haskell_cassandra.haskell_users "
 
+-- | Utils
+-- -------------
 
---insertUser :: Client ()
---insertUser = do
---             let user = ( 4835637638, "hello world")
---             write ins1 (params a)
---             where
---                 ins1 :: PrepQuery W Ty1 ()
---                 ins1 = [r| insert into cqltest.test1 (a,b) values (?,?) |]
+transformTupleToUser :: Maybe((Int32, Text)) -> IO User
+transformTupleToUser maybe = case maybe of
+                               Just value -> return $ User (getFirstElement value) (getLastElement value)
+                               Nothing -> return $ User 0 "User not found"
 
+getFirstElement ::(Int32, Text) -> Int
+getFirstElement tuple = int32ToInt(fst tuple)
 
-
-
-
-createRequest :: QueryString R () (Identity Text, Text)
-createRequest = "SELECT * from haskell_cassandra.haskell_users"
-
-getResponse :: Maybe(Identity Text) -> IO (Identity Text)
-getResponse maybe = case maybe of
-                               Just value -> return value
-                               Nothing -> return "No records found"
+getLastElement ::(Int32, Text) -> String
+getLastElement tuple = unpack(snd tuple)
 
 -- | Connection
 -- -------------
@@ -89,3 +80,13 @@ addMaxTimeout settings = (setMaxTimeouts 10000) settings
 
 addRetryStrategy :: Settings -> Settings
 addRetryStrategy settings = (setRetrySettings retryForever) settings
+
+
+
+--insertUser :: Client ()
+--insertUser = do
+--             let user = ( 4835637638, "hello world")
+--             write ins1 (params a)
+--             where
+--                 ins1 :: PrepQuery W Ty1 ()
+--                 ins1 = [r| insert into cqltest.test1 (a,b) values (?,?) |]
