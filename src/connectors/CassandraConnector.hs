@@ -4,6 +4,8 @@
 {-# LANGUAGE OverloadedStrings   #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TemplateHaskell     #-}
+{- | This connector is build on top of awesome libraries as https://hackage.haskell.org/package/cql
+     and cql-io http://hackage.haskell.org/package/cql-io-}
 module CassandraConnector where
 
 import Data.Text (Text,pack,unpack)
