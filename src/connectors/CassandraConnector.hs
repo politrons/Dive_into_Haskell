@@ -133,19 +133,19 @@ createConnection logger = Client.init logger createConnectionSettings
 {-| THis function it creates the [Settings] type which is used for Client.init function to create the ClientState which
     is the open connection to the cassandra backend -}
 createConnectionSettings :: Settings
-createConnectionSettings = addRetryStrategy $
-                           addMaxTimeout $
-                           addMaxConnections $
+createConnectionSettings = addRetryStrategy retryForever $
+                           addMaxTimeout 10000 $
+                           addMaxConnections 100 $
                            addPortNumber defSettings
 
 addPortNumber :: Settings -> Settings
 addPortNumber settings =  (setPortNumber 9042) settings
 
-addMaxConnections :: Settings -> Settings
-addMaxConnections settings = (setMaxConnections 100) settings
+addMaxConnections :: Int -> Settings -> Settings
+addMaxConnections maxConnection settings = (setMaxConnections maxConnection) settings
 
-addMaxTimeout :: Settings -> Settings
-addMaxTimeout settings = (setMaxTimeouts 10000) settings
+addMaxTimeout :: Int -> Settings -> Settings
+addMaxTimeout maxTimeout settings = (setMaxTimeouts maxTimeout) settings
 
-addRetryStrategy :: Settings -> Settings
-addRetryStrategy settings = (setRetrySettings retryForever) settings
+addRetryStrategy :: RetrySettings -> Settings -> Settings
+addRetryStrategy strategy settings = (setRetrySettings strategy) settings
