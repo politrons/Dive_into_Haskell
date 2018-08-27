@@ -205,13 +205,6 @@ transformToUser [MySQLInt32 row_userId, MySQLText row_userName] = User (int32ToI
 transformToAddress :: [MySQLValue] -> Address
 transformToAddress [MySQLInt32 row_id, MySQLInt32 row_number, MySQLText row_street] = Address (int32ToInt row_id)(int32ToInt row_number) (T.unpack row_street)
 
-{-| Transform from Int to Int32 format-}
-intToInt32 :: Int -> Int32
-intToInt32 userId = fromIntegral (userId :: Int) :: Int32
-
-int32ToInt :: Int32 -> Int
-int32ToInt userId = fromIntegral (userId :: Int32) :: Int
-
 {-| We use [connect] operator together with [defaultConnectInfo] with the info to connect to the MySQL Server-}
 createConnection :: IO MySQLConn
 createConnection = connect defaultConnectInfo {ciUser = "root", ciPassword = "root", ciDatabase = "mysql"}

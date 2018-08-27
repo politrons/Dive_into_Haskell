@@ -33,6 +33,7 @@ If you want to reference to the official documentation visit [Here](https://www.
 ## Connectors
 
 * **[MySQL](src/connectors/MySQLConnector.hs)**
+* **[Cassandra](src/connectors/CassandraConnector.hs)**
 
 
 You can find the main class to run the app [here](app/Main.hs)
