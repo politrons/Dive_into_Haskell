@@ -30,6 +30,7 @@ versionQuery = "SELECT cql_version from system.local" :: QueryString R () (Ident
 allUsersQuery = "SELECT * from haskell_cassandra.haskell_users;" :: QueryString R () ((Int32, Text))
 userByIdQuery = "SELECT * from haskell_cassandra.haskell_users  WHERE userid=?" :: QueryString R (Identity Int32) ((Int32, Text))
 insertQuery = "INSERT INTO haskell_cassandra.haskell_users(userid,username) VALUES (?,?)" :: PrepQuery W ((Int32, Text)) ()
+deleteByIdQuery = "DELETE FROM haskell_cassandra.haskell_users WHERE userid=?" :: QueryString W (Identity Int32) ()
 
 -- | User
 -- -------------
@@ -41,8 +42,8 @@ getVersion = do
                 let queryParam = defQueryParams One ()
                 runClient conn (query versionQuery queryParam)
 
-selectAllUser :: IO [User]
-selectAllUser = do
+selectAllCassandraUser :: IO [User]
+selectAllCassandraUser = do
                   logger <- Logger.new Logger.defSettings
                   conn <- createConnection logger
                   let queryParam = defQueryParams One ()
@@ -50,8 +51,8 @@ selectAllUser = do
                   users <- transformArrayToUsers array
                   return users
 
-selectUserById :: Int32 -> IO (Either UserNotFound User)
-selectUserById userId = do
+selectCassandraUserById :: Int32 -> IO (Either UserNotFound User)
+selectCassandraUserById userId = do
                   logger <- Logger.new Logger.defSettings
                   conn <- createConnection logger
                   let queryParam = defQueryParams One (Identity userId)
@@ -65,6 +66,14 @@ createCassandraUser user = do
                  conn <- createConnection logger
                  let queryParam = defQueryParams One (intToInt32(getUserId user), pack $ getUserName user)
                  runClient conn (write insertQuery queryParam)
+
+deleteCassandraUserById :: Int32 -> IO ()
+deleteCassandraUserById userId = do
+                  logger <- Logger.new Logger.defSettings
+                  conn <- createConnection logger
+                  let queryParam = defQueryParams One (Identity userId)
+                  runClient conn (write deleteByIdQuery queryParam)
+
 
 -- | Utils
 -- -------------
