@@ -131,7 +131,8 @@ createConnection :: Logger.Logger -> IO ClientState
 createConnection logger = Client.init logger createConnectionSettings
 
 {-| THis function it creates the [Settings] type which is used for Client.init function to create the ClientState which
-    is the open connection to the cassandra backend -}
+    is the open connection to the cassandra backend.
+    This function is a composition of functions each configuring a particular part of the Cassandra connection option-}
 createConnectionSettings :: Settings
 createConnectionSettings = addRetryStrategy retryForever $
                            addMaxTimeout 10000 $
