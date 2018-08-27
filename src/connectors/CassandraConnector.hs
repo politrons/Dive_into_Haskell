@@ -130,6 +130,8 @@ getLastElement tuple = unpack(snd tuple)
 createConnection :: Logger.Logger -> IO ClientState
 createConnection logger = Client.init logger createConnectionSettings
 
+{-| THis function it creates the [Settings] type which is used for Client.init function to create the ClientState which
+    is the open connection to the cassandra backend -}
 createConnectionSettings :: Settings
 createConnectionSettings = addRetryStrategy $
                            addMaxTimeout $
