@@ -66,7 +66,7 @@ selectCassandraUserById :: Int32 -> IO (Either UserNotFound User)
 selectCassandraUserById userId = do
                   let queryParam = createQueryParam (Identity userId)
                   do maybe <- runQuery userByIdQuery queryParam
-                     either <- transformTupleToUser maybe
+                     either <- transformMaybeTupleToUser maybe
                      return either
 
 createCassandraUser:: User -> IO ()
@@ -144,8 +144,8 @@ transformArrayToUsers array = return $ map (\tuple -> User (getFirstElement tupl
 
 {- | Using [Either] operator we define the possibility that we have two possible effects. We can return a User
      in case the id is correct, or if is not we will return an UserNotFound.-}
-transformTupleToUser :: Maybe((Int32, Text)) -> IO (Either UserNotFound User)
-transformTupleToUser maybe = case maybe of
+transformMaybeTupleToUser :: Maybe((Int32, Text)) -> IO (Either UserNotFound User)
+transformMaybeTupleToUser maybe = case maybe of
                                Just value -> return $ Right $ User (getFirstElement value) (getLastElement value)
                                Nothing -> return $ Left $ UserNotFound "User not found"
 
