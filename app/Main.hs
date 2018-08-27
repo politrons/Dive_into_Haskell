@@ -53,7 +53,7 @@ main :: IO ()
 -- --------------
 
 --main = myServer
---main = scottyServer
+main = scottyServer
 
 -- | Monads
 -- ------------

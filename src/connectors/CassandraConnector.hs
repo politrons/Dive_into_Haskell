@@ -32,7 +32,7 @@ userByIdQuery = "SELECT * from haskell_cassandra.haskell_users  WHERE userid=?" 
 insertQuery = "INSERT INTO haskell_cassandra.haskell_users(userid,username) VALUES (?,?)" :: PrepQuery W ((Int32, Text)) ()
 deleteByIdQuery = "DELETE FROM haskell_cassandra.haskell_users WHERE userid=?" :: QueryString W (Identity Int32) ()
 
--- | User
+-- | CRUD
 -- -------------
 {-| cql-io  provide [runClient] function which receive the next arguments
       conn :: ClientState -> Is the connection to the backend
@@ -59,6 +59,9 @@ selectAllCassandraUser = do
                   users <- transformArrayToUsers array
                   return users
 
+{-| In case of find by Id a user we need to control the effect that maybe the user is not present in the database.
+    In order to have that possible effect we define the type [UserNotFound] and we use [Either] monad which like
+    in other language can contains two types, in this case [UserNotFound] or [User] -}
 selectCassandraUserById :: Int32 -> IO (Either UserNotFound User)
 selectCassandraUserById userId = do
                   logger <- Logger.new Logger.defSettings
