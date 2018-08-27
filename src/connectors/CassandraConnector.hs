@@ -103,8 +103,8 @@ instance CustomQueryParam () where
 -- --------------------
 {-| For this current and futures queries we define this Type classes to reuse runClient queries in a generic way for
     the specific input and output types.-}
-class CustomQueryRunner x y z where
-   runQuery :: x -> y -> z
+class CustomQueryRunner queryString queryParam output where
+   runQuery :: queryString -> queryParam -> output
 
 instance CustomQueryRunner (QueryString R () (Identity Text)) (QueryParams ()) (IO[Identity Text])  where
    runQuery x y = do
