@@ -52,6 +52,7 @@ getVersion = do
                 let queryParam = createQueryParam ()
                 runQuery versionQuery queryParam
 
+{-| We create and use the type class [CustomQueryRunner] and we use the function runQuery-}
 selectAllCassandraUser :: IO [User]
 selectAllCassandraUser = do
                   let queryParam = createQueryParam ()
@@ -102,34 +103,34 @@ instance CustomQueryParam () where
 -- --------------------
 {-| For this current and futures queries we define this Type classes to reuse runClient queries in a generic way for
     the specific input and output types.-}
-class CustomQueries x y z where
+class CustomQueryRunner x y z where
    runQuery :: x -> y -> z
 
-instance CustomQueries (QueryString R () (Identity Text)) (QueryParams ()) (IO[Identity Text])  where
+instance CustomQueryRunner (QueryString R () (Identity Text)) (QueryParams ()) (IO[Identity Text])  where
    runQuery x y = do
                         logger <- Logger.new Logger.defSettings
                         conn <- createConnection logger
                         runClient conn $ query x y
 
-instance CustomQueries (QueryString R () ((Int32, Text))) (QueryParams ()) (IO[(Int32, Text)])  where
+instance CustomQueryRunner (QueryString R () ((Int32, Text))) (QueryParams ()) (IO[(Int32, Text)])  where
    runQuery x y = do
                         logger <- Logger.new Logger.defSettings
                         conn <- createConnection logger
                         runClient conn $ query x y
 
-instance CustomQueries (QueryString R (Identity Int32) ((Int32, Text))) (QueryParams (Identity Int32)) (IO (Maybe(Int32, Text)))  where
+instance CustomQueryRunner (QueryString R (Identity Int32) ((Int32, Text))) (QueryParams (Identity Int32)) (IO (Maybe(Int32, Text)))  where
    runQuery x y = do
                         logger <- Logger.new Logger.defSettings
                         conn <- createConnection logger
                         runClient conn $ query1 x y
 
-instance CustomQueries (QueryString W (Int32, Text) ()) (QueryParams (Int32, Text)) (IO())  where
+instance CustomQueryRunner (QueryString W (Int32, Text) ()) (QueryParams (Int32, Text)) (IO())  where
    runQuery x y = do
                         logger <- Logger.new Logger.defSettings
                         conn <- createConnection logger
                         runClient conn $ write x y
 
-instance CustomQueries (QueryString W (Identity Int32) ()) (QueryParams (Identity Int32)) (IO())  where
+instance CustomQueryRunner (QueryString W (Identity Int32) ()) (QueryParams (Identity Int32)) (IO())  where
    runQuery x y = do
                         logger <- Logger.new Logger.defSettings
                         conn <- createConnection logger
