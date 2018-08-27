@@ -43,17 +43,17 @@ main :: IO ()
 --          print c
 --main  = do response <- selectAllCassandraUser
 --           print response
---main  = do response <- selectCassandraUserById 1981
+--main  = do response <- selectCassandraUserById 2000
 --           print response
---main  = createCassandraUser $ User 1981 "Politron"
---main  = do response <- deleteCassandraUserById 3000
---           print response
+--main  = createCassandraUser $ User 2000 "Paul"
+main  = do response <- deleteCassandraUserById 2000
+           print response
 
 -- | Http Server
 -- --------------
 
 --main = myServer
-main = scottyServer
+--main = scottyServer
 
 -- | Monads
 -- ------------

@@ -4,6 +4,7 @@
 {-# LANGUAGE OverloadedStrings   #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TemplateHaskell     #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
 {- | This connector is build on top of awesome libraries as https://hackage.haskell.org/package/cql
      and cql-io http://hackage.haskell.org/package/cql-io-}
 module CassandraConnector where
@@ -32,7 +33,7 @@ import Network.Socket (PortNumber (..))
 versionQuery = "SELECT cql_version from system.local" :: QueryString R () (Identity Text)
 allUsersQuery = "SELECT * from haskell_cassandra.haskell_users;" :: QueryString R () ((Int32, Text))
 userByIdQuery = "SELECT * from haskell_cassandra.haskell_users  WHERE userid=?" :: QueryString R (Identity Int32) ((Int32, Text))
-insertQuery = "INSERT INTO haskell_cassandra.haskell_users(userid,username) VALUES (?,?)" :: PrepQuery W ((Int32, Text)) ()
+insertQuery = "INSERT INTO haskell_cassandra.haskell_users(userid,username) VALUES (?,?)" :: QueryString W ((Int32, Text)) ()
 deleteByIdQuery = "DELETE FROM haskell_cassandra.haskell_users WHERE userid=?" :: QueryString W (Identity Int32) ()
 
 -- | CRUD
@@ -48,17 +49,13 @@ deleteByIdQuery = "DELETE FROM haskell_cassandra.haskell_users WHERE userid=?" :
     -}
 getVersion:: IO [Identity Text]
 getVersion = do
-                logger <- Logger.new Logger.defSettings
-                conn <- createConnection logger
                 let queryParam = createQueryParam ()
-                runClient conn (query versionQuery queryParam)
+                runQuery versionQuery queryParam
 
 selectAllCassandraUser :: IO [User]
 selectAllCassandraUser = do
-                  logger <- Logger.new Logger.defSettings
-                  conn <- createConnection logger
                   let queryParam = createQueryParam ()
-                  array <- runClient conn (query allUsersQuery queryParam)
+                  array <- runQuery allUsersQuery queryParam
                   users <- transformArrayToUsers array
                   return users
 
@@ -76,17 +73,13 @@ selectCassandraUserById userId = do
 
 createCassandraUser:: User -> IO ()
 createCassandraUser user = do
-                 logger <- Logger.new Logger.defSettings
-                 conn <- createConnection logger
                  let queryParam = createQueryParam (intToInt32(getUserId user), pack $ getUserName user)
-                 runClient conn (write insertQuery queryParam)
+                 runQuery insertQuery queryParam
 
 deleteCassandraUserById :: Int32 -> IO ()
 deleteCassandraUserById userId = do
-                  logger <- Logger.new Logger.defSettings
-                  conn <- createConnection logger
                   let queryParam = createQueryParam (Identity userId)
-                  runClient conn (write deleteByIdQuery queryParam)
+                  runQuery deleteByIdQuery queryParam
 
 
 -- | Type classes
@@ -103,6 +96,36 @@ instance CustomQueryParam (Int32, Text) where
 
 instance CustomQueryParam () where
    createQueryParam x = defQueryParams One x
+
+{-|     -}
+class CustomQueries x y z where
+   runQuery :: x -> y -> z
+
+instance CustomQueries (QueryString R () (Identity Text)) (QueryParams ()) (IO[Identity Text])  where
+   runQuery x y = do
+                        logger <- Logger.new Logger.defSettings
+                        conn <- createConnection logger
+                        runClient conn $ query x y
+
+instance CustomQueries (QueryString R () ((Int32, Text))) (QueryParams ()) (IO[(Int32, Text)])  where
+   runQuery x y = do
+                        logger <- Logger.new Logger.defSettings
+                        conn <- createConnection logger
+                        runClient conn $ query x y
+
+instance CustomQueries (QueryString W (Int32, Text) ()) (QueryParams (Int32, Text)) (IO())  where
+   runQuery x y = do
+                        logger <- Logger.new Logger.defSettings
+                        conn <- createConnection logger
+                        runClient conn $ write x y
+
+instance CustomQueries (QueryString W (Identity Int32) ()) (QueryParams (Identity Int32)) (IO())  where
+   runQuery x y = do
+                        logger <- Logger.new Logger.defSettings
+                        conn <- createConnection logger
+                        runClient conn $ write x y
+
+--QueryString W (Identity Int32) ()
 
 -- | Utils
 -- -------------
