@@ -107,35 +107,29 @@ class CustomQueryRunner queryString queryParam output where
    runQuery :: queryString -> queryParam -> output
 
 instance CustomQueryRunner (QueryString R () (Identity Text)) (QueryParams ()) (IO[Identity Text])  where
-   runQuery x y = do
-                        logger <- Logger.new Logger.defSettings
-                        conn <- createConnection logger
-                        runClient conn $ query x y
+   runQuery x y = do conn <- getConnection
+                     runClient conn $ query x y
 
 instance CustomQueryRunner (QueryString R () ((Int32, Text))) (QueryParams ()) (IO[(Int32, Text)])  where
-   runQuery x y = do
-                        logger <- Logger.new Logger.defSettings
-                        conn <- createConnection logger
-                        runClient conn $ query x y
+   runQuery x y = do conn <- getConnection
+                     runClient conn $ query x y
 
 instance CustomQueryRunner (QueryString R (Identity Int32) ((Int32, Text))) (QueryParams (Identity Int32)) (IO (Maybe(Int32, Text)))  where
-   runQuery x y = do
-                        logger <- Logger.new Logger.defSettings
-                        conn <- createConnection logger
-                        runClient conn $ query1 x y
+   runQuery x y = do conn <- getConnection
+                     runClient conn $ query1 x y
 
 instance CustomQueryRunner (QueryString W (Int32, Text) ()) (QueryParams (Int32, Text)) (IO())  where
-   runQuery x y = do
-                        logger <- Logger.new Logger.defSettings
-                        conn <- createConnection logger
-                        runClient conn $ write x y
+   runQuery x y = do conn <- getConnection
+                     runClient conn $ write x y
 
 instance CustomQueryRunner (QueryString W (Identity Int32) ()) (QueryParams (Identity Int32)) (IO())  where
-   runQuery x y = do
-                        logger <- Logger.new Logger.defSettings
-                        conn <- createConnection logger
-                        runClient conn $ write x y
+   runQuery x y = do  conn <- getConnection
+                      runClient conn $ write x y
 
+getConnection :: IO ClientState
+getConnection = do  logger <- Logger.new Logger.defSettings
+                    conn <- createConnection logger
+                    return conn
 
 -- | Utils
 -- -------------
