@@ -84,6 +84,9 @@ deleteCassandraUserById userId = do
 
 -- | Type classes
 -- --------------------
+
+-- | Query params
+-- --------------------
 {- | We use Type classes to reuse the same signature method and with multiple implementations depending the types-}
 class CustomQueryParam x where
   createQueryParam :: x -> QueryParams x
@@ -97,7 +100,10 @@ instance CustomQueryParam (Int32, Text) where
 instance CustomQueryParam () where
    createQueryParam x = defQueryParams One x
 
-{-|     -}
+-- | Run Client
+-- --------------------
+{-| For this current and futures queries we define this Type classes to reuse runClient queries in a generic way for
+    the specific input and output types.-}
 class CustomQueries x y z where
    runQuery :: x -> y -> z
 
@@ -108,6 +114,12 @@ instance CustomQueries (QueryString R () (Identity Text)) (QueryParams ()) (IO[I
                         runClient conn $ query x y
 
 instance CustomQueries (QueryString R () ((Int32, Text))) (QueryParams ()) (IO[(Int32, Text)])  where
+   runQuery x y = do
+                        logger <- Logger.new Logger.defSettings
+                        conn <- createConnection logger
+                        runClient conn $ query x y
+
+instance CustomQueries (QueryString R (Identity Int32) ((Int32, Text))) (QueryParams (Identity Int32)) (IO[(Int32, Text)])  where
    runQuery x y = do
                         logger <- Logger.new Logger.defSettings
                         conn <- createConnection logger
@@ -125,7 +137,6 @@ instance CustomQueries (QueryString W (Identity Int32) ()) (QueryParams (Identit
                         conn <- createConnection logger
                         runClient conn $ write x y
 
---QueryString W (Identity Int32) ()
 
 -- | Utils
 -- -------------
