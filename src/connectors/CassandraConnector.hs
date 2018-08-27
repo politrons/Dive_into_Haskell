@@ -64,10 +64,8 @@ selectAllCassandraUser = do
     in other language can contains two types, in this case [UserNotFound] or [User] -}
 selectCassandraUserById :: Int32 -> IO (Either UserNotFound User)
 selectCassandraUserById userId = do
-                  logger <- Logger.new Logger.defSettings
-                  conn <- createConnection logger
                   let queryParam = createQueryParam (Identity userId)
-                  do maybe <- runClient conn (query1 userByIdQuery queryParam)
+                  do maybe <- runQuery userByIdQuery queryParam
                      either <- transformTupleToUser maybe
                      return either
 
@@ -119,11 +117,11 @@ instance CustomQueries (QueryString R () ((Int32, Text))) (QueryParams ()) (IO[(
                         conn <- createConnection logger
                         runClient conn $ query x y
 
-instance CustomQueries (QueryString R (Identity Int32) ((Int32, Text))) (QueryParams (Identity Int32)) (IO[(Int32, Text)])  where
+instance CustomQueries (QueryString R (Identity Int32) ((Int32, Text))) (QueryParams (Identity Int32)) (IO (Maybe(Int32, Text)))  where
    runQuery x y = do
                         logger <- Logger.new Logger.defSettings
                         conn <- createConnection logger
-                        runClient conn $ query x y
+                        runClient conn $ query1 x y
 
 instance CustomQueries (QueryString W (Int32, Text) ()) (QueryParams (Int32, Text)) (IO())  where
    runQuery x y = do

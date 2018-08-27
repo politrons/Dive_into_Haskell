@@ -43,11 +43,11 @@ main :: IO ()
 --          print c
 --main  = do response <- selectAllCassandraUser
 --           print response
---main  = do response <- selectCassandraUserById 2000
---           print response
---main  = createCassandraUser $ User 2000 "Paul"
-main  = do response <- deleteCassandraUserById 2000
+main  = do response <- selectCassandraUserById 1981
            print response
+--main  = createCassandraUser $ User 2000 "Paul"
+--main  = do response <- deleteCassandraUserById 2000
+--           print response
 
 -- | Http Server
 -- --------------
