@@ -47,14 +47,14 @@ getVersion:: IO [Identity Text]
 getVersion = do
                 logger <- Logger.new Logger.defSettings
                 conn <- createConnection logger
-                let queryParam = defQueryParams One ()
+                let queryParam = createQueryParam ()
                 runClient conn (query versionQuery queryParam)
 
 selectAllCassandraUser :: IO [User]
 selectAllCassandraUser = do
                   logger <- Logger.new Logger.defSettings
                   conn <- createConnection logger
-                  let queryParam = defQueryParams One ()
+                  let queryParam = createQueryParam ()
                   array <- runClient conn (query allUsersQuery queryParam)
                   users <- transformArrayToUsers array
                   return users
@@ -63,7 +63,7 @@ selectCassandraUserById :: Int32 -> IO (Either UserNotFound User)
 selectCassandraUserById userId = do
                   logger <- Logger.new Logger.defSettings
                   conn <- createConnection logger
-                  let queryParam = defQueryParams One (Identity userId)
+                  let queryParam = createQueryParam (Identity userId)
                   do maybe <- runClient conn (query1 userByIdQuery queryParam)
                      either <- transformTupleToUser maybe
                      return either
@@ -72,16 +72,31 @@ createCassandraUser:: User -> IO ()
 createCassandraUser user = do
                  logger <- Logger.new Logger.defSettings
                  conn <- createConnection logger
-                 let queryParam = defQueryParams One (intToInt32(getUserId user), pack $ getUserName user)
+                 let queryParam = createQueryParam (intToInt32(getUserId user), pack $ getUserName user)
                  runClient conn (write insertQuery queryParam)
 
 deleteCassandraUserById :: Int32 -> IO ()
 deleteCassandraUserById userId = do
                   logger <- Logger.new Logger.defSettings
                   conn <- createConnection logger
-                  let queryParam = defQueryParams One (Identity userId)
+                  let queryParam = createQueryParam (Identity userId)
                   runClient conn (write deleteByIdQuery queryParam)
 
+
+-- | Type classes
+-- --------------------
+{- | We use Type classes to reuse the same signature method and with multiple implementations depending the types-}
+class CustomQueryParam x where
+  createQueryParam :: x -> QueryParams x
+
+instance CustomQueryParam (Identity Int32) where
+   createQueryParam x = defQueryParams One x
+
+instance CustomQueryParam (Int32, Text) where
+   createQueryParam x = defQueryParams One x
+
+instance CustomQueryParam () where
+   createQueryParam x = defQueryParams One x
 
 -- | Utils
 -- -------------

@@ -39,10 +39,10 @@ main :: IO ()
 -- | Cassandra Connector
 -- -----------------------
 
---main = do c <- cassandraConnector
-----          print c
-main  = do response <- selectAllCassandraUser
-           print response
+--main = do c <- getVersion
+--          print c
+--main  = do response <- selectAllCassandraUser
+--           print response
 --main  = do response <- selectCassandraUserById 1981
 --           print response
 --main  = createCassandraUser $ User 1981 "Politron"
