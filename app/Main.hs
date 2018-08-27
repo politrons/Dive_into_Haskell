@@ -41,15 +41,13 @@ main :: IO ()
 
 --main = do c <- cassandraConnector
 ----          print c
---main  = do response <- selectAllUser
---           print response
---main  = do response <- selectUserById 1981
---           print response
-
---main  = createCassandraUser $ User 1981 "Politron"
-
-main  = do response <- deleteCassandraUserById 3000
+main  = do response <- selectAllCassandraUser
            print response
+--main  = do response <- selectCassandraUserById 1981
+--           print response
+--main  = createCassandraUser $ User 1981 "Politron"
+--main  = do response <- deleteCassandraUserById 3000
+--           print response
 
 -- | Http Server
 -- --------------

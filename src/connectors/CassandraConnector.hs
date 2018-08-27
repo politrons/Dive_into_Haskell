@@ -34,7 +34,15 @@ deleteByIdQuery = "DELETE FROM haskell_cassandra.haskell_users WHERE userid=?" :
 
 -- | User
 -- -------------
+{-| cql-io  provide [runClient] function which receive the next arguments
+      conn :: ClientState -> Is the connection to the backend
+      client: Client created from query/query1/write functions passing arguments QueryString/PrepQuery and QueryParam
 
+    As request in case you have a query with inputs you define a tuple in the QueryString and is automatically replace by the ?
+    your query.
+    As response, in case you define in your QueryString that you expect to receive a tuple, the response is a tuple of type as you
+    defined.
+    -}
 getVersion:: IO [Identity Text]
 getVersion = do
                 logger <- Logger.new Logger.defSettings
@@ -119,13 +127,3 @@ addMaxTimeout settings = (setMaxTimeouts 10000) settings
 
 addRetryStrategy :: Settings -> Settings
 addRetryStrategy settings = (setRetrySettings retryForever) settings
-
-
-
---insertUser :: Client ()
---insertUser = do
---             let user = ( 4835637638, "hello world")
---             write ins1 (params a)
---             where
---                 ins1 :: PrepQuery W Ty1 ()
---                 ins1 = [r| insert into cqltest.test1 (a,b) values (?,?) |]
