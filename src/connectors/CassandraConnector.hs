@@ -29,6 +29,7 @@ import ModelTypes
 versionQuery = "SELECT cql_version from system.local" :: QueryString R () (Identity Text)
 allUsersQuery = "SELECT * from haskell_cassandra.haskell_users;" :: QueryString R () ((Int32, Text))
 userByIdQuery = "SELECT * from haskell_cassandra.haskell_users  WHERE userid=?" :: QueryString R (Identity Int32) ((Int32, Text))
+insertQuery = "INSERT INTO haskell_cassandra.haskell_users(userid,username) VALUES (?,?)" :: PrepQuery W ((Int32, Text)) ()
 
 -- | User
 -- -------------
@@ -55,15 +56,21 @@ selectUserById userId = do
                   conn <- createConnection logger
                   let queryParam = defQueryParams One (Identity userId)
                   do maybe <- runClient conn (query1 userByIdQuery queryParam)
-                     response <- transformTupleToUser maybe
-                     return response
+                     either <- transformTupleToUser maybe
+                     return either
 
+createCassandraUser:: User -> IO ()
+createCassandraUser user = do
+                 logger <- Logger.new Logger.defSettings
+                 conn <- createConnection logger
+                 let queryParam = defQueryParams One (intToInt32(getUserId user), pack $ getUserName user)
+                 runClient conn (write insertQuery queryParam)
 
 -- | Utils
 -- -------------
 {- | As usual using [map] operator we transform the Tuple into User data type-}
 transformArrayToUsers :: [(Int32, Text)] -> IO [User]
-transformArrayToUsers array =   return $ map (\tuple -> User (getFirstElement tuple) (getLastElement tuple)) array
+transformArrayToUsers array = return $ map (\tuple -> User (getFirstElement tuple) (getLastElement tuple)) array
 
 {- | Using [Either] operator we define the possibility that we have two possible effects. We can return a User
      in case the id is correct, or if is not we will return an UserNotFound.-}

@@ -43,8 +43,10 @@ main :: IO ()
 ----          print c
 --main  = do response <- selectAllUser
 --           print response
-main  = do response <- selectUserById 10000
+main  = do response <- selectUserById 1981
            print response
+
+--main  = createCassandraUser $ User 1981 "Politron"
 
 -- | Http Server
 -- --------------
