@@ -18,6 +18,7 @@ import Database.CQL.Protocol( ColumnType( IntColumn ) )
 import Database.CQL.Protocol( ColumnType( VarCharColumn ) )
 import Data.Int (Int64,Int32)
 import ModelTypes
+import Network.Socket (PortNumber (..))
 
 -- | Queries
 -- -------------
@@ -137,10 +138,10 @@ createConnectionSettings :: Settings
 createConnectionSettings = addRetryStrategy retryForever $
                            addMaxTimeout 10000 $
                            addMaxConnections 100 $
-                           addPortNumber defSettings
+                           addPortNumber 9042 defSettings
 
-addPortNumber :: Settings -> Settings
-addPortNumber settings =  (setPortNumber 9042) settings
+addPortNumber :: PortNumber -> Settings -> Settings
+addPortNumber port settings =  (setPortNumber port) settings
 
 addMaxConnections :: Int -> Settings -> Settings
 addMaxConnections maxConnection settings = (setMaxConnections maxConnection) settings
