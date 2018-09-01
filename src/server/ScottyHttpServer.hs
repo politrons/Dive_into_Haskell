@@ -9,6 +9,7 @@ import Data.Aeson (FromJSON, ToJSON, encode,decode)
 import GHC.Generics
 import ModelTypes
 import MySQLConnector
+import ConnectorManager
 
 import Data.ByteString.Lazy.Char8 (ByteString)
 import Web.Scotty.Internal.Types (ScottyT, ActionT, Param, RoutePattern, Options, File)
@@ -98,7 +99,7 @@ responseProfileById = do id <- param "id"
 -- ---------
 
 responseUsers :: ActionM ()
-responseUsers = do users <- liftAndCatchIO getAllUsers
+responseUsers = do users <- liftAndCatchIO selectAllUsers
                    json (show users)
 
 responseUserByName :: ActionM ()

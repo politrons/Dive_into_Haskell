@@ -18,10 +18,18 @@ import ScottyHttpServer
 import MySQLConnector
 import ModelTypes
 import CassandraConnector
+import ConnectorManager
+
 
 -- | This is the main entry program for Haskell, just like static void main or Java
 --   You can only have one main declaration, so you have to point to one output or another
 main :: IO ()
+
+
+-- | Connector manager
+-- ---------------------
+--main = do result <- selectAllUsers
+--          print result
 
 -- | MySQL Connector
 -- ------------------
@@ -43,8 +51,8 @@ main :: IO ()
 --          print c
 --main  = do response <- selectAllCassandraUser
 --           print response
-main  = do response <- selectCassandraUserById 1981
-           print response
+--main  = do response <- selectCassandraUserById 1981
+--           print response
 --main  = createCassandraUser $ User 2000 "Paul"
 --main  = do response <- deleteCassandraUserById 2000
 --           print response
@@ -53,7 +61,7 @@ main  = do response <- selectCassandraUserById 1981
 -- --------------
 
 --main = myServer
---main = scottyServer
+main = scottyServer
 
 -- | Monads
 -- ------------

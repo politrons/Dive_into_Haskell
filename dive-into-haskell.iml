@@ -162,5 +162,6 @@
     <orderEntry type="library" name="zlib-bindings-0.1.1.5" level="project" />
     <orderEntry type="library" name="OneTuple-0.2.2" level="project" />
     <orderEntry type="library" name="tuple-0.3.0.2" level="project" />
+    <orderEntry type="library" name="configurator-0.3.0.0" level="project" />
   </component>
 </module>
