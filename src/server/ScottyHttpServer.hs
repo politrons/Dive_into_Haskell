@@ -90,9 +90,9 @@ responseProfileById :: ActionM ()
 responseProfileById = do id <- param "id"
                          userAsync <- liftAndCatchIO $ async $ getUserById id
                          addressAsync <- liftAndCatchIO $ async $ getAddressById id
-                         user <- liftAndCatchIO $ wait userAsync
+                         either <- liftAndCatchIO $ wait userAsync
                          address <- liftAndCatchIO $ wait addressAsync
-                         profile <- liftAndCatchIO $ return $ Profile user address
+                         profile <- liftAndCatchIO $ return $ Profile (getUserFromEither either) address
                          json profile
 
 -- | User
@@ -105,13 +105,13 @@ responseUsers = do users <- liftAndCatchIO selectAllUsers
 responseUserByName :: ActionM ()
 responseUserByName = do name <- param "name"
                         user <- liftAndCatchIO $ getUserByUserName name
-                        json user
+                        json (show user)
 
 {-| In scotty we have [param] operator which used passing the uri param name we can extract the value. -}
 responseUserById :: ActionM ()
 responseUserById = do id <- param "id"
-                      user <- liftAndCatchIO $ getUserById id
-                      json user
+                      user <- liftAndCatchIO $ selectUserById id
+                      json (show user)
 
 {-| This part of the program is really interested, we are using function where first we need to call insertUser
     passing a [User] but we have a [Maybe User] so we use a functor [<*>] to extract the User from the Maybe.

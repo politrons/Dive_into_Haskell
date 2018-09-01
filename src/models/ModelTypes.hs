@@ -25,6 +25,12 @@ getUserFromMaybeProfile profile =  case profile of
                             Just profile -> getUser profile
                             Nothing -> User 1 "default"
 
+getUserFromEither :: Either UserNotFound User -> User
+getUserFromEither either =  case either of
+                            Right user -> user
+                            Left userNotFound -> User 1 "default"
+
+
 getAddressFromMaybeProfile :: Maybe Profile -> Address
 getAddressFromMaybeProfile profile =  case profile of
                             Just profile -> getAddress profile

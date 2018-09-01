@@ -48,7 +48,7 @@ getAllUsers = do
             return users
 
 {-| Function for select. We select we use [query] operator followed by the connection, query and a QueryParam-}
-getUserById :: Int -> IO User
+getUserById :: Int -> IO (Either UserNotFound User)
 getUserById id = let userId = id in do
               emptyVar <- newEmptyMVar
               forkIO $ do
@@ -59,7 +59,7 @@ getUserById id = let userId = id in do
               return $ transformMaybeMySQLValueToUser maybeMySQLValue
 
 {-| Function for select. We use [query] operator followed by the connection, query and a QueryParam-}
-getUserByUserName :: String -> IO User
+getUserByUserName :: String -> IO (Either UserNotFound User)
 getUserByUserName _name = let name = _name in do
               emptyVar <- newEmptyMVar
               forkIO $ do
@@ -181,10 +181,10 @@ executeUpdateQuery user  conn = execute conn  updateUserQuery [MySQLInt32 (intTo
 -- -------------------------
 
 {-| Function to extract the MySQLValue from Maybe and transform into User calling another function-}
-transformMaybeMySQLValueToUser :: Maybe [MySQLValue] -> User
+transformMaybeMySQLValueToUser :: Maybe [MySQLValue] -> Either UserNotFound User
 transformMaybeMySQLValueToUser maybeMySQLValue = case maybeMySQLValue of
-                                            Just mysqlValue -> transformToUser mysqlValue
-                                            Nothing -> User 0 "default User"
+                                            Just mysqlValue -> Right $ transformToUser mysqlValue
+                                            Nothing -> Left $ UserNotFound "User not found"
 
 {-| Function to extract the MySQLValue from Maybe and transform into Address calling another function-}
 transformMaybeMySQLValueToAddress :: Maybe [MySQLValue] -> Address
