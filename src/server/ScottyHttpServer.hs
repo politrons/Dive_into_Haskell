@@ -44,7 +44,7 @@ routes = do get "/service" responseService
             get "/user/name/:name" responseUserByName
             post "/user/" responseCreateUser
             put "/user/" updateUser
-            delete "/users/:id" deleteById
+            delete "/users/:id" responseDeleteById
             get "/address/id/:id" responseAddressById
             post "/profile/" createProfile
             get "/profile/id/:id" responseProfileById
@@ -130,10 +130,10 @@ updateUser =  do maybeUser <- getUserParam
                  status <- liftAndCatchIO $ sequence $ updateUserById <$> maybeUser
                  json (show status)
 
-deleteById :: ActionM ()
-deleteById = do id <- param "id"
-                status <- liftAndCatchIO $ deleteUserById id
-                json (show status)
+responseDeleteById :: ActionM ()
+responseDeleteById = do id <- param "id"
+                        status <- liftAndCatchIO $ deleteUserById id
+                        json (show status)
 
 -- | Address
 -- ---------
