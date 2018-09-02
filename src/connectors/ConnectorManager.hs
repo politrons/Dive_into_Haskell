@@ -10,7 +10,7 @@ import Data.Configurator
 import Data.Configurator.Types (Value(String))
 import Data.Text (unpack,pack)
 import Control.Monad.IO.Class (liftIO)
-import Data.Int (Int32)
+import Data.Int (Int32,Int)
 import Database.MySQL.Base
 
 -- | Connector manager
@@ -36,20 +36,26 @@ selectUserById id =  do
                  return result
 
 createUser ::  User -> IO ConnectorStatus
-createUser user = do connectorType <- readConfiguration "connector"
-                     result <- case connectorType of
-                               String  "cassandra" -> insertCassandraUser user
-                               String  "mysql" -> insertMySQLUser user
-                               _ -> return  $ ConnectorStatus "No connector found"
+createUser user = do result <- genericCommand $ Right user
                      return result
 
 deleteUserById :: Int -> IO ConnectorStatus
-deleteUserById id = do connectorType <- readConfiguration "connector"
-                       result <- case connectorType of
-                                   String  "cassandra" -> deleteCassandraById id
-                                   String  "mysql" -> deleteMySQLById id
-                                   _ -> return  $ ConnectorStatus "No connector found"
+deleteUserById id = do result <- genericCommand $ Left id
                        return result
+
+{-| Generic command for create and delete user using [Either] as a type to determine one action or another-}
+genericCommand :: (Either Int User) -> IO ConnectorStatus
+genericCommand either = do connectorType <- readConfiguration "connector"
+                           result <- case connectorType of
+                                   String  "cassandra" -> case either of
+                                                               Left id -> deleteCassandraById id
+                                                               Right user -> insertCassandraUser user
+
+                                   String  "mysql" -> case either of
+                                                               Left id -> deleteMySQLById id
+                                                               Right user -> insertMySQLUser user
+                                   _ -> return  $ ConnectorStatus "No connector found"
+                           return result
 
 -- | Interact with connectors
 -- ---------------------------

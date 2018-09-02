@@ -22,7 +22,6 @@ data AddressId = AddressId Int
 
 data UserId =  UserId Int
 
-
 getUserFromMaybeProfile :: Maybe Profile -> User
 getUserFromMaybeProfile profile =  case profile of
                             Just profile -> getUser profile
