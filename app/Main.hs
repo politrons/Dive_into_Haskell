@@ -47,6 +47,8 @@ main :: IO ()
 -- | Cassandra Connector
 -- -----------------------
 
+--main = do result <- getConfigParam "portNumber"
+--          print result
 --main = do c <- getVersion
 --          print c
 --main  = do response <- selectAllCassandraUser

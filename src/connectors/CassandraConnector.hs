@@ -5,6 +5,7 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TemplateHaskell     #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE OverloadedStrings #-}
 {- | This connector is build on top of awesome libraries as https://hackage.haskell.org/package/cql
      and cql-io http://hackage.haskell.org/package/cql-io-}
 module CassandraConnector where
@@ -19,7 +20,10 @@ import Database.CQL.Protocol( ColumnType( IntColumn ) )
 import Database.CQL.Protocol( ColumnType( VarCharColumn ) )
 import Data.Int (Int64,Int32)
 import ModelTypes
-import Network.Socket (PortNumber (..))
+import Network.Socket (PortNumber (..),PortNumber)
+import Data.Configurator
+import Data.Configurator.Types (Value(String))
+import Text.Read (readMaybe)
 
 -- | Queries
 -- -------------
@@ -156,16 +160,28 @@ getLastElement tuple = unpack(snd tuple)
 -- -------------
 {-| In here we use the cql-io API to create the [ClientState] data type which contains the connection to the backend -}
 createConnection :: Logger.Logger -> IO ClientState
-createConnection logger = Client.init logger createConnectionSettings
+createConnection logger = do connectionSettings <- getConnectorSettings
+                             Client.init logger connectionSettings
+
+{-| Monad to compose a Cassandra Settings connector config-}
+getConnectorSettings :: IO Settings
+getConnectorSettings = do
+                          portCnf <- getConfigParam "portNumber"
+                          portNumber <- return $ getPortNumber portCnf
+                          maxTimeoutCnf <- getConfigParam "maxTimeout"
+                          maxTimeout <- return $ stringToInt $ unpack maxTimeoutCnf
+                          maxConnectionsCnf <- getConfigParam "maxConnections"
+                          maxConnections <- return $ stringToInt $ unpack maxConnectionsCnf
+                          return $ createConnectionSettings portNumber maxConnections maxTimeout
 
 {-| THis function it creates the [Settings] type which is used for Client.init function to create the ClientState which
     is the open connection to the cassandra backend.
     This function is a composition of functions each configuring a particular part of the Cassandra connection option-}
-createConnectionSettings :: Settings
-createConnectionSettings = addRetryStrategy retryForever $
-                           addMaxTimeout 10000 $
-                           addMaxConnections 100 $
-                           addPortNumber 9042 defSettings
+createConnectionSettings :: PortNumber -> Int -> Int -> Settings
+createConnectionSettings portNumber maxConnection maxTimeout= addRetryStrategy retryForever $
+                           addMaxTimeout maxTimeout $
+                           addMaxConnections maxConnection $
+                           addPortNumber portNumber defSettings
 
 addPortNumber :: PortNumber -> Settings -> Settings
 addPortNumber port settings =  (setPortNumber port) settings
@@ -178,3 +194,17 @@ addMaxTimeout maxTimeout settings = (setMaxTimeouts maxTimeout) settings
 
 addRetryStrategy :: RetrySettings -> Settings -> Settings
 addRetryStrategy strategy settings = (setRetrySettings strategy) settings
+
+getConfigParam :: String -> IO Text
+getConfigParam param = do
+                   cfg <- load [Required "$(HOME)/Development/Dive_into_Haskell/cassandraConnector.cfg"]
+                   configParam <- require cfg $ pack param :: IO Value
+                   configValue <- case configParam of
+                                       String value -> return value
+                                       _ -> return "No config property found"
+                   return configValue
+
+getPortNumber :: Text -> PortNumber
+getPortNumber s = case (fromInteger <$> readMaybe (unpack s)) of
+                    Just value -> value
+                    Nothing -> 9042 -- Default port

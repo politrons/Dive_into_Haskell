@@ -82,3 +82,6 @@ intToInt32 userId = fromIntegral (userId :: Int) :: Int32
 
 int32ToInt :: Int32 -> Int
 int32ToInt userId = fromIntegral (userId :: Int32) :: Int
+
+stringToInt :: String -> Int
+stringToInt str = read str

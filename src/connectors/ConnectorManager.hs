@@ -17,7 +17,7 @@ import Data.Int (Int32)
 
 selectAllUsers :: IO (Either UserNotFound [User])
 selectAllUsers =  do
-                 connectorType <- readConfiguration
+                 connectorType <- readConfiguration "connector"
                  result <- case connectorType of
                                 String  "cassandra" -> searchAllCassandraUsers
                                 String  "mysql" -> searchAllMySQLUsers
@@ -26,12 +26,13 @@ selectAllUsers =  do
 
 selectUserById :: Int -> IO (Either UserNotFound User)
 selectUserById id =  do
-                 connectorType <- readConfiguration
+                 connectorType <- readConfiguration "connector"
                  result <- case connectorType of
-                                String  "cassandra" -> searchCassandraUserById (intToInt32 id)
+                                String  "cassandra" -> searchCassandraUserById id
                                 String  "mysql" -> searchMySQLUserById id
                                 _ -> return  $ Left $ UserNotFound "No connector found"
                  return result
+
 
 -- | Interact with connectors
 -- ---------------------------
@@ -44,20 +45,19 @@ searchAllMySQLUsers:: IO (Either UserNotFound [User])
 searchAllMySQLUsers = do result <- getAllUsers
                          return $ Right result
 
-searchCassandraUserById:: Int32 -> IO (Either UserNotFound User)
-searchCassandraUserById id = do result <- selectCassandraUserById id
+searchCassandraUserById:: Int -> IO (Either UserNotFound User)
+searchCassandraUserById id = do result <- selectCassandraUserById $ intToInt32 id
                                 return result
 
 searchMySQLUserById:: Int -> IO (Either UserNotFound User)
 searchMySQLUserById id = do result <- getUserById id
                             return result
 
-
 -- | Utils
 -- ---------
 
-readConfiguration :: IO Value
-readConfiguration = do
+readConfiguration :: String -> IO Value
+readConfiguration param = do
                    cfg <- load [Required "$(HOME)/Development/Dive_into_Haskell/connectorManager.cfg"]
-                   connectorName <- require cfg  "connector" :: IO Value
+                   connectorName <- require cfg (pack param) :: IO Value
                    return connectorName
