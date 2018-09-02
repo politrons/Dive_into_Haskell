@@ -55,9 +55,9 @@ searchMySQLUserById id = do result <- getUserById id
 
 -- | Utils
 -- ---------
-
+{-| We use the [configurator] library to read a cnf file an extract properties in the file-}
 readConfiguration :: String -> IO Value
 readConfiguration param = do
                    cfg <- load [Required "$(HOME)/Development/Dive_into_Haskell/connectorManager.cfg"]
-                   connectorName <- require cfg (pack param) :: IO Value
-                   return connectorName
+                   cnfProperty <- require cfg (pack param) :: IO Value
+                   return cnfProperty
