@@ -13,10 +13,9 @@ import Control.Monad.IO.Class (liftIO)
 import Data.Int (Int32)
 import Database.MySQL.Base
 
-
 -- | Connector manager
 -- --------------------
-{-| Module responsible to choose between the diferenmt connectors to persist, read or delete elements in back ends. -}
+{-| Module responsible to choose between the different connectors to persist, read or delete elements in back ends. -}
 
 selectAllUsers :: IO (Either UserNotFound [User])
 selectAllUsers =  do
@@ -53,9 +52,10 @@ deleteUserById id = do connectorType <- readConfiguration "connector"
                        return result
 
 
-
 -- | Interact with connectors
 -- ---------------------------
+{-| Here we interact with the final connectors where we adapt the specific response from the connectors
+    into the generic one for our consumers-}
 
 searchAllCassandraUsers:: IO (Either UserNotFound [User])
 searchAllCassandraUsers = do result <- selectAllCassandraUser
