@@ -44,6 +44,15 @@ createUser user = do connectorType <- readConfiguration "connector"
                                _ -> return  $ ConnectorStatus "No connector found"
                      return result
 
+deleteUserById :: Int -> IO ConnectorStatus
+deleteUserById id = do connectorType <- readConfiguration "connector"
+                       result <- case connectorType of
+                                   String  "cassandra" -> deleteCassandraById id
+                                   String  "mysql" -> deleteMySQLById id
+                                   _ -> return  $ ConnectorStatus "No connector found"
+                       return result
+
+
 
 -- | Interact with connectors
 -- ---------------------------
@@ -65,12 +74,20 @@ searchMySQLUserById id = do result <- getUserById id
                             return result
 
 insertMySQLUser :: User -> IO ConnectorStatus
-insertMySQLUser user = do mysqlStatus <- insertUser user
+insertMySQLUser user = do status <- insertUser user
                           return $ ConnectorStatus "MySQL user persisted"
 
 insertCassandraUser :: User -> IO ConnectorStatus
-insertCassandraUser user = do mysqlStatus <- createCassandraUser user
+insertCassandraUser user = do status <- createCassandraUser user
                               return $ ConnectorStatus "Cassandra user persisted"
+
+deleteMySQLById :: Int -> IO ConnectorStatus
+deleteMySQLById id = do status <- deleteMySQLUserById id
+                        return $ ConnectorStatus "MySQL user deleted"
+
+deleteCassandraById :: Int -> IO ConnectorStatus
+deleteCassandraById id = do status <- deleteCassandraUserById (intToInt32 id)
+                            return $ ConnectorStatus "Cassandra user deleted"
 
 -- | Utils
 -- ---------

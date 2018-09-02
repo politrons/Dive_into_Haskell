@@ -81,8 +81,8 @@ insertUser _user = let user = _user in do
               return status
 
 {-| Function for delete. We use [query] operator followed by the connection, query and a QueryParam-}
-deleteUserById :: Int -> IO OK
-deleteUserById id = let userId = id in do
+deleteMySQLUserById :: Int -> IO OK
+deleteMySQLUserById id = let userId = id in do
               emptyVar <- newEmptyMVar
               forkIO $ do
                   conn <- createConnection
