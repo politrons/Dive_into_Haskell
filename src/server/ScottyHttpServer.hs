@@ -42,7 +42,7 @@ routes = do get "/service" responseService
             get "/users" responseUsers
             get "/user/id/:id" responseUserById
             get "/user/name/:name" responseUserByName
-            post "/user/" createUser
+            post "/user/" responseCreateUser
             put "/user/" updateUser
             delete "/users/:id" deleteById
             get "/address/id/:id" responseAddressById
@@ -120,10 +120,10 @@ responseUserById = do id <- param "id"
         Then finally we need to lift the response from insertUser  [IO OK] to [OK] and to do that we use
         the operator [liftAndCatchIO] which does:
     -- | Like 'liftIO', but catch any IO exceptions and turn them into Scotty exceptions.-}
-createUser :: ActionM ()
-createUser =  do maybeUser <- getUserParam
-                 status <- liftAndCatchIO $ sequence $ insertUser <$> maybeUser
-                 json (show status)
+responseCreateUser :: ActionM ()
+responseCreateUser =  do maybeUser <- getUserParam
+                         status <- liftAndCatchIO $ sequence $ createUser <$> maybeUser
+                         json (show status)
 
 updateUser :: ActionM ()
 updateUser =  do maybeUser <- getUserParam

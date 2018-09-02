@@ -14,11 +14,14 @@ data UserNotFound = UserNotFound { description :: String } deriving (Show, Gener
 
 data Address = Address { id :: Int, number::Int, street::String} deriving (Show, Generic)
 
+data ConnectorStatus = ConnectorStatus { status::String } deriving (Show, Generic)
+
 data Username = Username String
 
 data AddressId = AddressId Int
 
 data UserId =  UserId Int
+
 
 getUserFromMaybeProfile :: Maybe Profile -> User
 getUserFromMaybeProfile profile =  case profile of
@@ -85,3 +88,5 @@ int32ToInt userId = fromIntegral (userId :: Int32) :: Int
 
 stringToInt :: String -> Int
 stringToInt str = read str
+
+

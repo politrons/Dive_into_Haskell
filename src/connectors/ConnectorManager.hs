@@ -1,4 +1,5 @@
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
 module ConnectorManager where
 
 import CassandraConnector
@@ -10,6 +11,8 @@ import Data.Configurator.Types (Value(String))
 import Data.Text (unpack,pack)
 import Control.Monad.IO.Class (liftIO)
 import Data.Int (Int32)
+import Database.MySQL.Base
+
 
 -- | Connector manager
 -- --------------------
@@ -33,6 +36,14 @@ selectUserById id =  do
                                 _ -> return  $ Left $ UserNotFound "No connector found"
                  return result
 
+createUser ::  User -> IO ConnectorStatus
+createUser user = do connectorType <- readConfiguration "connector"
+                     result <- case connectorType of
+                               String  "cassandra" -> insertCassandraUser user
+                               String  "mysql" -> insertMySQLUser user
+                               _ -> return  $ ConnectorStatus "No connector found"
+                     return result
+
 
 -- | Interact with connectors
 -- ---------------------------
@@ -52,6 +63,14 @@ searchCassandraUserById id = do result <- selectCassandraUserById $ intToInt32 i
 searchMySQLUserById:: Int -> IO (Either UserNotFound User)
 searchMySQLUserById id = do result <- getUserById id
                             return result
+
+insertMySQLUser :: User -> IO ConnectorStatus
+insertMySQLUser user = do mysqlStatus <- insertUser user
+                          return $ ConnectorStatus "MySQL user persisted"
+
+insertCassandraUser :: User -> IO ConnectorStatus
+insertCassandraUser user = do mysqlStatus <- createCassandraUser user
+                              return $ ConnectorStatus "Cassandra user persisted"
 
 -- | Utils
 -- ---------
