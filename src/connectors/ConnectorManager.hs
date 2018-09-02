@@ -51,7 +51,6 @@ deleteUserById id = do connectorType <- readConfiguration "connector"
                                    _ -> return  $ ConnectorStatus "No connector found"
                        return result
 
-
 -- | Interact with connectors
 -- ---------------------------
 {-| Here we interact with the final connectors where we adapt the specific response from the connectors
@@ -91,7 +90,10 @@ deleteCassandraById id = do status <- deleteCassandraUserById (intToInt32 id)
 
 -- | Utils
 -- ---------
-{-| We use the [configurator] library to read a cnf file an extract properties in the file-}
+{-| We use the [configurator] library to read a cnf file an extract properties in the file.
+    We use the operator [load] to read the config file and return a [Config] type,
+    and then we use [require] operator to extract the specific property
+    The function return a monad of type Value which contains the property in the config file-}
 readConfiguration :: String -> IO Value
 readConfiguration param = do
                    cfg <- load [Required "$(HOME)/Development/Dive_into_Haskell/connectorManager.cfg"]
