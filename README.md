@@ -32,6 +32,7 @@ If you want to reference to the official documentation visit [Here](https://www.
 ![My image](img/connector.png)
 ## Connectors
 
+* **[Connector manager](src/connectors/ConnectorManager.hs)**
 * **[MySQL](src/connectors/MySQLConnector.hs)**
 * **[Cassandra](src/connectors/CassandraConnector.hs)**
 
