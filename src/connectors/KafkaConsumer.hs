@@ -18,6 +18,7 @@ import qualified Data.ByteString.Char8 as CH
 import qualified System.IO as SIO
 import ConfigurationUtils
 import Text.Read (lift)
+import Control.Concurrent (threadDelay)
 
 startConsumer :: IO ()
 startConsumer = do consumerSubscription <- createConsumerSubscription
@@ -49,9 +50,10 @@ createTopic topic = topics [TopicName topic]
 
 {-| Having a Kafka consumer We use [mapM_] function to start iterating 15 times, polling for messages. -}
 consumeMessages :: KafkaConsumer -> IO (Either KafkaError String)
-consumeMessages kafkaConsumer = do mapM_ (\_ -> do message <- consumeMessage kafkaConsumer
-                                                   SIO.putStrLn $ "Message: " <> show message
-                                         )[0 :: Integer .. 15]
+consumeMessages kafkaConsumer = do message <- consumeMessage kafkaConsumer
+                                   SIO.putStrLn $ "Message: " <> show message
+                                   SIO.putStrLn $ "---------------------------------------"
+                                   _ <- consumeMessages kafkaConsumer
                                    _ <- closeConsumer kafkaConsumer
                                    return $ Right "All events processed"
 
@@ -72,6 +74,11 @@ getConsumerRecordValue :: ConsumerRecord (Maybe ByteString) (Maybe ByteString) -
 getConsumerRecordValue(ConsumerRecord _ _ _ _ _ value) = case value of
                                                   Just value -> return $ Right $ CH.unpack value
                                                   Nothing -> return $ Left $ KafkaError "No data find in Customer record"
+
+{-| ---------------------
+       CONFIGURATION
+    ---------------------}
+{-| Configuration monads section where we extract kafka configuration from config file-}
 
 kafkaConnectorCfg = "$(HOME)/Development/Dive_into_Haskell/kafkaConnector.cfg" :: String
 
