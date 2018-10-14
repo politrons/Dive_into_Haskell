@@ -21,6 +21,7 @@ import CassandraConnector
 import ConnectorManager
 import KafkaConsumer
 import KafkaProducer
+import Control.Concurrent (threadDelay)
 
 
 -- | This is the main entry program for Haskell, just like static void main or Java
@@ -31,7 +32,11 @@ main :: IO ()
 -- ---------------------
 
 --main = startConsumer
-main = startProducer "Hello Kafka producer world"
+--main = startProducer "Hello Kafka producer world"
+main = do _ <- startProducer "Hello Kafka world"
+          threadDelay 2000000
+          _ <- startConsumer
+          return ()
 
 -- | Connector manager
 -- ---------------------
