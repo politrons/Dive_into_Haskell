@@ -34,3 +34,18 @@ getConfigParam filePath param = do
                                        _ -> return "No config property found"
                    return $ unpack configValue
 
+{-| ---------------------
+       CONFIGURATION
+    ---------------------}
+{-| Configuration monads section where we extract kafka configuration from config file-}
+
+kafkaConnectorCfg = "$(HOME)/Development/Dive_into_Haskell/kafkaConnector.cfg" :: String
+
+getTopic :: IO String
+getTopic = getConfigParam kafkaConnectorCfg "topic"
+
+getGroupId :: IO String
+getGroupId = getConfigParam kafkaConnectorCfg "groupId"
+
+getBootstrapServer :: IO String
+getBootstrapServer = getConfigParam kafkaConnectorCfg "bootstrapServer"

@@ -55,16 +55,3 @@ sendMessages kafkaProducer message= do producerRecord <- createProducerRecord No
 createProducerRecord :: Maybe ByteString -> Maybe ByteString -> IO ProducerRecord
 createProducerRecord key value = do topic <- getTopic
                                     return ProducerRecord { prTopic = TopicName topic, prPartition = UnassignedPartition, prKey = key , prValue = value }
-
-{-| ---------------------
-       CONFIGURATION
-    ---------------------}
-{-| Configuration monads section where we extract kafka configuration from config file-}
-
-kafkaConnectorCfg = "$(HOME)/Development/Dive_into_Haskell/kafkaConnector.cfg" :: String
-
-getTopic :: IO String
-getTopic = getConfigParam kafkaConnectorCfg "topic"
-
-getBootstrapServer :: IO String
-getBootstrapServer = getConfigParam kafkaConnectorCfg "bootstrapServer"

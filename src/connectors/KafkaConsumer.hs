@@ -78,18 +78,3 @@ getConsumerRecordValue(ConsumerRecord _ _ _ _ _ value) = case value of
                                                   Just value -> return $ Right $ CH.unpack value
                                                   Nothing -> return $ Left $ KafkaError "No data find in Customer record"
 
-{-| ---------------------
-       CONFIGURATION
-    ---------------------}
-{-| Configuration monads section where we extract kafka configuration from config file-}
-
-kafkaConnectorCfg = "$(HOME)/Development/Dive_into_Haskell/kafkaConnector.cfg" :: String
-
-getTopic :: IO String
-getTopic = getConfigParam kafkaConnectorCfg "topic"
-
-getGroupId :: IO String
-getGroupId = getConfigParam kafkaConnectorCfg "groupId"
-
-getBootstrapServer :: IO String
-getBootstrapServer = getConfigParam kafkaConnectorCfg "bootstrapServer"
