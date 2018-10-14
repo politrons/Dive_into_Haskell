@@ -31,7 +31,8 @@ startConsumer = do consumerSubscription <- createConsumerSubscription
 {-| We use [ConsumerProperties] adding information of the broker host, consumer group id, commit strategy and log level-}
 createConsumerProp :: IO ConsumerProperties
 createConsumerProp = do  groupIdName <- getGroupId
-                         return $ brokersList [BrokerAddress "localhost:9092"]
+                         bootstrapServer <- getBootstrapServer
+                         return $ brokersList [BrokerAddress bootstrapServer]
                                 <> groupId (ConsumerGroupId groupIdName)
                                 <> noAutoCommit
                                 <> logLevel KafkaLogInfo
@@ -79,3 +80,6 @@ getTopic = getConfigParam kafkaConnectorCfg "topic"
 
 getGroupId :: IO String
 getGroupId = getConfigParam kafkaConnectorCfg "groupId"
+
+getBootstrapServer :: IO String
+getBootstrapServer = getConfigParam kafkaConnectorCfg "bootstrapServer"
