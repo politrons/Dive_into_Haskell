@@ -1,6 +1,7 @@
 module KafkaConsumer where
 
-{-| Before start codgin remember that you need install in your system [librdkafka]
+{-| This code example is build in top of hw-kafka-client library https://hackage.haskell.org/package/hw-kafka-client
+    Before start codgin remember that you need install in your system [librdkafka]
     git clone https://github.com/edenhill/librdkafka
     cd librdkafka
     ./configure
