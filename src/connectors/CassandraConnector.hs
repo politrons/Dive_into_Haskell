@@ -25,6 +25,7 @@ import Network.Socket (PortNumber (..),PortNumber)
 import Data.Configurator
 import Data.Configurator.Types (Value(String))
 import Text.Read (readMaybe)
+import ConfigurationUtils
 
 -- | Queries
 -- -------------
@@ -166,11 +167,11 @@ createConnection logger = do connectionSettings <- getConnectorSettings
 {-| Monad to compose a Cassandra Settings connector config-}
 getConnectorSettings :: IO Settings
 getConnectorSettings = do
-                          portCnf <- getConfigParam "portNumber"
+                          portCnf <- getCassandraConfig "portNumber"
                           portNumber <- return $ getPortNumber portCnf
-                          maxTimeoutCnf <- getConfigParam "maxTimeout"
+                          maxTimeoutCnf <- getCassandraConfig "maxTimeout"
                           maxTimeout <- return $ stringToInt $ unpack maxTimeoutCnf
-                          maxConnectionsCnf <- getConfigParam "maxConnections"
+                          maxConnectionsCnf <- getCassandraConfig "maxConnections"
                           maxConnections <- return $ stringToInt $ unpack maxConnectionsCnf
                           return $ createConnectionSettings portNumber maxConnections maxTimeout
 
@@ -195,14 +196,9 @@ addMaxTimeout maxTimeout settings = (setMaxTimeouts maxTimeout) settings
 addRetryStrategy :: RetrySettings -> Settings -> Settings
 addRetryStrategy strategy settings = (setRetrySettings strategy) settings
 
-getConfigParam :: String -> IO Text
-getConfigParam param = do
-                   cfg <- load [Required "$(HOME)/Development/Dive_into_Haskell/cassandraConnector.cfg"]
-                   configParam <- require cfg $ pack param :: IO Value
-                   configValue <- case configParam of
-                                       String value -> return value
-                                       _ -> return "No config property found"
-                   return configValue
+getCassandraConfig :: String -> IO Text
+getCassandraConfig param = do config <- getConfigParam "$(HOME)/Development/Dive_into_Haskell/cassandraConnector.cfg" param
+                              return $ pack config
 
 getPortNumber :: Text -> PortNumber
 getPortNumber s = case (fromInteger <$> readMaybe (unpack s)) of

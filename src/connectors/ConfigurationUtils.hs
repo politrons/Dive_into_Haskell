@@ -24,6 +24,10 @@ import Data.Configurator
 import Data.Configurator.Types (Value(String))
 import Text.Read (readMaybe)
 
+{-| ---------------------
+       CONFIGURATION
+    ---------------------}
+
 {-| Generic function which receive config file path and param and return the value of that property-}
 getConfigParam :: String -> String -> IO String
 getConfigParam filePath param = do
@@ -34,9 +38,6 @@ getConfigParam filePath param = do
                                        _ -> return "No config property found"
                    return $ unpack configValue
 
-{-| ---------------------
-       CONFIGURATION
-    ---------------------}
 {-| Configuration monads section where we extract kafka configuration from config file-}
 
 kafkaConnectorCfg = "$(HOME)/Development/Dive_into_Haskell/kafkaConnector.cfg" :: String
