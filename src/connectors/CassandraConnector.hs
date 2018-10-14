@@ -6,7 +6,8 @@
 {-# LANGUAGE TemplateHaskell     #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE OverloadedStrings #-}
-{- | This connector is build on top of awesome libraries as https://hackage.haskell.org/package/cql
+{-|  Author: Pablo Perez Garcia
+     This connector is build on top of awesome libraries as https://hackage.haskell.org/package/cql
      and cql-io http://hackage.haskell.org/package/cql-io-}
 module CassandraConnector where
 

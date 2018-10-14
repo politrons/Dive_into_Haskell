@@ -1,6 +1,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
-{-| Connector working in top of library MySQL-Haskell https://github.com/winterland1989/mysql-haskell
+{-| Author: Pablo Perez Garcia
+    Connector working in top of library MySQL-Haskell https://github.com/winterland1989/mysql-haskell
     The version of MySQL-Haskell 0.8.3.0 only works properly with MySQL server 5.5-}
 module MySQLConnector where
 
