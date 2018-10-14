@@ -34,7 +34,7 @@ main :: IO ()
 --main = startConsumer
 --main = startProducer "Hello Kafka producer world"
 main = do _ <- startProducer "Hello Kafka world"
-          threadDelay 2000000
+          threadDelay 5000000
           _ <- startConsumer
           return ()
 

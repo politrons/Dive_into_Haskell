@@ -36,6 +36,6 @@ If you want to reference to the official documentation visit [Here](https://www.
 * **[MySQL](src/connectors/MySQLConnector.hs)**
 * **[Cassandra](src/connectors/CassandraConnector.hs)**
 * **[Kafka consumer](src/connectors/KafkaConsumer.hs)**
-
+* **[Kafka Producer](src/connectors/KafkaProducer.hs)**
 
 You can find the main class to run the app [here](app/Main.hs)
