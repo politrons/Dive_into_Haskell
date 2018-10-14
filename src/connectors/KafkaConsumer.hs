@@ -26,7 +26,7 @@ startConsumer = do kafkaConsumerEither <- newConsumer consumerProps createConsum
 {-| We use [ConsumerProperties] adding information of the broker host, consumer group id, commit strategy and log level-}
 consumerProps :: ConsumerProperties
 consumerProps = brokersList [BrokerAddress "localhost:9092"]
-             <> groupId (ConsumerGroupId "consumer14_group_13")
+             <> groupId (ConsumerGroupId "your_consumer_group")
              <> noAutoCommit
              <> logLevel KafkaLogInfo
 
@@ -39,57 +39,29 @@ createConsumerSubscription = createTopic "MyFirstTopic"  <> offsetReset Earliest
 createTopic:: String  -> Subscription
 createTopic topic = topics [TopicName topic]
 
-{-| Having a Kafka consumer we start iterating 10 times per messages-}
+{-| Having a Kafka consumer We use [mapM_] function to start iterating 15 times, polling for messages. -}
 consumeMessages :: KafkaConsumer -> IO (Either KafkaError String)
-consumeMessages kafkaConsumer = do mapM_ (\_ -> do message <- processMsg kafkaConsumer
+consumeMessages kafkaConsumer = do mapM_ (\_ -> do message <- consumeMessage kafkaConsumer
                                                    SIO.putStrLn $ "Message: " <> show message
                                          )[0 :: Integer .. 15]
+                                   _ <- closeConsumer kafkaConsumer
                                    return $ Right "All events processed"
 
-processMsg :: KafkaConsumer -> IO (Either KafkaError String)
-processMsg kafka = do eitherConsumerRecord <- pollMessage kafka (Timeout 5000)
-                      err <- commitAllOffsets OffsetCommit kafka
-                      SIO.putStrLn $ "Offsets: " <> maybe "Committed." show err
-                      eitherResponse <- case eitherConsumerRecord of
-                                              Left kafkaError -> do return $ Left(kafkaError)
+{-| Having a Kafka consumer We use [pollMessage] function passing the consumer and a timeout.
+    It return an either of KafkaError or ConsumerRecord.
+    We then commit offset using [commitAllOffsets] which return a maybe of Kafka error which in case is filled
+    contains the error description.-}
+consumeMessage :: KafkaConsumer -> IO (Either KafkaError String)
+consumeMessage kafkaConsumer = do eitherConsumerRecord <- pollMessage kafkaConsumer (Timeout 5000)
+                                  maybeError <- commitAllOffsets OffsetCommit kafkaConsumer
+                                  SIO.putStrLn $ "Offsets: " <> maybe "Committed." show maybeError
+                                  eitherResponse <- case eitherConsumerRecord of
                                               Right consumerRecord -> do return $ Right(getConsumerRecordValue consumerRecord)
-                      return eitherResponse
+                                  return eitherResponse
 
+{-| Function to extract the value from the ConsumerRecord -}
 getConsumerRecordValue :: ConsumerRecord (Maybe ByteString) (Maybe ByteString) -> String
 getConsumerRecordValue(ConsumerRecord _ _ _ _ _ value) = case value of
                                                   Just value -> CH.unpack value
                                                   Nothing ->  "No data find in Customer record"
 
-
-
-
---getByteStringPayload :: BS.ByteString -> String
---getByteStringPayload(BS.ByteString payload _ _) = payload
-
---runConsumer :: IO ()
---runConsumer = do
---    print $ cpLogLevel consumerProps
---    res <- bracket mkConsumer clConsumer runHandler
---    print res
---    where
---      mkConsumer = newConsumer consumerProps createConsumerSubscription
---      clConsumer (Left err) = return (Left err)
---      clConsumer (Right kc) = (maybe (Right ()) Left) <$> closeConsumer kc
---      runHandler (Left err) = return (Left err)
---      runHandler (Right kc) = processMessages kc
-
--------------------------------------------------------------------
---processMessages :: KafkaConsumer -> IO (Either KafkaError ())
---processMessages kafka = do
---    mapM_ (\_ -> do
---                   msg1 <- pollMessage kafka (Timeout 1000)
---                   putStrLn $ "Message: " <> show msg1
---                   err <- commitAllOffsets OffsetCommit kafka
---                   putStrLn $ "Offsets: " <> maybe "Committed." show err
---          ) [0 :: Integer .. 10]
---    return $ Right ()
-
---printingOffsetCallback :: KafkaConsumer -> KafkaError -> [TopicPartition] -> IO ()
---printingOffsetCallback _ e ps = do
-----    print ("Offsets callback:" ++ show e)
---    mapM_ (print . (tpTopicName &&& tpPartition &&& tpOffset)) ps
