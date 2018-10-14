@@ -31,7 +31,7 @@ main :: IO ()
 -- ---------------------
 
 --main = startConsumer
-main = startProducer
+main = startProducer "Hello Kafka producer world"
 
 -- | Connector manager
 -- ---------------------

@@ -18,13 +18,15 @@ import Kafka.Producer
 import Data.Text             (Text)
 import ConfigurationUtils
 
-startProducer :: IO ()
-startProducer = do producerProps <- createProducerProperties
-                   kafkaProducerEither <- newProducer producerProps
-                   either <- case kafkaProducerEither of
-                                  Right kafkaProducer -> prepareMessage kafkaProducer
-                                  Left err -> do return $ Left err
-                   print either
+{-| Monad to send a message to Kafka. We use the function [newProducer] passing the ProducerProperties
+    to obtain an Either of KafkaError or KafkaProducer -}
+startProducer :: String -> IO ()
+startProducer message = do producerProps <- createProducerProperties
+                           kafkaProducerEither <- newProducer producerProps
+                           either <- case kafkaProducerEither of
+                                          Right kafkaProducer -> prepareMessage kafkaProducer message
+                                          Left err -> do return $ Left err
+                           print either
 
 {-| Monad to create the ProducerProperties used to create the producerRecord.
     It contains the bootstrap server host and port, the timeout of connection a callback after we push the message
@@ -37,17 +39,17 @@ createProducerProperties = do bootstrapServer <- getBootstrapServer
                                <> logLevel KafkaLogDebug
 
 {-| Function that receive a KafkaProducer which we use to send the message and close the producer after that.-}
-prepareMessage :: KafkaProducer -> IO (Either KafkaError ())
-prepareMessage kafkaProducer =  do result <- sendMessages kafkaProducer
-                                   _ <- closeProducer kafkaProducer
-                                   return result
+prepareMessage ::   KafkaProducer -> String -> IO (Either KafkaError ())
+prepareMessage kafkaProducer message=  do result <- sendMessages kafkaProducer message
+                                          _ <- closeProducer kafkaProducer
+                                          return result
 
 {-| Function that receive a Kafka producer and using [produceMessage] passing a ProducerRecord it send the message to Kafka-}
-sendMessages :: KafkaProducer -> IO (Either KafkaError ())
-sendMessages kafkaProducer = do producerRecord <- createProducerRecord Nothing (Just $ pack "ohhhhhhh again")
-                                maybeKafkaError <- produceMessage kafkaProducer producerRecord
-                                forM_ maybeKafkaError print
-                                return $ Right ()
+sendMessages ::  KafkaProducer -> String -> IO (Either KafkaError ())
+sendMessages kafkaProducer message= do producerRecord <- createProducerRecord Nothing (Just $ pack message)
+                                       maybeKafkaError <- produceMessage kafkaProducer producerRecord
+                                       forM_ maybeKafkaError print
+                                       return $ Right ()
 
 {-| Function with key and value Maybe to fill together with the topic name where to send the message-}
 createProducerRecord :: Maybe ByteString -> Maybe ByteString -> IO ProducerRecord
