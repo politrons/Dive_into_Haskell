@@ -23,18 +23,19 @@ producerProps = brokersList [BrokerAddress "localhost:9092"]
              <> setCallback (deliveryCallback print)
              <> logLevel KafkaLogDebug
 
+{-| Function that receive a Kafka producer and using [produceMessage] passing a ProducerRecord it send the message to Kafka-}
 sendMessages :: KafkaProducer -> IO (Either KafkaError ())
-sendMessages prod = do maybeKafkaError <- produceMessage prod (createProducerRecord Nothing (Just $ pack "Super cool producer"))
-                       forM_ maybeKafkaError print
-                       return $ Right ()
+sendMessages kafkaProducer = do maybeKafkaError <- produceMessage kafkaProducer (createProducerRecord Nothing (Just $ pack "Super cool producer"))
+                                forM_ maybeKafkaError print
+                                return $ Right ()
 
 {-| Function with key and value Maybe to fill together with the topic name where to send the message-}
 createProducerRecord :: Maybe ByteString -> Maybe ByteString -> ProducerRecord
-createProducerRecord k v = ProducerRecord
+createProducerRecord key value = ProducerRecord
                   { prTopic = targetTopic
                   , prPartition = UnassignedPartition
-                  , prKey = k
-                  , prValue = v
+                  , prKey = key
+                  , prValue = value
                   }
 
 targetTopic :: TopicName

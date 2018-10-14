@@ -21,6 +21,8 @@ import ConfigurationUtils
 import Text.Read (lift)
 import Control.Concurrent (threadDelay)
 
+{-| IO monad to run the consumer, using the function [newConsumer] where we pass the ConsumerProperties and the Subscription
+    it return a Either of [KafkaError] or [KafkaConsumer] -}
 startConsumer :: IO ()
 startConsumer = do consumerSubscription <- createConsumerSubscription
                    consumerProps <- createConsumerProp
