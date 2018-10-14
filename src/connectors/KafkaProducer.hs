@@ -1,5 +1,14 @@
 module KafkaProducer where
 
+{-| Author: Pablo Perez Garcia
+    This code example is build in top of hw-kafka-client library https://hackage.haskell.org/package/hw-kafka-client
+    Before start codgin remember that you need install in your system [librdkafka]
+    git clone https://github.com/edenhill/librdkafka
+    cd librdkafka
+    ./configure
+    make
+    sudo make install
+-}
 import Control.Exception     (bracket)
 import Control.Monad         (forM_)
 import Data.ByteString       (ByteString)
@@ -11,7 +20,7 @@ import ConfigurationUtils
 
 startProducer :: IO ()
 startProducer = do producerProps <- createProducerProperties
-                   kafkaProducerEither <-  newProducer producerProps
+                   kafkaProducerEither <- newProducer producerProps
                    either <- case kafkaProducerEither of
                                   Right kafkaProducer -> prepareMessage kafkaProducer
                                   Left err -> do return $ Left err

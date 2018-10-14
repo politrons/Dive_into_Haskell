@@ -24,7 +24,7 @@ import Data.Configurator
 import Data.Configurator.Types (Value(String))
 import Text.Read (readMaybe)
 
-
+{-| Generic function which receive config file path and param and return the value of that property-}
 getConfigParam :: String -> String -> IO String
 getConfigParam filePath param = do
                    cfg <- load [Required filePath]
