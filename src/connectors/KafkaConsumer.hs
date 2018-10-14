@@ -64,14 +64,14 @@ consumeMessage kafkaConsumer = do eitherConsumerRecord <- pollMessage kafkaConsu
                                   maybeError <- commitAllOffsets OffsetCommit kafkaConsumer
                                   SIO.putStrLn $ "Offsets: " <> maybe "Committed." show maybeError
                                   eitherResponse <- case eitherConsumerRecord of
-                                              Right consumerRecord -> do return $ Right(getConsumerRecordValue consumerRecord)
+                                              Right consumerRecord -> getConsumerRecordValue consumerRecord
                                   return eitherResponse
 
 {-| Function to extract the value from the ConsumerRecord -}
-getConsumerRecordValue :: ConsumerRecord (Maybe ByteString) (Maybe ByteString) -> String
+getConsumerRecordValue :: ConsumerRecord (Maybe ByteString) (Maybe ByteString) -> IO (Either KafkaError String)
 getConsumerRecordValue(ConsumerRecord _ _ _ _ _ value) = case value of
-                                                  Just value -> CH.unpack value
-                                                  Nothing ->  "No data find in Customer record"
+                                                  Just value -> return $ Right $ CH.unpack value
+                                                  Nothing -> return $ Left $ KafkaError "No data find in Customer record"
 
 kafkaConnectorCfg = "$(HOME)/Development/Dive_into_Haskell/kafkaConnector.cfg" :: String
 
