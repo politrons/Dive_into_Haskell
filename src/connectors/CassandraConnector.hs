@@ -84,7 +84,6 @@ deleteCassandraUserById userId = do
                   let queryParam = createQueryParam (Identity userId)
                   runQuery deleteByIdQuery queryParam
 
-
 -- | Type classes
 -- --------------------
 

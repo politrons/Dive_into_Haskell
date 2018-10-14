@@ -19,11 +19,14 @@ import MySQLConnector
 import ModelTypes
 import CassandraConnector
 import ConnectorManager
+import KafkaConsumer
 
 
 -- | This is the main entry program for Haskell, just like static void main or Java
 --   You can only have one main declaration, so you have to point to one output or another
 main :: IO ()
+
+main = startConsumer
 
 
 -- | Connector manager
@@ -63,7 +66,7 @@ main :: IO ()
 -- --------------
 
 --main = myServer
-main = scottyServer
+--main = scottyServer
 
 -- | Monads
 -- ------------
