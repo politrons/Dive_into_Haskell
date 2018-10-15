@@ -52,15 +52,17 @@ createTopic:: String  -> Subscription
 createTopic topic = topics [TopicName topic]
 
 {-| Having a Kafka consumer We use [mapM_] function to start iterating 15 times, polling for messages.
-    We then commit offset using [commitAllOffsets] which return a maybe of Kafka error which in case is filled
-        contains the error description-}
+    We then commit offset using [commitAllOffsets] which return a maybe of Kafka error which in case
+    is filled contains the error description
+    In Haskell as a declarative paradigm language has not loops operators, so in order to iterate to
+    get more message from the topic we do a recursive call of the function.-}
 consumeMessages :: KafkaConsumer -> IO (Either KafkaError String)
 consumeMessages kafkaConsumer = do message <- consumeMessage kafkaConsumer
                                    SIO.putStrLn $ "Message: " <> show message
                                    maybeError <- commitAllOffsets OffsetCommit kafkaConsumer
                                    SIO.putStrLn $ "Offsets: " <> maybe "Committed." show maybeError
                                    SIO.putStrLn $ "---------------------------------------"
-                                   _ <- consumeMessages kafkaConsumer
+                                   _ <- consumeMessages kafkaConsumer -- Recursive call.
                                    _ <- closeConsumer kafkaConsumer
                                    return $ Right "All events processed"
 
