@@ -31,7 +31,7 @@ main :: IO ()
 -- |    Kafka
 -- ---------------------
 
---main = startConsumer
+main = startConsumer
 --main = startProducer "Hello Kafka producer world"
 --main = do _ <- startProducer "Hello Kafka world"
 --          threadDelay 5000000
@@ -75,7 +75,7 @@ main :: IO ()
 -- --------------
 
 --main = myServer
-main = scottyServer
+--main = scottyServer
 
 -- | Monads
 -- ------------
