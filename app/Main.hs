@@ -22,16 +22,23 @@ import ConnectorManager
 import KafkaConsumer
 import KafkaProducer
 import Control.Concurrent (threadDelay)
-
+import ErrorHandler
 
 -- | This is the main entry program for Haskell, just like static void main or Java
 --   You can only have one main declaration, so you have to point to one output or another
 main :: IO ()
 
+-- | Error Handler
+-- ---------------------
+
+--main = bracketFeature
+--main = bracketWithErrorHandler
+main = tryFeature
+
 -- |    Kafka
 -- ---------------------
 
-main = startConsumer
+--main = startConsumer
 --main = startProducer "Hello Kafka producer world"
 --main = do _ <- startProducer "Hello Kafka world"
 --          threadDelay 5000000
