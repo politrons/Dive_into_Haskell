@@ -22,7 +22,7 @@ import ConnectorManager
 import KafkaConsumer
 import KafkaProducer
 import Control.Concurrent (threadDelay)
-import ErrorHandler
+import ErrorHandling
 
 -- | This is the main entry program for Haskell, just like static void main or Java
 --   You can only have one main declaration, so you have to point to one output or another

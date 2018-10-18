@@ -1,4 +1,4 @@
-module ErrorHandler where
+module ErrorHandling where
 
 import Control.Exception (bracket,SomeException,evaluate,try,catch)
 import Data.Char (toUpper,digitToInt)
