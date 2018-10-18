@@ -36,6 +36,21 @@ bracketWithErrorHandler = bracket init last between
                   between param = print $ digitToInt 'h' -- This will provoke an error
                   last param = print $ map toUpper $ (param ++ ":last action")
 
+{-| Bracket without [where]-}
+bracketFeatureNoSugar :: IO ()
+bracketFeatureNoSugar = bracket functionInit  functionLast functionInBetween
+
+functionInit:: IO String
+functionInit = do text <- return "Hello Bracket function execution"
+                  print $ text ++ ":init"
+                  return text
+
+functionInBetween:: String -> IO()
+functionInBetween param = print $ map toUpper $ (param ++ ":between action")
+
+functionLast:: String -> IO()
+functionLast param = print $ map toUpper $ (param ++ ":last action")
+
 {-| -------------
         Try
    --------------
