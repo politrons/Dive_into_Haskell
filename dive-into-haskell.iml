@@ -164,5 +164,8 @@
     <orderEntry type="library" name="tuple-0.3.0.2" level="project" />
     <orderEntry type="library" name="configurator-0.3.0.0" level="project" />
     <orderEntry type="library" name="hw-kafka-client-2.5.0" level="project" />
+    <orderEntry type="library" name="http-client-0.5.13.1" level="project" />
+    <orderEntry type="library" name="mime-types-0.1.0.8" level="project" />
+    <orderEntry type="library" name="network-uri-2.6.1.0" level="project" />
   </component>
 </module>

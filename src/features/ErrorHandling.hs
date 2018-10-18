@@ -1,6 +1,6 @@
 module ErrorHandling where
 
-import Control.Exception (bracket,SomeException,evaluate,try,catch)
+import Control.Exception (bracket,SomeException,evaluate,try,catch,handle)
 import Data.Char (toUpper,digitToInt)
 
 {-| -------------

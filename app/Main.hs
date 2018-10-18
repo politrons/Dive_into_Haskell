@@ -23,10 +23,13 @@ import KafkaConsumer
 import KafkaProducer
 import Control.Concurrent (threadDelay)
 import ErrorHandling
+import RestConnector
 
 -- | This is the main entry program for Haskell, just like static void main or Java
 --   You can only have one main declaration, so you have to point to one output or another
 main :: IO ()
+
+--main = simpleGetRequest
 
 -- | Error Handler
 -- ---------------------
@@ -34,7 +37,7 @@ main :: IO ()
 --main = bracketFeature
 --main = bracketWithErrorHandler
 --main = tryFeature
-main = catchFeature
+--main = catchFeature
 
 -- |    Kafka
 -- ---------------------
@@ -83,7 +86,7 @@ main = catchFeature
 -- --------------
 
 --main = myServer
---main = scottyServer
+main = scottyServer
 
 -- | Monads
 -- ------------

@@ -38,16 +38,16 @@ getAddressFromMaybeProfile profile =  case profile of
                             Just profile -> getAddress profile
                             Nothing -> Address 1 1 "default"
 getUser :: Profile -> User
-getUser(Profile user _) = user
+getUser profile = user profile
 
 getAddress :: Profile -> Address
-getAddress(Profile _ address) = address
+getAddress profile = address profile
 
 getUserId :: User -> Int
-getUserId(User userId _) = userId
+getUserId user = userId user
 
 getUserName :: User -> String
-getUserName(User _ userName) = userName
+getUserName user = userName user
 
 getAddressId :: Address -> Int
 getAddressId(Address id _ _) = id

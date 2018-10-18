@@ -74,22 +74,20 @@ outputOlderThan30 = map (\person -> map toUpper (getName person)) $
 womenOutput = map transformPersonFunc $
               filter (\person -> isWomenFunc person) spanishPeople
 
-
 -- | Getters
 getAge :: Person -> Age
-getAge(Person _ _ age _)= age
+getAge person = age person
 
 getName :: Person -> Name
-getName(Person name _ _ _) = name
+getName person= name person
 
 getSurname :: Person -> Surname
-getSurname(Person _ surname _ _ ) = surname
+getSurname person = surname person
 
 getSex :: Person -> Sex
-getSex(Person _ _ _ sex) = sex
+getSex person = sex person
 
 outputPerson = Person (toUpperFunc "") "Perez"  37  Male :: Person
-
 
 -- | Utils functions
 transformPersonFunc :: Person -> Person
