@@ -1,6 +1,6 @@
 module ErrorHandler where
 
-import Control.Exception (bracket,SomeException,evaluate,try)
+import Control.Exception (bracket,SomeException,evaluate,try,catch)
 import Data.Char (toUpper,digitToInt)
 
 {-| -------------
@@ -69,3 +69,20 @@ tryWithParam param = do eitherResult <- try (evaluate (digitToInt param)) :: IO 
                         case eitherResult of
                             Left ex  -> return $ "Exception handled: " ++ show ex
                             Right value -> return $ "The character as Int is: " ++ show value
+
+{-| -------------
+        Catch
+   --------------
+  [Catch] function together with [handler] allow execute an IO computation and in case there's an
+  exception is controlled in the handler
+-}
+catchFeature :: IO ()
+catchFeature = do output1 <- catchWithParam 'h'
+                  output2 <- catchWithParam '1'
+                  print ""
+
+catchWithParam :: Char -> IO ()
+catchWithParam param = catch (print $ digitToInt param) handler
+                          where
+                            handler :: SomeException -> IO ()
+                            handler ex = putStrLn $ "Exception Catch!: " ++ show ex

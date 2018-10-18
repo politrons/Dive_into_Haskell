@@ -33,7 +33,8 @@ main :: IO ()
 
 --main = bracketFeature
 --main = bracketWithErrorHandler
-main = tryFeature
+--main = tryFeature
+main = catchFeature
 
 -- |    Kafka
 -- ---------------------
