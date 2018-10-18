@@ -74,8 +74,7 @@ tryWithParam param = do eitherResult <- try (evaluate (digitToInt param)) :: IO 
         Catch
    --------------
   [Catch] function together with [handler] allow execute an IO computation and in case there's an
-  exception is controlled in the handler
--}
+  exception is controlled in the handler. -}
 catchFeature :: IO ()
 catchFeature = do output1 <- catchWithParam 'h'
                   output2 <- catchWithParam '1'

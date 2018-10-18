@@ -22,6 +22,7 @@ If you want to reference to the official documentation visit [Here](https://www.
 * **[Type classes](src/features/ClassesAndInstances.hs)**
 * **[Async](src/features/AsyncFunctions.hs)**
 * **[Category Theory](src/features/CategoryTheoryFunctions.hs)**
+* **[Error handler](src/features/ErrorHandler.hs)**
 
 ![My image](img/server.jpg)
 ## Server
