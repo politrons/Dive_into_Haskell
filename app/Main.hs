@@ -39,7 +39,7 @@ main :: IO ()
 
 --main = stateMachine
 --main = stateMachineFalse
-main = runStateMachine
+main = goShgopping
 
 --main = do void <- mutate
 --          void1 <-mutate

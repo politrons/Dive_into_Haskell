@@ -72,21 +72,21 @@ removeItem item items = filter (\element -> desc element /= desc item) items
 
 -- | Runner
 -- -----------
-runStateMachine :: IO()
-runStateMachine = do state <- myBasket EmptyBasket $ AddItem (Item "Coca-cola" 1.95)
-                     print ("EmptyBasket: "++ show state)
-                     state <- myBasket state $ AddItem (Item "Twix" 1.50)
-                     print ("AddItem: "++ show state)
-                     state <- myBasket state $ AddItem (Item "Pizza" 9.50)
-                     print ("AddItem: "++ show state)
-                     state <- myBasket state $ RemoveItem (Item "Twix" 1.50)
-                     print ("RemoveItem: "++ show state)
-                     state <- myBasket state Checkout
-                     print ("Checkout: "++ show state)
-                     state <- myBasket state $ AddPayment (Card "1234-5678-9123-5678")
-                     print ("AddPayment: "++ show state)
-                     state <- myBasket state Confirm
-                     print ("Confirm: "++ show state)
+goShopping :: IO()
+goShopping = do state <- myBasket EmptyBasket $ AddItem (Item "Coca-cola" 1.95)
+                print ("EmptyBasket: "++ show state)
+                state <- myBasket state $ AddItem (Item "Twix" 1.50)
+                print ("AddItem: "++ show state)
+                state <- myBasket state $ AddItem (Item "Pizza" 9.50)
+                print ("AddItem: "++ show state)
+                state <- myBasket state $ RemoveItem (Item "Twix" 1.50)
+                print ("RemoveItem: "++ show state)
+                state <- myBasket state Checkout
+                print ("Checkout: "++ show state)
+                state <- myBasket state $ AddPayment (Card "1234-5678-9123-5678")
+                print ("AddPayment: "++ show state)
+                state <- myBasket state Confirm
+                print ("Confirm: "++ show state)
 
 
 
