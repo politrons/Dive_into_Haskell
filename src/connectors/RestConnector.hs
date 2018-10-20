@@ -8,7 +8,6 @@ import Network.HTTP.Types.Status (statusCode)
 simpleGetRequest :: IO ()
 simpleGetRequest = do
                     manager <- newManager defaultManagerSettings
-
                     request <- parseRequest "http://httpbin.org/get"
                     response <- httpLbs request manager
                     putStrLn $ "The status code was: " ++ (show $ statusCode $ responseStatus response)

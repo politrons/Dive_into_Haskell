@@ -24,10 +24,29 @@ import KafkaProducer
 import Control.Concurrent (threadDelay)
 import ErrorHandling
 import RestConnector
+import CircuitBreaker
+import Generics
+import StateMachine
+
 
 -- | This is the main entry program for Haskell, just like static void main or Java
 --   You can only have one main declaration, so you have to point to one output or another
 main :: IO ()
+
+
+-- | State machine
+-- ---------------------
+
+--main = stateMachine
+--main = stateMachineFalse
+main = runStateMachine
+
+--main = do void <- mutate
+--          void1 <-mutate
+--          print "end"
+
+-- | Rest connector
+-- ---------------------
 
 --main = simpleGetRequest
 
@@ -86,7 +105,7 @@ main :: IO ()
 -- --------------
 
 --main = myServer
-main = scottyServer
+--main = scottyServer
 
 -- | Monads
 -- ------------

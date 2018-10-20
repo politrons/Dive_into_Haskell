@@ -29,12 +29,12 @@ bracketFeature = bracket init last between
 -}
 bracketWithErrorHandler :: IO ()
 bracketWithErrorHandler = bracket init last between
-                  where
-                  init = do text <- return "Hello Bracket with error handler"
-                            print $ text ++ ":init"
-                            return text
-                  between param = print $ digitToInt 'h' -- This will provoke an error
-                  last param = print $ map toUpper $ (param ++ ":last action")
+                    where
+                    init = do text <- return "Hello Bracket with error handler"
+                              print $ text ++ ":init"
+                              return text
+                    between param = print $ digitToInt 'h' -- This will provoke an error
+                    last param = print $ map toUpper $ (param ++ ":last action")
 
 {-| Bracket without [where]-}
 bracketFeatureNoSugar :: IO ()
