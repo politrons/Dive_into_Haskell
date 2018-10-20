@@ -129,4 +129,7 @@ tupleList = [(1,4),(2,5),(3,6)]
 -- | [unzip] operator get every element of the tuple and put array in the corresponding index position.
 unzipOutput = unzip tupleList
 
-
+-- | Doing recursion we sum all the elements of a list, in every recursion call we pass the sum value and also the list with one element less
+sumAllElements :: Double -> [Double] -> Double
+sumAllElements first (x:xs) = sumAllElements (first + x) xs
+sumAllElements first [] = first

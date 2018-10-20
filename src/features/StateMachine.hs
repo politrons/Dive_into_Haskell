@@ -67,8 +67,12 @@ addItem item items = item : items
 removeItem :: Item -> [Item] -> [Item]
 removeItem item items = filter (\element -> desc element /= desc item) items
 
---sumAllPrices :: [Item] -> Basket
---sumAllPrices items = map (\item -> price item) items
+--sumAllPrices :: Double -> [Item] -> [Double]
+--sumAllPrices first items = map(\item -> first + (price item)) items
+
+sumAllPrices :: Double -> [Double] -> Double
+sumAllPrices first (x:xs) = sumAllPrices (first + x) xs
+sumAllPrices first [] = first
 
 -- | Runner
 -- -----------

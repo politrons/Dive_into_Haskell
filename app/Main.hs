@@ -39,7 +39,8 @@ main :: IO ()
 
 --main = stateMachine
 --main = stateMachineFalse
-main = goShgopping
+--main = goShgopping
+main  = print $ sumAllPrices 0 [1,2,3,4,5]
 
 --main = do void <- mutate
 --          void1 <-mutate
@@ -205,6 +206,7 @@ main = goShgopping
 --main = print isElementThere
 --main = print outputFind
 --main = print outputListFunc
+--main  = print $ sumAllElements 0 [1,2,3,4,5]
 
 -- | Map
 
