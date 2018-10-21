@@ -25,7 +25,7 @@ myBasket (ItemsInBasket items) (AddItem item) = return (ItemsInBasket $ addItem 
 myBasket (ItemsInBasket items) (RemoveItem item) = return (ItemsInBasket $ removeItem item items)
 {-| Possible second state to the checkout-}
 myBasket (ItemsInBasket items) Checkout = return (NoPaymentSelected items)
-{-| Possible third state the select card to pay-}
+{-| Third state select method of payment-}
 myBasket (NoPaymentSelected items) (AddPayment payment) = return (PaymentSelected items payment)
 {-| Last state confirm card and pay-}
 myBasket (PaymentSelected items payment) Confirm = return (Check items (Total $ sumAllPrices 0 items) payment)
