@@ -39,7 +39,8 @@ main :: IO ()
 
 --main = stateMachine
 --main = stateMachineFalse
-main = goShopping
+main = goShoppingWithMoney
+--main = goShoppingWithCard
 
 --main = do void <- mutate
 --          void1 <-mutate
