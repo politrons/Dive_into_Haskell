@@ -1,5 +1,5 @@
 module StateMachine where
-
+-- | Author Pablo Perez Garcia
 import Control.Monad      (foldM)
 import Data.Text          (Text)
 import Text.Printf        (printf)
