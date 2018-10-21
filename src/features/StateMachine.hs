@@ -48,8 +48,8 @@ removeItem item items = filter (\element -> desc element /= desc item) items
   (item:items) with collection is a cool feature of Haskell where when you have a collection you receive
   the item and the list of items without that item. Very handy for reduce.-}
 sumAllPrices :: Double -> [Item] -> Double
-sumAllPrices first (item:items) = sumAllPrices (first + (price item)) items
-sumAllPrices first [] = first -- Last condition. When the list is empty we break the recursion
+sumAllPrices totalPrice (item:items) = sumAllPrices (totalPrice + (price item)) items
+sumAllPrices totalPrice [] = totalPrice -- Last condition. When the list is empty we break the recursion
 
 -- | State machine Types
 -- -------------------------------
