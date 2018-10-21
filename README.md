@@ -24,6 +24,7 @@ If you want to reference to the official documentation visit [Here](https://www.
 * **[Category Theory](src/features/CategoryTheoryFunctions.hs)**
 * **[Error handling](src/features/ErrorHandling.hs)**
 * **[State machine](src/features/StateMachine.hs)**
+* **[Generics](src/features/Generics.hs)**
 
 ![My image](img/server.jpg)
 ## Server

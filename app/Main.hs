@@ -39,12 +39,14 @@ main :: IO ()
 
 --main = stateMachine
 --main = stateMachineFalse
-main = goShoppingWithMoney
+--main = goShoppingWithMoney
 --main = goShoppingWithCard
 
---main = do void <- mutate
---          void1 <-mutate
---          print "end"
+-- | Generics
+-- --------------------
+--main = genericFeature $ G1 (Car "bmw")
+main = genericFeature $ G2 (Truck "Volvo")
+
 
 -- | Rest connector
 -- ---------------------
@@ -71,6 +73,7 @@ main = goShoppingWithMoney
 
 -- | Connector manager
 -- ---------------------
+
 --main = do result <- selectAllUsers
 --          print result
 
