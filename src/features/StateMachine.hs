@@ -38,7 +38,12 @@ data Actions
 {-| Alias Function for to avoid duplicate types in the function declaration.-}
 type StateMachine state action =  state -> action -> IO state
 
-{-|The function expect to receive two arguments the current state of the machine and the action,
+{-|Haskell has a very elegant way to do overload of functions, more than overload to catch invocation values
+   to assign to a specific function implementation.
+   In this case, depending of the State and Action arguments received for the function it will redirect to
+   a specific implementation, and in case we cannot find any, it will go to the last implementation.
+   You can think about this like a giant pattern matching.
+   The function expect to receive two arguments the current state of the machine and the action,
    then it return a new state. -}
 myBasket:: StateMachine States Actions
 {-| First state we don't have items so we create the basket with one product -}
