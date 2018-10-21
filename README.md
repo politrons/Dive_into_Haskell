@@ -23,6 +23,7 @@ If you want to reference to the official documentation visit [Here](https://www.
 * **[Async](src/features/AsyncFunctions.hs)**
 * **[Category Theory](src/features/CategoryTheoryFunctions.hs)**
 * **[Error handling](src/features/ErrorHandling.hs)**
+* **[State machine](src/features/StateMachine.hs)**
 
 ![My image](img/server.jpg)
 ## Server
