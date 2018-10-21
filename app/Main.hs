@@ -39,8 +39,7 @@ main :: IO ()
 
 --main = stateMachine
 --main = stateMachineFalse
---main = goShgopping
-main  = print $ sumAllPrices 0 [1,2,3,4,5]
+main = goShopping
 
 --main = do void <- mutate
 --          void1 <-mutate

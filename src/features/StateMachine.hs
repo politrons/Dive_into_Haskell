@@ -20,7 +20,7 @@ data States
   | ItemsInBasket [Item]
   | NoPaymentSelected [Item]
   | PaymentSelected [Item] Card
-  | PaymentConfirmed [Item] Card
+  | Check [Item] Total
   deriving (Show, Eq)
 
 {-| Actions Types for the state machine, that make the machine change from one state to another-}
@@ -52,7 +52,7 @@ myBasket (ItemsInBasket items) Checkout = return (NoPaymentSelected items)
 {-|Possible third state the select card to pay-}
 myBasket (NoPaymentSelected items) (AddPayment card) = return (PaymentSelected items card)
 {-|Last state confirm card and pay-}
-myBasket (PaymentSelected items card) Confirm = return (PaymentConfirmed items card)
+myBasket (PaymentSelected items card) Confirm = return (Check items (Total $ sumAllPrices 0 items))
 {-|Unhandled state-}
 myBasket state _ = return state
 
@@ -67,12 +67,13 @@ addItem item items = item : items
 removeItem :: Item -> [Item] -> [Item]
 removeItem item items = filter (\element -> desc element /= desc item) items
 
---sumAllPrices :: Double -> [Item] -> [Double]
---sumAllPrices first items = map(\item -> first + (price item)) items
-
-sumAllPrices :: Double -> [Double] -> Double
-sumAllPrices first (x:xs) = sumAllPrices (first + x) xs
-sumAllPrices first [] = first
+{-|Fold Function that make a recursive call to sum an element of the list and call the function again
+   with the new increase value and the list without that element that we just sum.
+  (item:items) with collection is a cool feature of Haskell where when you have a collection you receive
+  the item and the list of items without that item. Very handy for reduce.-}
+sumAllPrices :: Double -> [Item] -> Double
+sumAllPrices first (item:items) = sumAllPrices (first + (price item)) items
+sumAllPrices first [] = first -- Last condition. When the list is empty we break the recursion
 
 -- | Runner
 -- -----------
