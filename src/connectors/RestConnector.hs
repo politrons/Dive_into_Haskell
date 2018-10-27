@@ -5,10 +5,10 @@ module RestConnector where
 import Network.HTTP.Client
 import Network.HTTP.Types.Status (statusCode)
 
-simpleGetRequest :: IO ()
-simpleGetRequest = do
+simpleGetRequest :: String -> IO ()
+simpleGetRequest uri = do
                     manager <- newManager defaultManagerSettings
-                    request <- parseRequest "http://httpbin.org/get"
+                    request <- parseRequest uri
                     response <- httpLbs request manager
                     putStrLn $ "The status code was: " ++ (show $ statusCode $ responseStatus response)
                     print $ responseBody response

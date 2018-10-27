@@ -28,11 +28,25 @@ import CircuitBreaker
 import Generics
 import StateMachine
 
-
 -- | This is the main entry program for Haskell, just like static void main or Java
 --   You can only have one main declaration, so you have to point to one output or another
 main :: IO ()
 
+-- | Circuit breaker
+-- ---------------------
+
+main  = do state <- selectAllCassandraUserCB $ Close [] 0
+           print state
+           state <- selectAllCassandraUserCB state
+           print state
+           state <- selectAllCassandraUserCB state
+           print state
+           state <- selectAllCassandraUserCB state
+           print state
+           state <- selectAllCassandraUserCB state
+           print state
+           state <- selectAllCassandraUserCB state
+           print state
 
 -- | State machine
 -- ---------------------
@@ -44,14 +58,14 @@ main :: IO ()
 
 -- | Generics
 -- --------------------
---main = genericFeature $ G1 (Car "bmw")
-main = genericFeature $ G2 (Truck "Volvo")
 
+--main = genericFeature $ G1 (Car "bmw")
+--main = genericFeature $ G2 (Truck "Volvo")
 
 -- | Rest connector
 -- ---------------------
 
---main = simpleGetRequest
+--main = simpleGetRequest "http://httpbin.org/get"
 
 -- | Error Handler
 -- ---------------------
