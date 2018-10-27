@@ -35,18 +35,19 @@ main :: IO ()
 -- | Circuit breaker
 -- ---------------------
 
-main  = do state <- selectAllCassandraUserCB $ Close [] 0
-           print state
-           state <- selectAllCassandraUserCB state
-           print state
-           state <- selectAllCassandraUserCB state
-           print state
-           state <- selectAllCassandraUserCB state
-           print state
-           state <- selectAllCassandraUserCB state
-           print state
-           state <- selectAllCassandraUserCB state
-           print state
+--main  = do state <- selectAllCassandraUserCB $ Close [] 0
+--           print state
+--           state <- selectAllCassandraUserCB state
+--           print state
+--           state <- selectAllCassandraUserCB state
+--           print state
+--           state <- selectAllCassandraUserCB state
+--           print state
+--           state <- selectAllCassandraUserCB state
+--           print state
+--           state <- selectAllCassandraUserCB state
+--           print state
+
 
 -- | State machine
 -- ---------------------
@@ -123,7 +124,7 @@ main  = do state <- selectAllCassandraUserCB $ Close [] 0
 -- --------------
 
 --main = myServer
---main = scottyServer
+main = scottyServer
 
 -- | Monads
 -- ------------

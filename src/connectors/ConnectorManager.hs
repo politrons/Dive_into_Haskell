@@ -3,6 +3,7 @@
 module ConnectorManager where
 
 import CassandraConnector
+import CircuitBreaker
 import MySQLConnector
 import ModelTypes
 
@@ -12,19 +13,22 @@ import Data.Text (unpack,pack)
 import Control.Monad.IO.Class (liftIO)
 import Data.Int (Int32,Int)
 import Database.MySQL.Base
-
+import CircuitBreaker
 -- | Connector manager
 -- --------------------
 {-| Module responsible to choose between the different connectors to persist, read or delete elements in back ends. -}
+import Data.IORef (writeIORef,IORef,readIORef)
 
-selectAllUsers :: IO (Either UserNotFound [User])
-selectAllUsers =  do
-                 connectorType <- readConfiguration "connector"
-                 result <- case connectorType of
-                                String  "cassandra" -> searchAllCassandraUsers
+
+selectAllUsers :: IORef CircuitBreakerType -> IO (Either UserNotFound [User])
+selectAllUsers state=  do
+                         connectorType <- readConfiguration "connector"
+                         result <- case connectorType of
+                                String  "cassandra" -> searchAllCassandraUsers state
                                 String  "mysql" -> searchAllMySQLUsers
                                 _ -> return  $ Left $ UserNotFound "No connector found"
-                 return result
+                         return result
+
 
 selectUserById :: Int -> IO (Either UserNotFound User)
 selectUserById id =  do
@@ -62,9 +66,11 @@ genericCommand either = do connectorType <- readConfiguration "connector"
 {-| Here we interact with the final connectors where we adapt the specific response from the connectors
     into the generic one for our consumers-}
 
-searchAllCassandraUsers:: IO (Either UserNotFound [User])
-searchAllCassandraUsers = do result <- selectAllCassandraUser
-                             return $ Right result
+searchAllCassandraUsers:: IORef CircuitBreakerType -> IO (Either UserNotFound [User])
+searchAllCassandraUsers state = do newState <- liftIO (readIORef state) -- Read state
+                                   newState <- selectAllCassandraUserWithCircuitBreaker newState
+                                   liftIO (writeIORef state newState) -- Update state
+                                   return $ Right (users newState)
 
 searchAllMySQLUsers:: IO (Either UserNotFound [User])
 searchAllMySQLUsers = do result <- getAllUsers

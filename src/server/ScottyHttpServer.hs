@@ -17,6 +17,10 @@ import Data.Text.Lazy (Text)
 import Control.Concurrent (myThreadId,newEmptyMVar,forkIO,threadDelay,putMVar,takeMVar)
 import System.Random (randomRIO)
 import Control.Concurrent.Async (async,wait)
+import CircuitBreaker
+import Data.IORef (newIORef,IORef,atomicModifyIORef,readIORef,writeIORef)
+import Control.Monad.IO.Class (liftIO)
+import Text.Read (lift)
 
 port = 3000 :: Int
 
@@ -32,22 +36,23 @@ instance FromJSON Address
 scottyServer :: IO ()
 scottyServer = do
     print ("Starting Server at port " ++ show port)
-    scotty port routes
+    state <- newIORef $ Close [] 0 -- We create a state to keep the state of Server
+    scotty port (routes state)
 
 {-| We define the routes thanks to REST operators [get, post, put, delete, patch] which expect to
     receive a [RoutePattern] as a path and a [ActionM] as the action of the request. Then we return a [ScottyM]-}
-routes :: ScottyM()
-routes = do get "/service" responseService
-            get "/author" responseName
-            get "/users" responseUsers
-            get "/user/id/:id" responseUserById
-            get "/user/name/:name" responseUserByName
-            post "/user/" responseCreateUser
-            put "/user/" updateUser
-            delete "/users/:id" responseDeleteById
-            get "/address/id/:id" responseAddressById
-            post "/profile/" createProfile
-            get "/profile/id/:id" responseProfileById
+routes :: IORef CircuitBreakerType -> ScottyM()
+routes state = do get "/service" responseService
+                  get "/author" responseName
+                  get "/users" (responseUsers state)
+                  get "/user/id/:id" responseUserById
+                  get "/user/name/:name" responseUserByName
+                  post "/user/" responseCreateUser
+                  put "/user/" updateUser
+                  delete "/users/:id" responseDeleteById
+                  get "/address/id/:id" responseAddressById
+                  post "/profile/" createProfile
+                  get "/profile/id/:id" responseProfileById
 
 
 {-| We use [text] operator from scotty we render the response in text/plain-}
@@ -98,20 +103,20 @@ responseProfileById = do id <- param "id"
 -- | User
 -- ---------
 
-responseUsers :: ActionM ()
-responseUsers = do users <- liftAndCatchIO selectAllUsers
-                   json (show users)
+responseUsers :: IORef CircuitBreakerType -> ActionM ()
+responseUsers state = do either <- liftAndCatchIO $ selectAllUsers state
+                         json (show either)
 
 responseUserByName :: ActionM ()
 responseUserByName = do name <- param "name"
-                        user <- liftAndCatchIO $ getUserByUserName name
-                        json (show user)
+                        either <- liftAndCatchIO $ getUserByUserName name
+                        json (show either)
 
 {-| In scotty we have [param] operator which used passing the uri param name we can extract the value. -}
 responseUserById :: ActionM ()
 responseUserById = do id <- param "id"
-                      user <- liftAndCatchIO $ selectUserById id
-                      json (show user)
+                      either <- liftAndCatchIO $ selectUserById id
+                      json (show either)
 
 {-| This part of the program is really interested, we are using function where first we need to call insertUser
     passing a [User] but we have a [Maybe User] so we use a functor [<*>] to extract the User from the Maybe.
