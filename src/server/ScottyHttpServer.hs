@@ -41,7 +41,7 @@ scottyServer = do
 
 {-| We define the routes thanks to REST operators [get, post, put, delete, patch] which expect to
     receive a [RoutePattern] as a path and a [ActionM] as the action of the request. Then we return a [ScottyM]-}
-routes :: IORef CircuitBreakerType -> ScottyM()
+routes :: IORef CircuitBreakerState -> ScottyM()
 routes state = do get "/service" responseService
                   get "/author" responseName
                   get "/users" (responseUsers state)
@@ -103,7 +103,7 @@ responseProfileById = do id <- param "id"
 -- | User
 -- ---------
 
-responseUsers :: IORef CircuitBreakerType -> ActionM ()
+responseUsers :: IORef CircuitBreakerState -> ActionM ()
 responseUsers state = do either <- liftAndCatchIO $ selectAllUsers state
                          json (show either)
 

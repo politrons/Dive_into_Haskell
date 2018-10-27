@@ -20,7 +20,7 @@ import CircuitBreaker
 import Data.IORef (writeIORef,IORef,readIORef)
 
 
-selectAllUsers :: IORef CircuitBreakerType -> IO (Either UserNotFound [User])
+selectAllUsers :: IORef CircuitBreakerState -> IO (Either UserNotFound [User])
 selectAllUsers state=  do
                          connectorType <- readConfiguration "connector"
                          result <- case connectorType of
@@ -66,7 +66,7 @@ genericCommand either = do connectorType <- readConfiguration "connector"
 {-| Here we interact with the final connectors where we adapt the specific response from the connectors
     into the generic one for our consumers-}
 
-searchAllCassandraUsers:: IORef CircuitBreakerType -> IO (Either UserNotFound [User])
+searchAllCassandraUsers:: IORef CircuitBreakerState -> IO (Either UserNotFound [User])
 searchAllCassandraUsers state = do newState <- liftIO (readIORef state) -- Read state
                                    newState <- selectAllCassandraUserWithCircuitBreaker newState
                                    liftIO (writeIORef state newState) -- Update state
