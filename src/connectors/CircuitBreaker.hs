@@ -16,9 +16,9 @@ import Data.Time.Clock
 
 {-| Circuit breaker states types-}
 data CircuitBreakerState
-  = Close {users::[User], error:: Integer}
-  | Open {users::[User], time:: Integer}
-  | HalfOpen {users::[User], error:: Integer}
+  = Close {users::[User], errors:: Integer}
+  | Open {users::[User], time:: Integer, errors::Integer}
+  | HalfOpen {users::[User], errors:: Integer}
   deriving (Show)
 
 -- | Pattern matching connector state
@@ -27,26 +27,31 @@ data CircuitBreakerState
 selectAllCassandraUserWithCircuitBreaker :: CircuitBreakerState -> IO CircuitBreakerState
 
 -- | Check if we can go to the HalfOpen
-selectAllCassandraUserWithCircuitBreaker (Open users time) = checkState (Open users time)
+selectAllCassandraUserWithCircuitBreaker (Open users time errors) = checkState (Open users time errors)
 -- | We reach the maximum number of errors so we change state to open
 selectAllCassandraUserWithCircuitBreaker (Close users 5) = changeStateToOpen
 -- | We change state to open
 selectAllCassandraUserWithCircuitBreaker (HalfOpen users 5) = changeStateToOpen
 -- | Since we are [Close] state, We go to Cassandra connector to get the [User]. To control error we use catch/handler error handling
-selectAllCassandraUserWithCircuitBreaker (Close users errors) = do newUsers <- catch (selectAllCassandraUser) handler
-                                                                   state <- checkState (Close newUsers errors)
-                                                                   return state
-                                                                   where
-                                                                      handler :: SomeException -> IO [User]
-                                                                      handler ex = return $ [User 0 "Connnector error"]
-
+selectAllCassandraUserWithCircuitBreaker (Close users errors) = connectToCassandra (Close users errors) getCircuitBreakerState
 -- | Since we are [HalfOpen] state, We try to go to Cassandra connector to get the [User]. if we fail again we will pass again to [Open] state
-selectAllCassandraUserWithCircuitBreaker (HalfOpen users 4) = do newUsers <- catch (selectAllCassandraUser) handler
-                                                                 state <- checkState (HalfOpen newUsers 4)
-                                                                 return state
-                                                                 where
-                                                                      handler :: SomeException -> IO [User]
-                                                                      handler ex = return $ [User 0 "Connnector error"]
+selectAllCassandraUserWithCircuitBreaker (HalfOpen users 4) = connectToCassandra (HalfOpen users 4) getCircuitBreakerState
+
+-- | Function to connect to cassandra
+-- -----------------------------------
+{-| For this High Order Function we use as second argument a function [getCircuitBreakerState] which it will
+    return the specific state passed [Close | HalfOpen] from the invoker of the function.-}
+connectToCassandra:: CircuitBreakerState -> ([User] -> Integer -> CircuitBreakerState) -> IO CircuitBreakerState
+connectToCassandra state function = do newUsers <- catch (selectAllCassandraUser) handler
+                                       state <- checkState $ function newUsers (errors state)
+                                       return state
+                                       where
+                                         handler :: SomeException -> IO [User]
+                                         handler ex = return $ [User 0 "Connnector error"]
+
+getCircuitBreakerState :: [User] -> Integer -> CircuitBreakerState
+getCircuitBreakerState users 4 =  (HalfOpen users 4)
+getCircuitBreakerState users errors= (Close users errors)
 
 -- | Pattern matching circuit breaker state
 -- ----------------------------------------
@@ -65,17 +70,17 @@ checkState (HalfOpen users errors) = changeStateToClose users
 
 {-| Function with pattern matching to check if lapsed time after open the circuit breaker has pass.
     if the slice time has pass we change the state to [HalfOpen] and we try to connect again. Otherewise we keep the current state-}
-checkState (Open users time) =  do currentTime <- getCurrentTimeMillis
-                                   if currentTime > (time + 10)
-                                      then selectAllCassandraUserWithCircuitBreaker changeStateToHalfOpen
-                                      else return (Open users time)
+checkState (Open users time errors) =  do currentTime <- getCurrentTimeMillis
+                                          if currentTime > (time + 10)
+                                             then selectAllCassandraUserWithCircuitBreaker changeStateToHalfOpen
+                                             else return (Open users time errors)
 
 -- | Util functions to change state of circuit breaker
 -- ---------------------------------------------------
 {-| We create the new state of the Circuit breaker to open-}
 changeStateToOpen :: IO CircuitBreakerState
 changeStateToOpen = do currentTime <- getCurrentTimeMillis
-                       return $ Open [User 0 "Circuit breaker open, fail fast"] currentTime
+                       return $ Open [User 0 "Circuit breaker open, fail fast"] currentTime 0
 
 {-| We create the new state of the Circuit breaker to open-}
 changeStateToClose :: [User] ->  IO CircuitBreakerState
