@@ -71,7 +71,7 @@ checkState (HalfOpen users errors) = changeStateToClose users
 {-| Function with pattern matching to check if lapsed time after open the circuit breaker has pass.
     if the slice time has pass we change the state to [HalfOpen] and we try to connect again. Otherewise we keep the current state-}
 checkState (Open users time errors) =  do currentTime <- getCurrentTimeMillis
-                                          if currentTime > (time + 10)
+                                          if currentTime > (time + 10) -- 10 is the lapsed time, we should move it to configuration param
                                              then selectAllCassandraUserWithCircuitBreaker changeStateToHalfOpen
                                              else return (Open users time errors)
 
