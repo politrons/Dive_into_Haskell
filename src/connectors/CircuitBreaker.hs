@@ -32,7 +32,7 @@ selectAllCassandraUserWithCircuitBreaker (Open users time errors) = checkState (
 selectAllCassandraUserWithCircuitBreaker (Close users 5) = changeStateToOpen
 -- | We change state to open
 selectAllCassandraUserWithCircuitBreaker (HalfOpen users 5) = changeStateToOpen
--- | Since we are [Close] state, We go to Cassandra connector to get the [User]. To control error we use catch/handler error handling
+-- | Since we are [Close] state, We go to Cassandra connector to get the [User].
 selectAllCassandraUserWithCircuitBreaker (Close users errors) = connectToCassandra (Close users errors) getCircuitBreakerState
 -- | Since we are [HalfOpen] state, We try to go to Cassandra connector to get the [User]. if we fail again we will pass again to [Open] state
 selectAllCassandraUserWithCircuitBreaker (HalfOpen users 4) = connectToCassandra (HalfOpen users 4) getCircuitBreakerState
@@ -40,7 +40,8 @@ selectAllCassandraUserWithCircuitBreaker (HalfOpen users 4) = connectToCassandra
 -- | Function to connect to cassandra
 -- -----------------------------------
 {-| For this High Order Function we use as second argument a function [getCircuitBreakerState] which it will
-    return the specific state passed [Close | HalfOpen] from the invoker of the function.-}
+    return the specific state passed [Close | HalfOpen] from the invoker of the function.
+    To control error we use catch/handler error handling pattern-}
 connectToCassandra:: CircuitBreakerState -> ([User] -> Integer -> CircuitBreakerState) -> IO CircuitBreakerState
 connectToCassandra state function = do newUsers <- catch (selectAllCassandraUser) handler
                                        state <- checkState $ function newUsers (errors state)
