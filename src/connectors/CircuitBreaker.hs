@@ -57,7 +57,7 @@ checkState (Close users errors) = return $ Close users errors
 {-| Function with pattern matching to check if with [HalfOpen] state the array of users contains [User 0 "Connector error"]
     then we change the state to [Open] again and we reset the slice time. Otherwise we change the state to [Close]-}
 checkState (HalfOpen [User 0 "Connnector error"] errors) = changeStateToOpen
-checkState (HalfOpen users errors) = changeStateToClose
+checkState (HalfOpen users errors) = changeStateToClose users
 
 {-| Function with pattern matching to check if lapsed time after open the circuit breaker has pass.
     if the slice time has pass we change the state to [HalfOpen] and we try to connect again. Otherewise we keep the current state-}
@@ -72,12 +72,12 @@ changeStateToOpen = do currentTime <- getCurrentTimeMillis
                        return $ Open [User 0 "Circuit breaker open, fail fast"] currentTime
 
 {-| We create the new state of the Circuit breaker to open-}
-changeStateToClose :: IO CircuitBreakerState
-changeStateToClose = do return $ Close [] 0
+changeStateToClose :: [User] ->  IO CircuitBreakerState
+changeStateToClose users = do return $ Close users 0
 
 {-| We create the new state of the Circuit breaker to halfOpen-}
 changeStateToHalfOpen :: CircuitBreakerState
-changeStateToHalfOpen = (HalfOpen [User 0 "Circuit breaker in half open, fail fast"] 4)
+changeStateToHalfOpen = (HalfOpen [] 4)
 
 {-| Function to get the current time using [getCurrentTime] function and transform to int using
     [floor] and [utctDayTime]-}
