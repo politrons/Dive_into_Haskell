@@ -4,8 +4,10 @@ module EventSourcingPattern where
 
 import Data.Text.Lazy (Text,pack)
 
+{-| To define this example we will use the typical grocery basket to be rehydrate -}
 data Basket = Basket{products::[Text], totalPrice::Double, totalDiscount::Double} deriving (Show, Eq)
 
+{-| Data type to define all possible events-}
 data Event =
    BasketCreated{ basket:: Basket}
   | ProductAdded{ product::String, price::Double}
@@ -32,24 +34,26 @@ addDiscountCommand basket discount = return $ DiscountAdded discount
 {-| Declaration function for all Events implementations-}
 applyEvent :: Basket -> Event -> Basket
 
-{-| Pure function to a create an empty basket-}
+{-| Pure function to create an empty basket-}
 applyEvent basket (BasketCreated _basket) = basket
 
 {-| Pure function to a add a product in basket-}
-applyEvent basket (ProductAdded product price)= Basket (products basket ++ [pack product]) (totalPrice basket) (totalDiscount basket)
+applyEvent basket (ProductAdded product price)= Basket (products basket ++ [pack product]) (totalPrice basket + price) (totalDiscount basket)
 
 {-| Pure function to a add a discount in basket-}
-applyEvent basket (DiscountAdded newDiscount) = Basket (products basket) (totalPrice basket) ((totalDiscount basket) + newDiscount )
+applyEvent basket (DiscountAdded newDiscount) = Basket (products basket) (totalPrice basket - newDiscount) ((totalDiscount basket) + newDiscount )
 
 
-{-|  REHYDRATE/PERSISTENCE. It could be whatever backend (cassandra, couchbase, mongodb)  -}
-{-| -----------------------------------------------------------------------------}
+{-|  PERSISTENCE/REHYDRATE -}
+{-| ------------------------}
 
-{-| Function that return a new Events type appending the new event-}
+{-| Function that return a new [Event] appending the new event.
+   This function It could be whatever backend (cassandra, couchbase, mongodb) we want to use to persist -}
 appendEvent :: [Event] -> Event -> IO [Event]
 appendEvent events event = return $ events ++ [event]
 
-
+{-| Fold Function to receive the array of events and recursively apply the function [applyEvent] over the basket
+    depending the type of Event is passed.-}
 rehydrateByEvents :: Basket -> [Event] -> Basket
 rehydrateByEvents basket (event:events) = rehydrateByEvents (applyEvent basket event) events
 rehydrateByEvents basket [] = basket
@@ -62,13 +66,18 @@ persistEvents :: IO()
 persistEvents = do print "############### PERSISTANCE COMMANDS #################"
                    event <- createBasketCommand
                    events <- appendEvent [] event
-                   event <- addProductCommand (basket event) "Coca-cola" 10
+                   event <- addProductCommand (basket event) "Coca-cola" 2.50
                    events <- appendEvent events event
-                   event <- addDiscountCommand (basket event) 2
+                   event <- addProductCommand (basket event) "Buddbeiser" 3.00
+                   events <- appendEvent events event
+                   event <- addDiscountCommand (basket event) 0.50
+                   events <- appendEvent events event
+                   event <- addProductCommand (basket event) "Nachos" 1.20
+                   events <- appendEvent events event
+                   event <- addDiscountCommand (basket event) 0.20
                    events <- appendEvent events event
                    print $ show events
                    print "############### REHYDRATE EVENTS #################"
-                   events <- return $ [(BasketCreated $ Basket [] 0 0), (ProductAdded "coca-cola" 2.50), (DiscountAdded 0.50)]
                    basket <- return $ rehydrateByEvents (Basket [] 0 0) events
                    print basket
 
