@@ -43,7 +43,9 @@ addItem item items = item : items
 removeItem :: Item -> [Item] -> [Item]
 removeItem item items = filter (\element -> desc element /= desc item) items
 
-{-|Fold Function that make a recursive call to sum an element of the list and call the function again
+{-| Fold Function
+---------------------
+That make a recursive call to sum an element of the list and call the function again
    with the new increase value and the list without that element that we just sum.
   (item:items) with collection is a cool feature of Haskell where when you have a collection you receive
   the item and the list of items without that item. Very handy for reduce.-}

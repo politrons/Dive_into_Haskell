@@ -27,11 +27,15 @@ import RestConnector
 import CircuitBreaker
 import Generics
 import StateMachine
+import EventSourcingPattern
 
 -- | This is the main entry program for Haskell, just like static void main or Java
 --   You can only have one main declaration, so you have to point to one output or another
 main :: IO ()
 
+-- | Event sourcing
+-- ---------------------
+main = persistEvents
 -- | Circuit breaker
 -- ---------------------
 
@@ -124,7 +128,7 @@ main :: IO ()
 -- --------------
 
 --main = myServer
-main = scottyServer
+--main = scottyServer
 
 -- | Monads
 -- ------------

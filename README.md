@@ -23,8 +23,13 @@ If you want to reference to the official documentation visit [Here](https://www.
 * **[Async](src/features/AsyncFunctions.hs)**
 * **[Category Theory](src/features/CategoryTheoryFunctions.hs)**
 * **[Error handling](src/features/ErrorHandling.hs)**
-* **[State machine](src/features/StateMachine.hs)**
 * **[Generics](src/features/Generics.hs)**
+
+![My image](img/design.png)
+## Patterns
+
+* **[State machine](src/features/StateMachine.hs)**
+* **[Event_sourcing](src/features/EventSourcingPattern.hs)**
 
 ![My image](img/server.jpg)
 ## Server

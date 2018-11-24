@@ -1,4 +1,5 @@
 {-# LANGUAGE OverloadedStrings #-} -- Mandatory language overload to overload String
+{-# LANGUAGE DeriveGeneric #-}
 
 {-| This http server has been build in top of open source library http://hackage.haskell.org/package/scotty-}
 module ScottyHttpServer where
@@ -21,6 +22,10 @@ import CircuitBreaker
 import Data.IORef (newIORef,IORef,atomicModifyIORef,readIORef,writeIORef)
 import Control.Monad.IO.Class (liftIO)
 import Text.Read (lift)
+import Network.HTTP.Types.Status
+--import Data.ByteString (unpack)
+import Data.ByteString.Lazy.Char8 (unpack)
+import Data.ByteString.Lazy.Char8 (ByteString)
 
 port = 3000 :: Int
 
@@ -53,6 +58,8 @@ routes state = do get "/service" responseService
                   get "/address/id/:id" responseAddressById
                   post "/profile/" createProfile
                   get "/profile/id/:id" responseProfileById
+                  get "/error" errorResponse
+                  get "/errorJson" errorJsonResponse
 
 
 {-| We use [text] operator from scotty we render the response in text/plain-}
@@ -114,9 +121,12 @@ responseUserByName = do name <- param "name"
 
 {-| In scotty we have [param] operator which used passing the uri param name we can extract the value. -}
 responseUserById :: ActionM ()
-responseUserById = do id <- param "id"
+responseUserById = do id <- extractUriParam "id"
                       either <- liftAndCatchIO $ selectUserById id
                       json (show either)
+
+extractUriParam :: Text -> ActionM Int
+extractUriParam param = Web.Scotty.param param
 
 {-| This part of the program is really interested, we are using function where first we need to call insertUser
     passing a [User] but we have a [Maybe User] so we use a functor [<*>] to extract the User from the Maybe.
@@ -140,6 +150,17 @@ responseDeleteById = do id <- param "id"
                         status <- liftAndCatchIO $ deleteUserById id
                         json (show status)
 
+
+errorResponse :: ActionM ()
+errorResponse = do liftIO $ print ("Request received")
+                   users <- liftAndCatchIO $ return $ [(User 1 "Paul")]
+                   Web.Scotty.status status500 >> text "Error" --json (show users)
+
+errorJsonResponse :: ActionM ()
+errorJsonResponse = do liftIO $ print ("Request received")
+                       users <- liftAndCatchIO $ return $ [(User 1 "Paul")]
+                       Web.Scotty.status status401 >> json (show users)
+
 -- | Address
 -- ---------
 
@@ -157,4 +178,3 @@ getUserParam = do requestBody <- body
 getProfileParam :: ActionT Text IO (Maybe Profile)
 getProfileParam = do requestBody <- body
                      return (decode requestBody)
-
