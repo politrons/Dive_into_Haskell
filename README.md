@@ -21,7 +21,6 @@ If you want to reference to the official documentation visit [Here](https://www.
 * **[Maybe](src/features/MaybeFunctions.hs)**
 * **[Type classes](src/features/ClassesAndInstances.hs)**
 * **[Async](src/features/AsyncFunctions.hs)**
-* **[Category Theory](src/features/CategoryTheoryFunctions.hs)**
 * **[Error handling](src/features/ErrorHandling.hs)**
 * **[Generics](src/features/Generics.hs)**
 
@@ -30,6 +29,7 @@ If you want to reference to the official documentation visit [Here](https://www.
 
 * **[State machine](src/features/StateMachine.hs)**
 * **[Event_sourcing](src/features/EventSourcingPattern.hs)**
+* **[Category Theory](src/features/CategoryTheoryFunctions.hs)**
 
 ![My image](img/server.jpg)
 ## Server
