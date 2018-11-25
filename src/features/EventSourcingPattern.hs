@@ -100,7 +100,6 @@ instance IncreaseAmount Basket Price Price where
 instance IncreaseAmount Basket Discount Discount where
     increaseAmount basket discount = Discount $ (discountVal (totalDiscount basket)) + (discountVal discount)
 
-
 {-|   Program  -}
 {-| ------------}
 
@@ -122,9 +121,17 @@ persistEvents = do print "############### PERSISTANCE COMMANDS #################
                    events <- appendEvent events event
                    event <- removeProductCommand (basket event) (Product "Coca-cola") (Price 2.50)
                    events <- appendEvent events event
-                   print $ show events
+                   mapM_ print events -- [mapM_] fold function to make print as println
                    print "############### REHYDRATE EVENTS #################"
                    basket <- return $ rehydrateByEvents (Basket [] (Price 0) (Discount 0)) events
-                   print basket
+                   printBasket basket
 
+{-| Function to unbox primitive types from the Types to make it more readable for our consumers-}
+printBasket :: Basket -> IO()
+printBasket basket = do totalPrice <- return (priceVal (totalPrice basket))
+                        print $ "TOTAL PRICE: " ++ (show totalPrice)
+                        totalDiscount <- return (discountVal (totalDiscount basket))
+                        print $ "TOTAL DISCOUNT: " ++ (show totalDiscount)
+                        products <- return $ map (\product -> (productVal product)) (products basket)
+                        print $ "PRODUCTS: " ++ (show products)
 
