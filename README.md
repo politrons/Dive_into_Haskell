@@ -28,7 +28,7 @@ If you want to reference to the official documentation visit [Here](https://www.
 ## Patterns
 
 * **[State machine](src/features/StateMachine.hs)**
-* **[Event_sourcing](src/features/EventSourcingPattern.hs)**
+* **[Event sourcing](src/features/EventSourcingPattern.hs)**
 * **[Category Theory](src/features/CategoryTheoryFunctions.hs)**
 
 ![My image](img/server.jpg)

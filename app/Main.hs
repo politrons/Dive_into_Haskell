@@ -35,7 +35,8 @@ main :: IO ()
 
 -- | Event sourcing
 -- ---------------------
-main = persistEvents
+main = eventSourcingProgram
+
 -- | Circuit breaker
 -- ---------------------
 

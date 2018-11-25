@@ -103,28 +103,28 @@ instance IncreaseAmount Basket Discount Discount where
 {-|   Program  -}
 {-| ------------}
 
-persistEvents :: IO()
-persistEvents = do print "############### PERSISTANCE COMMANDS #################"
-                   event <- createBasketCommand
-                   events <- appendEvent [] event
-                   event <- addProductCommand (basket event) (Product "Coca-cola")  (Price 2.50)
-                   events <- appendEvent events event
-                   event <- addProductCommand (basket event) (Product "Buddbeiser") (Price 3.00)
-                   events <- appendEvent events event
-                   event <- addDiscountCommand (basket event) (Discount 0.50)
-                   events <- appendEvent events event
-                   event <- addProductCommand (basket event) (Product "Nachos") (Price 1.20)
-                   events <- appendEvent events event
-                   event <- addDiscountCommand (basket event) (Discount 0.20)
-                   events <- appendEvent events event
-                   event <- addProductCommand (basket event) (Product "Pepsi") (Price 2.40)
-                   events <- appendEvent events event
-                   event <- removeProductCommand (basket event) (Product "Coca-cola") (Price 2.50)
-                   events <- appendEvent events event
-                   mapM_ print events -- [mapM_] fold function to make print as println
-                   print "############### REHYDRATE EVENTS #################"
-                   basket <- return $ rehydrateByEvents (Basket [] (Price 0) (Discount 0)) events
-                   printBasket basket
+eventSourcingProgram :: IO()
+eventSourcingProgram = do  print "############### PERSISTANCE COMMANDS #################"
+                           event <- createBasketCommand
+                           events <- appendEvent [] event
+                           event <- addProductCommand (basket event) (Product "Coca-cola")  (Price 2.50)
+                           events <- appendEvent events event
+                           event <- addProductCommand (basket event) (Product "Buddbeiser") (Price 3.00)
+                           events <- appendEvent events event
+                           event <- addDiscountCommand (basket event) (Discount 0.50)
+                           events <- appendEvent events event
+                           event <- addProductCommand (basket event) (Product "Nachos") (Price 1.20)
+                           events <- appendEvent events event
+                           event <- addDiscountCommand (basket event) (Discount 0.20)
+                           events <- appendEvent events event
+                           event <- addProductCommand (basket event) (Product "Pepsi") (Price 2.40)
+                           events <- appendEvent events event
+                           event <- removeProductCommand (basket event) (Product "Coca-cola") (Price 2.50)
+                           events <- appendEvent events event
+                           mapM_ print events -- [mapM_] fold function to make print as println
+                           print "############### REHYDRATE EVENTS #################"
+                           basket <- return $ rehydrateByEvents (Basket [] (Price 0) (Discount 0)) events
+                           printBasket basket
 
 {-| Function to unbox primitive types from the Types to make it more readable for our consumers-}
 printBasket :: Basket -> IO()
