@@ -55,7 +55,7 @@ applyEvent basket (BasketCreated _basket) = basket
 applyEvent basket (ProductAdded product price)= Basket (products basket ++ [product]) (increaseAmount basket price) (totalDiscount basket)
 
 {-| Pure function to create a new Basket adding a discount in basket-}
-applyEvent basket (DiscountAdded newDiscount) = Basket (products basket)  (reduceAmount basket newDiscount) (increaseAmount basket newDiscount)
+applyEvent basket (DiscountAdded discount) = Basket (products basket)  (reduceAmount basket discount) (increaseAmount basket discount)
 
 {-| Pure function to create a new Basket removing the product and price from previous basket-}
 applyEvent basket (ProductRemoved product price) = Basket (removeProductFromBasket product (products basket)) (reduceAmount basket price) (totalDiscount basket)
