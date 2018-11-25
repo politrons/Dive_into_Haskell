@@ -4,41 +4,47 @@ module EventSourcingPattern where
 
 import Data.Text.Lazy (Text,pack)
 
-type Product = String
-type Price = Double
+{-| We embrace type system and Type class pattern that's why we type all primitive types of our system-}
+data Product = Product {productVal::String}deriving (Show, Eq)
+data Price = Price {priceVal::Double}deriving (Show, Eq)
+data Discount = Discount { discountVal::Double }deriving (Show, Eq)
 
 {-| To define this example we will use the typical grocery basket to be rehydrate -}
-data Basket = Basket{products::[Product], totalPrice::Double, totalDiscount::Double} deriving (Show, Eq)
+data Basket = Basket{products::[Product], totalPrice::Price, totalDiscount::Discount} deriving (Show, Eq)
 
 {-| Data type to define all possible events-}
 data Event =
    BasketCreated{ basket:: Basket}
-  | ProductAdded{ product::String, price::Double}
-  | ProductRemoved{ product::String, price::Double}
-  | DiscountAdded{ discount::Double }
+  | ProductAdded{ product::Product, price::Price}
+  | ProductRemoved{ product::Product, price::Price}
+  | DiscountAdded{ discount::Discount }
   deriving (Show, Eq)
-
 
 {-|  COMMANDS  -}
 {-| ------------}
+{-| In Event sourcing pattern [Commands] are the responsible to apply an action that lead into the creation of Events.
+    Those events are the agents that can allow us to rehydrate an entity into a particular state in the future.-}
+
 {-| Command function apply the command and create event [BasketCreated] to be rehydrate later on-}
 createBasketCommand :: IO Event
-createBasketCommand = return $ BasketCreated $ Basket [] 0 0
+createBasketCommand = return $ BasketCreated $ Basket [] (Price 0) (Discount 0)
 
 {-| Command function apply the command and create event [ProductAdded] to be rehydrate later on-}
-addProductCommand :: Basket -> String -> Double -> IO Event
+addProductCommand :: Basket -> Product -> Price -> IO Event
 addProductCommand basket product price = return $ ProductAdded product price
 
 {-| Command function apply the command and create event [ProductRemoved] to be rehydrate later on-}
-removeProductCommand :: Basket -> String -> Double -> IO Event
+removeProductCommand :: Basket -> Product -> Price -> IO Event
 removeProductCommand basket product price = return $ ProductRemoved product price
 
 {-| Command function apply the command and create event [DiscountAdded] to be rehydrate later on-}
-addDiscountCommand :: Basket -> Double -> IO Event
+addDiscountCommand :: Basket -> Discount -> IO Event
 addDiscountCommand basket discount = return $ DiscountAdded discount
 
 {-|  EVENTS    -}
 {-| ------------}
+{-| In Event sourcing pattern [Events] are the events/actions that after apply into an entity, it set in a particular state-}
+
 {-| Declarative function for all Events implementations-}
 applyEvent :: Basket -> Event -> Basket
 
@@ -46,22 +52,14 @@ applyEvent :: Basket -> Event -> Basket
 applyEvent basket (BasketCreated _basket) = basket
 
 {-| Pure function to create a new Basket adding a product in basket-}
-applyEvent basket (ProductAdded product price)= Basket (products basket ++ [product]) (totalPrice basket + price) (totalDiscount basket)
+applyEvent basket (ProductAdded product price)= Basket (products basket ++ [product]) (increaseAmount basket price) (totalDiscount basket)
 
 {-| Pure function to create a new Basket adding a discount in basket-}
-applyEvent basket (DiscountAdded newDiscount) = Basket (products basket) (totalPrice basket - newDiscount) ((totalDiscount basket) + newDiscount )
+applyEvent basket (DiscountAdded newDiscount) = Basket (products basket)  (reduceAmount basket newDiscount) (increaseAmount basket newDiscount)
 
 {-| Pure function to create a new Basket removing the product and price from previous basket-}
-applyEvent basket (ProductRemoved product price) = Basket (removeProductFromBasket product (products basket)) (reducePrice basket price) (totalDiscount basket)
+applyEvent basket (ProductRemoved product price) = Basket (removeProductFromBasket product (products basket)) (reduceAmount basket price) (totalDiscount basket)
 
-{-| Utils  -}
-{-| --------}
-{-| Function to filter from the list of products the one we want to remove-}
-removeProductFromBasket :: Product -> [Product] -> [Product]
-removeProductFromBasket productToRemove products = filter (\product -> product /= productToRemove) products
-
-reducePrice :: Basket -> Price -> Price
-reducePrice basket price = totalPrice basket - price
 
 {-|  PERSISTENCE/REHYDRATE -}
 {-| ------------------------}
@@ -77,6 +75,31 @@ rehydrateByEvents :: Basket -> [Event] -> Basket
 rehydrateByEvents basket (event:events) = rehydrateByEvents (applyEvent basket event) events
 rehydrateByEvents basket [] = basket
 
+{-| Utils  -}
+{-| --------}
+{-| Function to filter from the list of products the one we want to remove-}
+removeProductFromBasket :: Product -> [Product] -> [Product]
+removeProductFromBasket productToRemove products = filter (\product -> product /= productToRemove) products
+
+{-| Type class pattern implementation to define two implementation with same signature for Price/Discount reducing a lot of boilerplate-}
+class ReduceAmount basket moneyToReduce newMoney where
+   reduceAmount:: basket -> moneyToReduce -> newMoney
+
+instance ReduceAmount Basket Price Price where
+   reduceAmount basket price = Price $ (priceVal (totalPrice basket)) - (priceVal price)
+
+instance ReduceAmount Basket Discount Price where
+   reduceAmount basket discount = Price $ (priceVal (totalPrice basket)) - (discountVal discount)
+
+class IncreaseAmount basket amountToIncrease amount where
+   increaseAmount:: basket -> amountToIncrease -> amount
+
+instance IncreaseAmount Basket Price Price where
+    increaseAmount basket price = Price $ (priceVal (totalPrice basket) + (priceVal price))
+
+instance IncreaseAmount Basket Discount Discount where
+    increaseAmount basket discount = Discount $ (discountVal (totalDiscount basket)) + (discountVal discount)
+
 
 {-|   Program  -}
 {-| ------------}
@@ -85,23 +108,23 @@ persistEvents :: IO()
 persistEvents = do print "############### PERSISTANCE COMMANDS #################"
                    event <- createBasketCommand
                    events <- appendEvent [] event
-                   event <- addProductCommand (basket event) "Coca-cola" 2.50
+                   event <- addProductCommand (basket event) (Product "Coca-cola")  (Price 2.50)
                    events <- appendEvent events event
-                   event <- addProductCommand (basket event) "Buddbeiser" 3.00
+                   event <- addProductCommand (basket event) (Product "Buddbeiser") (Price 3.00)
                    events <- appendEvent events event
-                   event <- addDiscountCommand (basket event) 0.50
+                   event <- addDiscountCommand (basket event) (Discount 0.50)
                    events <- appendEvent events event
-                   event <- addProductCommand (basket event) "Nachos" 1.20
+                   event <- addProductCommand (basket event) (Product "Nachos") (Price 1.20)
                    events <- appendEvent events event
-                   event <- addDiscountCommand (basket event) 0.20
+                   event <- addDiscountCommand (basket event) (Discount 0.20)
                    events <- appendEvent events event
-                   event <- addProductCommand (basket event) "Pepsi" 2.40
+                   event <- addProductCommand (basket event) (Product "Pepsi") (Price 2.40)
                    events <- appendEvent events event
-                   event <- removeProductCommand (basket event) "Coca-cola" 2.50
+                   event <- removeProductCommand (basket event) (Product "Coca-cola") (Price 2.50)
                    events <- appendEvent events event
                    print $ show events
                    print "############### REHYDRATE EVENTS #################"
-                   basket <- return $ rehydrateByEvents (Basket [] 0 0) events
+                   basket <- return $ rehydrateByEvents (Basket [] (Price 0) (Discount 0)) events
                    print basket
 
 
