@@ -28,6 +28,7 @@ import CircuitBreaker
 import Generics
 import StateMachine
 import EventSourcingPattern
+import OmdbAPI
 
 -- | This is the main entry program for Haskell, just like static void main or Java
 --   You can only have one main declaration, so you have to point to one output or another
@@ -35,7 +36,8 @@ main :: IO ()
 
 -- | Event sourcing
 -- ---------------------
-main = eventSourcingProgram
+
+--main = eventSourcingProgram
 
 -- | Circuit breaker
 -- ---------------------
@@ -130,6 +132,7 @@ main = eventSourcingProgram
 
 --main = myServer
 --main = scottyServer
+main = startServer
 
 -- | Monads
 -- ------------

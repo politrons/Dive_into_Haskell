@@ -167,5 +167,6 @@
     <orderEntry type="library" name="x509-validation-1.6.10" level="project" />
     <orderEntry type="library" name="zlib-0.6.2" level="project" />
     <orderEntry type="library" name="zlib-bindings-0.1.1.5" level="project" />
+    <orderEntry type="library" name="raw-strings-qq-1.1" level="project" />
   </component>
 </module>
