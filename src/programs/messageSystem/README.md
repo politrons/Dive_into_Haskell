@@ -2,7 +2,7 @@
 
 ## Message system
 
-A haskell server to connect and communicate with other clients using ```Telnet``.`
+A haskell server to connect and communicate with other clients using ```Telnet```.
 
 You can see the implementation [Here](MessageSystem.hs)
 
