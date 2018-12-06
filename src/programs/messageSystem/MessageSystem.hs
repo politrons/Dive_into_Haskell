@@ -21,6 +21,8 @@ messageSystem = do sock <- socket AF_INET Stream 0
    * Bind the socket to listen in the port configured.
    * Invoke [newChan] function to sets up the read and write end of a channel by initialising [Chan] with
      empty @MVar@s for read and empty @MVar@ for write
+     Thanks to haskell infer types, [newChan] know that [Chan a] is the same than the one we return in the function
+     [Chan Message]
 -}
 initServer:: Socket -> IO (Chan Message)
 initServer sock =  do channel <- newChan
