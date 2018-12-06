@@ -38,7 +38,7 @@ If you want to reference to the official documentation visit [Here](https://www.
 * **[Scotty Http Server](src/server/ScottyHttpServer.hs)**
 
 ## Programs
-* **[Message system](src/programs/messageSystem/MessageSystem.hs)**
+* **[Message system](src/programs/messageSystem/)**
 
 
 ![My image](img/connector.png)
