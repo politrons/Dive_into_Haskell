@@ -36,15 +36,15 @@ initServer sock =  do channel <- newChan
     Finally make a recursive call to block the program in [accept] waiting for a new connection. -}
 acceptConnectionsLoop :: Socket -> Chan Message -> MsgId -> IO ()
 acceptConnectionsLoop sock channel msgId = do conn <- accept sock
-                                              forkIO $ clientConnection conn channel msgId
+                                              forkIO $ processClientConnection conn channel msgId
                                               acceptConnectionsLoop sock channel (msgId + 1)
 
 {-| We use [writeChan] function together with a channel and Message type to define a high order function [broadcast]
    which it will be used for the communication between clients.
    The function [createHandle] transform a [sock] into a [handle] to communicate directly with the owner of that socket
  -}
-clientConnection :: (Socket, SockAddr) -> Chan Message -> MsgId -> IO ()
-clientConnection (sock, _) channel msgId = do
+processClientConnection :: (Socket, SockAddr) -> Chan Message -> MsgId -> IO ()
+processClientConnection (sock, _) channel msgId = do
                                 let broadcast msg = writeChan channel $ Message msgId msg
                                 handle <- createHandle sock ReadWriteMode
                                 name <- logInClient handle broadcast
