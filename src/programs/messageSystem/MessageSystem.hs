@@ -19,6 +19,7 @@ messageSystem = do sock <- socket AF_INET Stream 0
   Init function to configure the socket following the next steps:
    * Create a new channel for the communications.
    * Bind the socket to listen in the port configured.
+   * Set max number of queued connections. Mandatory
    * Invoke [newChan] function to sets up the read and write end of a channel by initialising [Chan] with
      empty @MVar@s for read and empty @MVar@ for write
      Thanks to haskell infer types, [newChan] know that [Chan a] is the same than the one we return in the function
