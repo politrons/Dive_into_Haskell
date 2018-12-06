@@ -7,7 +7,7 @@ import Control.Concurrent
 import Control.Monad (when)
 import Control.Monad.Fix (fix)
 
-
+type MsgId = Int
 data Message = Message {msgId :: Int, msg ::String}
 
 messageSystem :: IO ()
@@ -32,7 +32,7 @@ initServer sock =  do channel <- newChan
 {-| [accept] function create a socket connection when a new connection from a client is open.
     [forkIO] creates a new thread  to run the 'IO' computation passed as the first argument.
     Finally make a recursive call to block the program in [accept] waiting for a new connection. -}
-acceptConnectionsLoop :: Socket -> Chan Message -> Int -> IO ()
+acceptConnectionsLoop :: Socket -> Chan Message -> MsgId -> IO ()
 acceptConnectionsLoop sock channel msgId = do conn <- accept sock
                                               forkIO $ clientConnection conn channel msgId
                                               acceptConnectionsLoop sock channel (msgId + 1)
@@ -41,7 +41,7 @@ acceptConnectionsLoop sock channel msgId = do conn <- accept sock
    which it will be used for the communication between clients.
    The function [createHandle] transform a [sock] into a [handle] to communicate directly with the owner of that socket
  -}
-clientConnection :: (Socket, SockAddr) -> Chan Message -> Int -> IO ()
+clientConnection :: (Socket, SockAddr) -> Chan Message -> MsgId -> IO ()
 clientConnection (sock, _) channel msgId = do
                                 let broadcast msg = writeChan channel $ Message msgId msg
                                 handle <- createHandle sock ReadWriteMode
@@ -116,7 +116,7 @@ readClientInput handle = fmap init (hGetLine handle)
     * Close the handle of the client.
 -}
 logOutClient :: (String -> IO()) -> Handle -> [Char] -> ThreadId -> IO()
-logOutClient broadcast handle name readerId = printClientMsg handle (name ++ "logged off")
+logOutClient broadcast handle name readerId = printClientMsg handle (name ++ " logged off")
                                            >> broadcast (name ++ ": Has logged off ")
                                            >> killThread readerId
                                            >> hClose handle

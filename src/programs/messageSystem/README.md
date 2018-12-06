@@ -4,7 +4,7 @@
 
 A haskell server to connect and communicate with other clients using ```Telnet```.
 
-You can see the implementation [Here](MessageSystem.hs)
+You can see the explanation and implementation of functions [Here](MessageSystem.hs)
 
 ### Use
 
@@ -24,4 +24,10 @@ Welcome to Politrons message system. How shall I call you?
 * Start communicating
 ```
 Human Tron logged
+```
+* Logoff
+```
+exit
+
+tron: Has logged off
 ```
