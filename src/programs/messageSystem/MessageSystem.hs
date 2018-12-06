@@ -109,7 +109,7 @@ writeMessage broadcast handle name readerId = fix $ \loop -> do message <- readC
 readClientInput::Handle -> IO [Char]
 readClientInput handle = fmap init (hGetLine handle)
 
-{-| Function to logoff a client, where we do the next composition of functions:
+{-| Function to logoff a client, where we do the next composition of functions using applicative [>>]:
     * Print in the terminal of the client that has been logged off,
     * broadcast all client that the client X has logged off
     * Kill the current process loop of reading message from the channel.
