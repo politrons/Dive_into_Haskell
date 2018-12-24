@@ -38,6 +38,3 @@ subFunc = partialFunc  10 -- This will return another function.
 outputFunc = subFunc 20
 
 
-
-
-

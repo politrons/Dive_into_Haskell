@@ -31,14 +31,22 @@ import EventSourcingPattern
 import OmdbAPI
 import MessageSystem
 import LetAndWhere
+import FileTransferSystem
+
 -- | This is the main entry program for Haskell, just like static void main or Java
 --   You can only have one main declaration, so you have to point to one output or another
 main :: IO ()
+main = mainFileTransferProgram
+
+--main = fileSystem
+--main = receiveFile
+--main = sendFile "somefile.txt"
 
 -- | Let and Where
 -- ---------------------
 
 --main = letDeclaration
+--main = highOrderFunction
 
 -- | Event sourcing
 -- ---------------------
@@ -143,7 +151,7 @@ main :: IO ()
 -- --------------
 
 --main = startServer
-main = messageSystem
+--main = messageSystem
 
 -- | Monads
 -- ------------
