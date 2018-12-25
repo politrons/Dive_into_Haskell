@@ -1,6 +1,5 @@
 module FileTransferSystem where
 
---import Network.Socket
 import System.IO
 import Control.Exception
 import Control.Concurrent
@@ -15,10 +14,11 @@ import Data.ByteString.Lazy.Char8 (ByteString)
 import Control.Exception (SomeException,try,evaluate)
 import Network.HTTP.Client (Response)
 
-import qualified Data.ByteString       as BS
-import qualified Data.ByteString.Char8 as C
-import Network.Socket hiding     (recv)
-import Network.Socket.ByteString (recv, sendAll)
+import qualified Data.ByteString.Lazy       as BS
+import qualified Data.ByteString.Lazy.Char8 as C
+
+import Network.Socket hiding     (getContents, recv)
+import Network.Socket.ByteString.Lazy (getContents, recv, sendAll)
 
 
 type MsgId = Int
@@ -34,14 +34,22 @@ mainFileTransferProgram = do _ <- forkIO fileSystem
                              print "done"
 
 {-| ----------------------------------------------}
-{-|                    CLIENT                    -}
+{-|                    CLIENTS                   -}
 {-| ----------------------------------------------}
+{-| Client logic which contains two clients. [sender] which send the files. And [receiver] which are connected
+    to the system waiting to receive data-}
+
+{-| Function in charge to open a socket to the server, read the local file specify in [filePath] argument
+    and send to the server the data-}
 sendFile :: [Char] -> IO()
 sendFile filePath = do sock <- openConnection
                        fileContent <- readFileToSend filePath
                        sendAll sock $ C.pack fileContent
                        close sock
 
+{-| Function in charge to open a socket to the server, open a handle specifying a file name in [WriteMode]
+   and invoke in another thread in [listeningMessage] to scan the socket for data
+    and send to the server the data-}
 receiveFile :: IO()
 receiveFile = do sock <- openConnection
                  handle <- openFile "fileOutput.txt" WriteMode
@@ -51,6 +59,7 @@ receiveFile = do sock <- openConnection
                  print "File transfer end......"
                  close sock
 
+{-| Open a socket against an ip/port-}
 openConnection :: IO Socket
 openConnection = do addrinfos <- getAddrInfo Nothing (Just "127.0.0.1") (Just "2981")
                     let serveraddr = head addrinfos
@@ -58,12 +67,17 @@ openConnection = do addrinfos <- getAddrInfo Nothing (Just "127.0.0.1") (Just "2
                     connect sock (addrAddress serveraddr)
                     return sock
 
+{-| Function responsible to read from the socket new data using [recv] function. Once we receive data recv function
+    return the control of the program and pass a chunk of data, which is used by [handle] to write in disk.
+    Since [recv] cannot garantee the recip of all data, we need to use [fix] function to make recursive calls
+    in a loop forever.-}
 listeningMessage::Handle -> Socket -> IO()
 listeningMessage handle sock = fix $ \loop -> do msg <- recv sock 4096
                                                  print $ "INPUT DATA:" ++ show msg
                                                  hPutStrLn handle (C.unpack msg)
                                                  loop
 
+{-| Function responsible to read the local file to and transform into [Char]-}
 readFileToSend :: [Char] -> IO [Char]
 readFileToSend filePath = do fileContent <- readFile filePath
                              return fileContent
@@ -71,6 +85,7 @@ readFileToSend filePath = do fileContent <- readFile filePath
 {-| ----------------------------------------------}
 {-|                     SERVICE                  -}
 {-| ----------------------------------------------}
+{-| Server logic responsible to receive data and transmit by broadcast to all user connected to the system-}
 
 fileSystem :: IO ()
 fileSystem = do sock <- socket AF_INET Stream 0
