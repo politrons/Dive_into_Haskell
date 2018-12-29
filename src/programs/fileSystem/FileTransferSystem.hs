@@ -13,18 +13,17 @@ import Data.ByteString (pack,unpack)
 import Data.ByteString.Lazy.Char8 (ByteString)
 import Control.Exception (SomeException,try,evaluate)
 import Network.HTTP.Client (Response)
-
 import qualified Data.ByteString.Lazy       as BS
 import qualified Data.ByteString.Lazy.Char8 as C
-
 import Network.Socket hiding     (getContents, recv)
 import Network.Socket.ByteString.Lazy (getContents, recv, sendAll)
 import Data.List (isInfixOf)
 
-
 type MsgId = Int
 data Message = Message {msgId :: Int, msg ::String}
 
+{-| Util Function that make composition of main functions in case you want to run the server, sender and consumer in the same
+    haskell program.-}
 mainFileTransferProgram :: IO()
 mainFileTransferProgram = do _ <- forkIO fileSystem
                              threadDelay 2000000
