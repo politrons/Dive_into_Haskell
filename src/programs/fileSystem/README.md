@@ -1,4 +1,4 @@
-![My image](../../../img/feature.png) ![My image](../../../img/chat.svg)
+![My image](../../../img/feature.png) ![My image](../../../img/file_transfer.png)
 
 ## File transfer system
 
