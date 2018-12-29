@@ -48,9 +48,9 @@ senderClient filePath = do sock <- openConnection
                            sendAll sock $ C.pack fileContent
                            close sock
 
-{-| Function in charge to open a socket to the server, open a handle specifying a file name in [WriteMode]
-   and invoke in another thread in [listeningMessage] to scan the socket for data
-    and send to the server the data-}
+{-| Function in charge to open a socket to the server, open a handle specifying a file name in [WriteMode],
+    invoke recursive function [listeningMessage] to scan the socket for data.
+    Once return from previous function we close the handle to write on disk and we close the socket-}
 receiverClient :: IO()
 receiverClient = do sock <- openConnection
                     handle <- openFile "fileOutput.txt" WriteMode
@@ -59,7 +59,7 @@ receiverClient = do sock <- openConnection
                     print "File transfer end......"
                     close sock
 
-{-| Open a socket against an ip/port-}
+{-| Create a socket Open a connection in the socket against an ip/port and return the socket opened.-}
 openConnection :: IO Socket
 openConnection = do addrinfos <- getAddrInfo Nothing (Just "127.0.0.1") (Just "2981")
                     let serveraddr = head addrinfos
