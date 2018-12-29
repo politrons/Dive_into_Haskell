@@ -39,8 +39,8 @@ main :: IO ()
 main = mainFileTransferProgram
 
 --main = fileSystem
---main = receiveFile
---main = sendFile "somefile.txt"
+--main = receiverClient
+--main = senderClient "somefile.txt"
 
 -- | Let and Where
 -- ---------------------

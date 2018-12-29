@@ -19,6 +19,7 @@ import qualified Data.ByteString.Lazy.Char8 as C
 
 import Network.Socket hiding     (getContents, recv)
 import Network.Socket.ByteString.Lazy (getContents, recv, sendAll)
+import Data.List (isInfixOf)
 
 
 type MsgId = Int
@@ -27,10 +28,10 @@ data Message = Message {msgId :: Int, msg ::String}
 mainFileTransferProgram :: IO()
 mainFileTransferProgram = do _ <- forkIO fileSystem
                              threadDelay 2000000
-                             _ <- forkIO receiveFile
+                             _ <- forkIO receiverClient
                              threadDelay 2000000
-                             _ <- sendFile "somefile.txt"
-                             threadDelay 10000000
+                             _ <- senderClient "somefile.txt"
+                             threadDelay 2000000
                              print "done"
 
 {-| ----------------------------------------------}
@@ -41,23 +42,22 @@ mainFileTransferProgram = do _ <- forkIO fileSystem
 
 {-| Function in charge to open a socket to the server, read the local file specify in [filePath] argument
     and send to the server the data-}
-sendFile :: [Char] -> IO()
-sendFile filePath = do sock <- openConnection
-                       fileContent <- readFileToSend filePath
-                       sendAll sock $ C.pack fileContent
-                       close sock
+senderClient :: [Char] -> IO()
+senderClient filePath = do sock <- openConnection
+                           fileContent <- readFileToSend filePath
+                           sendAll sock $ C.pack fileContent
+                           close sock
 
 {-| Function in charge to open a socket to the server, open a handle specifying a file name in [WriteMode]
    and invoke in another thread in [listeningMessage] to scan the socket for data
     and send to the server the data-}
-receiveFile :: IO()
-receiveFile = do sock <- openConnection
-                 handle <- openFile "fileOutput.txt" WriteMode
-                 forkIO $ listeningMessage handle sock
-                 threadDelay 5000000
-                 hClose handle
-                 print "File transfer end......"
-                 close sock
+receiverClient :: IO()
+receiverClient = do sock <- openConnection
+                    handle <- openFile "fileOutput.txt" WriteMode
+                    listeningMessage (C.pack "") handle sock
+                    hClose handle
+                    print "File transfer end......"
+                    close sock
 
 {-| Open a socket against an ip/port-}
 openConnection :: IO Socket
@@ -67,15 +67,21 @@ openConnection = do addrinfos <- getAddrInfo Nothing (Just "127.0.0.1") (Just "2
                     connect sock (addrAddress serveraddr)
                     return sock
 
-{-| Function responsible to read from the socket new data using [recv] function. Once we receive data recv function
-    return the control of the program and pass a chunk of data, which is used by [handle] to write in disk.
-    Since [recv] cannot garantee the recip of all data, we need to use [fix] function to make recursive calls
-    in a loop forever.-}
-listeningMessage::Handle -> Socket -> IO()
-listeningMessage handle sock = fix $ \loop -> do msg <- recv sock 4096
-                                                 print $ "INPUT DATA:" ++ show msg
-                                                 hPutStrLn handle (C.unpack msg)
-                                                 loop
+{-| Function responsible to read from the socket new data using [recv] function.
+    Since network is impure and it's possible side effects we control the effect of network with [try/evaluate] error handling
+    Once we receive data recv function return the control of the program and pass a chunk of data, which is used by [handle] to write in disk.
+    Since [recv] cannot guarantee the recipe of all data, we need to use [recursive] calls until the condition [endOfSocket] happans.-}
+listeningMessage :: ByteString -> Handle -> Socket -> IO()
+listeningMessage totalMsg handle sock = do eitherResult <- try(evaluate (recv sock 1024)) :: IO (Either SomeException (IO ByteString))
+                                           case eitherResult of
+                                                  Left ex  -> do print $ "Socket error " ++ show ex
+                                                                 hPutStrLn handle (C.unpack  totalMsg)
+                                                  Right ioMsg -> do msg <- ioMsg
+                                                                    let endOfSocket =  isInfixOf "\n" (C.unpack msg) -- Not a good filter!
+                                                                    if(endOfSocket)
+                                                                    then do print "End of reading"
+                                                                            hPutStrLn handle (C.unpack (totalMsg <> msg))
+                                                                    else listeningMessage (totalMsg <> msg) handle sock
 
 {-| Function responsible to read the local file to and transform into [Char]-}
 readFileToSend :: [Char] -> IO [Char]
