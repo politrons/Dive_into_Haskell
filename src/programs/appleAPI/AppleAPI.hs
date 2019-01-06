@@ -19,12 +19,12 @@ import Network.HTTP.Client (Response)
 import Data.IORef (newIORef,IORef,readIORef)
 import Control.Monad.IO.Class (liftIO)
 import Data.Aeson (ToJSON,FromJSON,parseJSON,FromJSON,decode)
+import Data.Char (toUpper)
 
 appleAPI :: [Char] -> String
 appleAPI entry = "http://itunes.apple.com/search?term=" ++ entry
 
 servicePort = 5000 :: Int
-
 
 {-| ----------------------------------------------}
 {-|                    SERVER                    -}
@@ -83,6 +83,9 @@ decodeJsonToDataType json = case decode json of
 filterByAlbum :: [Char] -> Products -> IO Products
 filterByAlbum album products = return Products { results = filter (\product -> collectionName product == album) (results products) }
 
+--TODO:Apply lenses
+--setGenreInUpper :: Products -> IO Products
+--setGenreInUpper products = return Products {results = map (\product -> map toUpper (primaryGenreName product)) (results products) }
 {-| ----------------------------------------------}
 {-|                 HTTP CLIENTS                 -}
 {-| ----------------------------------------------}
