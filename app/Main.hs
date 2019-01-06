@@ -32,12 +32,21 @@ import OmdbAPI
 import MessageSystem
 import LetAndWhere
 import FileTransferSystem
+import AppleAPI
 
 -- | This is the main entry program for Haskell, just like static void main or Java
 --   You can only have one main declaration, so you have to point to one output or another
-main :: IO ()
-main = mainFileTransferProgram
 
+main :: IO ()
+
+-- | Apple API
+-- ------------------------
+main = appleServer
+
+-- | File transfer program
+-- ------------------------
+
+--main = mainFileTransferProgram
 --main = fileSystem
 --main = receiverClient
 --main = senderClient "somefile.txt"
