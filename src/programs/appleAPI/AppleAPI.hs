@@ -68,7 +68,7 @@ responseBandAndAlbum ioRefManager = do band <- extractUriParam "band"
                                        bsResponse <- liftAndCatchIO $ requestToAppleAPI ioRefManager (appleAPI band)
                                        products <- liftAndCatchIO $ decodeJsonToDataType bsResponse
                                        filterProducts <- liftAndCatchIO $ filterByAlbum album products
-                                       filterProducts <- liftAndCatchIO $ setGenreInUpper products
+                                       filterProducts <- liftAndCatchIO $ setGenreInUpper filterProducts
                                        json filterProducts
 
 extractUriParam :: LazyText.Text -> ActionM String
@@ -88,19 +88,21 @@ filterByAlbum album products = return Products { results = filter (\product -> c
 {-| Function to map the list of Products and set [primaryGenreName] in upper case-}
 setGenreInUpper :: Products -> IO Products
 setGenreInUpper products = return Products {results = map (\product -> product { primaryGenreName = map toUpper $ primaryGenreName product }) (results products) }
+
 {-| ----------------------------------------------}
 {-|                 HTTP CLIENTS                 -}
 {-| ----------------------------------------------}
 
 {-| Function to make a request to Apple API. We extract first the manager created to open the request since
-   it's quite expensive creare the manager per request.
--}
+   it's quite expensive create the manager per request.-}
 requestToAppleAPI :: IORef Manager -> String -> IO ByteString
 requestToAppleAPI ioRefManager uri = do manager <- liftIO (readIORef ioRefManager)
                                         request <- parseRequest uri
                                         response <- makeRequest manager request
                                         return $ responseBody response
 
+{-| Function that receive the Manager of Http connection, a Request and using [httpLbs] function we make the request,
+    Receiving a [Response] with [ByteString] as T of the body response -}
 makeRequest :: Manager -> Request -> IO (Response ByteString)
 makeRequest manager request =  httpLbs request manager
 
