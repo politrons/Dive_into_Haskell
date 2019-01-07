@@ -43,6 +43,7 @@ routes :: IORef Manager -> ScottyM()
 routes ioRefManager = do get "/service" responseService
                          get "/author" responseName
                          get "/product/:product" $ responseProduct ioRefManager
+                         get "/product/:product/min/:minPrice/max/:maxPrice" $ responseProductByPrice ioRefManager
                          get "/band/:band/album/:album" $ responseBandAndAlbum ioRefManager
 
 
@@ -71,6 +72,19 @@ responseBandAndAlbum ioRefManager = do band <- extractUriParam "band"
                                        filterProducts <- liftAndCatchIO $ setGenreInUpper filterProducts
                                        json filterProducts
 
+responseProductByPrice :: IORef Manager -> ActionM ()
+responseProductByPrice ioRefManager = do product <- extractUriParam "product"
+                                         minPriceStr <- extractUriParam "minPrice"
+                                         maxPriceStr <- extractUriParam "maxPrice"
+                                         minPrice <- liftAndCatchIO $ return $ MinPrice (read minPriceStr)
+                                         maxPrice <- liftAndCatchIO $ return $ MaxPrice (read maxPriceStr)
+                                         bsResponse <- liftAndCatchIO $ requestToAppleAPI ioRefManager (appleAPI product)
+                                         products <- liftAndCatchIO $ decodeJsonToDataType bsResponse
+                                         filterProducts <- liftAndCatchIO $ filterByMinAndMaxPrice products minPrice maxPrice
+                                         filterProducts <- liftAndCatchIO $ setGenreInUpper filterProducts
+                                         json filterProducts
+
+{-| Function to extract uri params by name-}
 extractUriParam :: LazyText.Text -> ActionM String
 extractUriParam param = Web.Scotty.param param
 
@@ -84,6 +98,10 @@ decodeJsonToDataType json = case decode json of
 {-| Filter function that using [filter] operator we create a new Products record with a filter list of products by collectionName-}
 filterByAlbum :: [Char] -> Products -> IO Products
 filterByAlbum album products = return Products { results = filter (\product -> collectionName product == album) (results products) }
+
+filterByMinAndMaxPrice ::Products-> MinPrice -> MaxPrice -> IO Products
+filterByMinAndMaxPrice products (MinPrice min) (MaxPrice max) = do let newProducts = filter(\product -> (trackPrice product) > min && (trackPrice product) < max ) (results products)
+                                                                   return Products { results = newProducts}
 
 {-| Function to map the list of Products and set [primaryGenreName] in upper case-}
 setGenreInUpper :: Products -> IO Products
@@ -129,6 +147,9 @@ instance ToJSON Products
 instance FromJSON Products
 instance ToJSON Product
 instance FromJSON Product
+
+data MinPrice = MinPrice Double
+data MaxPrice = MaxPrice Double
 
 emptyProducts = Products [Product {
                artistName="",
