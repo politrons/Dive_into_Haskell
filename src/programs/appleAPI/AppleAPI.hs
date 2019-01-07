@@ -58,6 +58,7 @@ responseProduct ioRefManager = do product <- extractUriParam "product"
                                   liftAndCatchIO $ print ("Finding apple product:" ++ product)
                                   bsResponse <- liftAndCatchIO $ requestToAppleAPI ioRefManager (appleAPI product)
                                   products <- liftAndCatchIO $ decodeJsonToDataType bsResponse
+                                  products <- liftAndCatchIO $ setGenreInUpper products
                                   json products
 
 responseBandAndAlbum :: IORef Manager -> ActionM ()
@@ -67,6 +68,7 @@ responseBandAndAlbum ioRefManager = do band <- extractUriParam "band"
                                        bsResponse <- liftAndCatchIO $ requestToAppleAPI ioRefManager (appleAPI band)
                                        products <- liftAndCatchIO $ decodeJsonToDataType bsResponse
                                        filterProducts <- liftAndCatchIO $ filterByAlbum album products
+                                       filterProducts <- liftAndCatchIO $ setGenreInUpper products
                                        json filterProducts
 
 extractUriParam :: LazyText.Text -> ActionM String
@@ -83,9 +85,9 @@ decodeJsonToDataType json = case decode json of
 filterByAlbum :: [Char] -> Products -> IO Products
 filterByAlbum album products = return Products { results = filter (\product -> collectionName product == album) (results products) }
 
---TODO:Apply lenses
---setGenreInUpper :: Products -> IO Products
---setGenreInUpper products = return Products {results = map (\product -> map toUpper (primaryGenreName product)) (results products) }
+{-| Function to map the list of Products and set [primaryGenreName] in upper case-}
+setGenreInUpper :: Products -> IO Products
+setGenreInUpper products = return Products {results = map (\product -> product { primaryGenreName = map toUpper $ primaryGenreName product }) (results products) }
 {-| ----------------------------------------------}
 {-|                 HTTP CLIENTS                 -}
 {-| ----------------------------------------------}
