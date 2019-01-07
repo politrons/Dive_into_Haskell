@@ -72,6 +72,9 @@ responseBandAndAlbum ioRefManager = do band <- extractUriParam "band"
                                        filterProducts <- liftAndCatchIO $ setGenreInUpper filterProducts
                                        json filterProducts
 
+{-| Function to find apple product by name and then filter by min and max price.
+    we embrace Type system so we transform the primitive type String from the uri param into Double usinng [read] function
+    Then we wrap into data types MinPrice MaxPrice-}
 responseProductByPrice :: IORef Manager -> ActionM ()
 responseProductByPrice ioRefManager = do product <- extractUriParam "product"
                                          minPriceStr <- extractUriParam "minPrice"
