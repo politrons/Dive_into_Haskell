@@ -84,7 +84,7 @@ responseBandAndSong ioRefManager = do band <- extractUriParam "product"
                                       json filterProducts
 
 {-| Function to find apple product by name and then filter by min and max price.
-    we embrace Type system so we transform the primitive type String from the uri param into Double usinng [read] function
+    we embrace Type system so we transform the primitive type String from the uri param into Double using [read] function
     Then we wrap into data types MinPrice MaxPrice-}
 responseProductByPrice :: IORef Manager -> ActionM ()
 responseProductByPrice ioRefManager = do product <- extractUriParam "product"
