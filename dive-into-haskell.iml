@@ -7,6 +7,7 @@
       <sourceFolder url="file://$MODULE_DIR$/app" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/test" isTestSource="true" />
       <excludeFolder url="file://$MODULE_DIR$/.stack-work" />
+      <excludePattern pattern="elm-stuff" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
@@ -168,5 +169,6 @@
     <orderEntry type="library" name="zlib-0.6.2" level="project" />
     <orderEntry type="library" name="zlib-bindings-0.1.1.5" level="project" />
     <orderEntry type="library" name="raw-strings-qq-1.1" level="project" />
+    <orderEntry type="library" name="split-0.2.3.3" level="project" />
   </component>
 </module>

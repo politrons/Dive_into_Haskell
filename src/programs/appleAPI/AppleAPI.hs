@@ -20,6 +20,7 @@ import Data.IORef (newIORef,IORef,readIORef)
 import Control.Monad.IO.Class (liftIO)
 import Data.Aeson (ToJSON,FromJSON,parseJSON,FromJSON,decode)
 import Data.Char (toUpper)
+import Data.List.Split
 
 appleAPI :: [Char] -> String
 appleAPI entry = "http://itunes.apple.com/search?term=" ++ entry
@@ -43,6 +44,7 @@ routes :: IORef Manager -> ScottyM()
 routes ioRefManager = do get "/service" responseService
                          get "/author" responseName
                          get "/product/:product" $ responseProduct ioRefManager
+                         get "/products/:products" $ responseProducts ioRefManager
                          get "/product/:product/min/:minPrice/max/:maxPrice" $ responseProductByPrice ioRefManager
                          get "/band/:band/album/:album" $ responseBandAndAlbum ioRefManager
 
@@ -56,11 +58,14 @@ responseName = text "Pablo Perez Garcia"
 
 responseProduct :: IORef Manager -> ActionM ()
 responseProduct ioRefManager = do product <- extractUriParam "product"
-                                  liftAndCatchIO $ print ("Finding apple product:" ++ product)
-                                  bsResponse <- liftAndCatchIO $ requestToAppleAPI ioRefManager (appleAPI product)
-                                  products <- liftAndCatchIO $ decodeJsonToDataType bsResponse
-                                  products <- liftAndCatchIO $ setGenreInUpper products
+                                  products <- liftAndCatchIO $ findProduct ioRefManager product
                                   json products
+
+responseProducts :: IORef Manager -> ActionM ()
+responseProducts ioRefManager = do products <- extractUriParam "products"
+                                   products <- liftAndCatchIO $ splitPrograms products
+                                   products <- liftAndCatchIO $ findProducts ioRefManager Products{ results = []} products
+                                   json products
 
 responseBandAndAlbum :: IORef Manager -> ActionM ()
 responseBandAndAlbum ioRefManager = do band <- extractUriParam "band"
@@ -87,6 +92,31 @@ responseProductByPrice ioRefManager = do product <- extractUriParam "product"
                                          filterProducts <- liftAndCatchIO $ setGenreInUpper filterProducts
                                          json filterProducts
 
+{-| Recursive function where we pass a empty vessel of [Products] a list of [String] products to search
+    and we end up with the vessel [Products] not empty anymnore but filled with all search-}
+findProducts :: IORef Manager -> Products -> [String] -> IO Products
+findProducts ioRefManager vesselProduct (product:products) = do newProducts <- findProduct ioRefManager product
+                                                                appendProducts <- appendProducts vesselProduct newProducts
+                                                                findProducts ioRefManager appendProducts products
+findProducts ioRefManager vesselProduct [] = return vesselProduct
+
+{-| Function that receive the IORef manager and the product to find. We obtain the response and we transform into
+    Products data type record  -}
+findProduct :: IORef Manager -> String -> IO Products
+findProduct ioRefManager product = do print("Finding apple product:" ++ product)
+                                      bsResponse <- requestToAppleAPI ioRefManager (appleAPI product)
+                                      products <- decodeJsonToDataType bsResponse
+                                      products <- setGenreInUpper products
+                                      return products
+
+{-| Function to create a [Products] data type and append the list [Product] from old and new iteration-}
+appendProducts :: Products -> Products -> IO Products
+appendProducts oldProducts newProducts = return $ Products { results = (results oldProducts) ++ (results newProducts) }
+
+{-| Using [splitOn] function we pass the delimiter [,] and the String to be split-}
+splitPrograms :: String -> IO [String]
+splitPrograms programs = return $ splitOn "-" programs
+
 {-| Function to extract uri params by name-}
 extractUriParam :: LazyText.Text -> ActionM String
 extractUriParam param = Web.Scotty.param param
@@ -109,6 +139,10 @@ filterByMinAndMaxPrice products (MinPrice min) (MaxPrice max) = do let newProduc
 {-| Function to map the list of Products and set [primaryGenreName] in upper case-}
 setGenreInUpper :: Products -> IO Products
 setGenreInUpper products = return Products {results = map (\product -> product { primaryGenreName = map toUpper $ primaryGenreName product }) (results products) }
+
+
+--lift :: IO a -> ActionM a
+--lift a = liftAndCatchIO a
 
 {-| ----------------------------------------------}
 {-|                 HTTP CLIENTS                 -}
