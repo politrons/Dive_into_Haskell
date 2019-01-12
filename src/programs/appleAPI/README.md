@@ -18,23 +18,29 @@ You can see the explanation and implementation of functions [Here](AppleAPI.hs)
 
 The API is based in Restful syntax, where queries use GET method, and arguments of the query are passed as URI params.
 
-* Get product. Return information of one product passed as query param
+* Get product. Return information of one product passed as query param.(/product/incubus)
     ```
        GET: "/product/:product"
     ```
 
-* Get products. Return information of several product passed as query param, using | separator. (/products/metallica|incubus|muse)
+* Get products. Return information of several product passed as query param, using | separator.(/products/metallica|incubus|muse)
     ```
        GET: "/products/:products"
     ```
-* Get products by price. Return information of one product passed as query param and filter by min and max price.
+* Get products by price. Return information of one product passed as query param and filter by min and max price.(/product/ironmaiden/min/0.50/max/2.00)
     ```
       GET: "/product/:product/min/:minPrice/max/:maxPrice"
    ```
-* Get product. Return information of one product passed as query param and filter by album
+* Get product. Return information of one product passed as query param and filter by album.(/product/metallica/album/Death Magnetic)
    ```
       GET: "/product/:product/album/:album"
    ```
+
+* Get product. Return information of one product passed as query param and filter by song.(/product/incubus/song/Wish You Were Here)
+   ```
+      GET: "/product/:product/song/:song"
+   ```
+
 #### Response:
 
 The response is done in Json format and is a result array of all sub-products found for one product.

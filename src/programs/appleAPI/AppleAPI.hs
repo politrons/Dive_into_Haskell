@@ -47,7 +47,7 @@ routes ioRefManager = do get "/service" responseService
                          get "/products/:products" $ responseProducts ioRefManager
                          get "/product/:product/min/:minPrice/max/:maxPrice" $ responseProductByPrice ioRefManager
                          get "/product/:product/album/:album" $ responseBandAndAlbum ioRefManager
-
+                         get "/product/:product/song/:song" $ responseBandAndSong ioRefManager
 
 {-| We use [text] operator from scotty we render the response in text/plain-}
 responseService :: ActionM ()
@@ -73,6 +73,13 @@ responseBandAndAlbum ioRefManager = do band <- extractUriParam "product"
                                        products <- toActionM $ findProduct ioRefManager band
                                        filterProducts <- toActionM $ filterByAlbum album products
                                        json filterProducts
+
+responseBandAndSong :: IORef Manager -> ActionM ()
+responseBandAndSong ioRefManager = do band <- extractUriParam "product"
+                                      song <- extractUriParam "song"
+                                      products <- toActionM $ findProduct ioRefManager band
+                                      filterProducts <- toActionM $ filterBySong song products
+                                      json filterProducts
 
 {-| Function to find apple product by name and then filter by min and max price.
     we embrace Type system so we transform the primitive type String from the uri param into Double usinng [read] function
@@ -130,6 +137,10 @@ decodeJsonToDataType json = case decode json of
 {-| Filter function that using [filter] operator we create a new Products record with a filter list of products by collectionName-}
 filterByAlbum :: [Char] -> Products -> IO Products
 filterByAlbum album products = return Products { results = filter (\product -> collectionName product == album) (results products) }
+
+{-| Filter function that using [filter] operator we create a new Products record with a filter list of products by trackName-}
+filterBySong :: [Char] -> Products -> IO Products
+filterBySong song products = return Products { results = filter (\product -> trackName product == song) (results products) }
 
 filterByMinAndMaxPrice ::Products-> MinPrice -> MaxPrice -> IO Products
 filterByMinAndMaxPrice products (MinPrice min) (MaxPrice max) = do let newProducts = filter(\product -> (trackPrice product) > min && (trackPrice product) < max ) (results products)
