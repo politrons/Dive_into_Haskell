@@ -58,20 +58,20 @@ responseName = text "Pablo Perez Garcia"
 
 responseProduct :: IORef Manager -> ActionM ()
 responseProduct ioRefManager = do product <- extractUriParam "product"
-                                  products <- liftAndCatchIO $ findProduct ioRefManager product
+                                  products <- toActionM $ findProduct ioRefManager product
                                   json products
 
 responseProducts :: IORef Manager -> ActionM ()
 responseProducts ioRefManager = do products <- extractUriParam "products"
-                                   products <- lift $ splitPrograms products
-                                   products <- lift $ findProducts ioRefManager Products{ results = []} products
+                                   products <- toActionM $ splitPrograms products
+                                   products <- toActionM $ findProducts ioRefManager Products{ results = []} products
                                    json products
 
 responseBandAndAlbum :: IORef Manager -> ActionM ()
 responseBandAndAlbum ioRefManager = do band <- extractUriParam "band"
                                        album <- extractUriParam "album"
-                                       products <- liftAndCatchIO $ findProduct ioRefManager band
-                                       filterProducts <- lift $ filterByAlbum album products
+                                       products <- toActionM $ findProduct ioRefManager band
+                                       filterProducts <- toActionM $ filterByAlbum album products
                                        json filterProducts
 
 {-| Function to find apple product by name and then filter by min and max price.
@@ -81,11 +81,15 @@ responseProductByPrice :: IORef Manager -> ActionM ()
 responseProductByPrice ioRefManager = do product <- extractUriParam "product"
                                          minPriceStr <- extractUriParam "minPrice"
                                          maxPriceStr <- extractUriParam "maxPrice"
-                                         minPrice <- lift $ return $ MinPrice (read minPriceStr)
-                                         maxPrice <- lift $ return $ MaxPrice (read maxPriceStr)
-                                         products <- liftAndCatchIO $ findProduct ioRefManager product
-                                         filterProducts <- lift $ filterByMinAndMaxPrice products minPrice maxPrice
+                                         minPrice <- toActionM $ return $ MinPrice (read minPriceStr)
+                                         maxPrice <- toActionM $ return $ MaxPrice (read maxPriceStr)
+                                         products <- toActionM $ findProduct ioRefManager product
+                                         filterProducts <- toActionM $ filterByMinAndMaxPrice products minPrice maxPrice
                                          json filterProducts
+
+{-| ----------------------------------------------}
+{-|                LOGIC FUNCTIONS               -}
+{-| ----------------------------------------------}
 
 {-| Recursive function where we pass a empty vessel of [Products] a list of [String] products to search
     and we end up with the vessel [Products] not empty anymore but filled with all search-}
@@ -135,9 +139,9 @@ filterByMinAndMaxPrice products (MinPrice min) (MaxPrice max) = do let newProduc
 setGenreInUpper :: Products -> IO Products
 setGenreInUpper products = return Products {results = map (\product -> product { primaryGenreName = map toUpper $ primaryGenreName product }) (results products) }
 
-
-lift :: IO any -> ActionM any
-lift any = liftAndCatchIO any
+{-| Sugar syntax function where we expect any IO value and we use the Scotty [liftAndCatchIO] function to transform to [ActionM] monad-}
+toActionM :: IO any -> ActionM any
+toActionM any = liftAndCatchIO any
 
 {-| ----------------------------------------------}
 {-|                 HTTP CLIENTS                 -}
