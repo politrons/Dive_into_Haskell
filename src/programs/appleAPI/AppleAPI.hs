@@ -63,18 +63,15 @@ responseProduct ioRefManager = do product <- extractUriParam "product"
 
 responseProducts :: IORef Manager -> ActionM ()
 responseProducts ioRefManager = do products <- extractUriParam "products"
-                                   products <- liftAndCatchIO $ splitPrograms products
-                                   products <- liftAndCatchIO $ findProducts ioRefManager Products{ results = []} products
+                                   products <- lift $ splitPrograms products
+                                   products <- lift $ findProducts ioRefManager Products{ results = []} products
                                    json products
 
 responseBandAndAlbum :: IORef Manager -> ActionM ()
 responseBandAndAlbum ioRefManager = do band <- extractUriParam "band"
                                        album <- extractUriParam "album"
-                                       liftAndCatchIO $ print ("Finding apple product band " ++ band ++ "and album " ++ album)
-                                       bsResponse <- liftAndCatchIO $ requestToAppleAPI ioRefManager (appleAPI band)
-                                       products <- liftAndCatchIO $ decodeJsonToDataType bsResponse
-                                       filterProducts <- liftAndCatchIO $ filterByAlbum album products
-                                       filterProducts <- liftAndCatchIO $ setGenreInUpper filterProducts
+                                       products <- liftAndCatchIO $ findProduct ioRefManager band
+                                       filterProducts <- lift $ filterByAlbum album products
                                        json filterProducts
 
 {-| Function to find apple product by name and then filter by min and max price.
@@ -84,16 +81,14 @@ responseProductByPrice :: IORef Manager -> ActionM ()
 responseProductByPrice ioRefManager = do product <- extractUriParam "product"
                                          minPriceStr <- extractUriParam "minPrice"
                                          maxPriceStr <- extractUriParam "maxPrice"
-                                         minPrice <- liftAndCatchIO $ return $ MinPrice (read minPriceStr)
-                                         maxPrice <- liftAndCatchIO $ return $ MaxPrice (read maxPriceStr)
-                                         bsResponse <- liftAndCatchIO $ requestToAppleAPI ioRefManager (appleAPI product)
-                                         products <- liftAndCatchIO $ decodeJsonToDataType bsResponse
-                                         filterProducts <- liftAndCatchIO $ filterByMinAndMaxPrice products minPrice maxPrice
-                                         filterProducts <- liftAndCatchIO $ setGenreInUpper filterProducts
+                                         minPrice <- lift $ return $ MinPrice (read minPriceStr)
+                                         maxPrice <- lift $ return $ MaxPrice (read maxPriceStr)
+                                         products <- liftAndCatchIO $ findProduct ioRefManager product
+                                         filterProducts <- lift $ filterByMinAndMaxPrice products minPrice maxPrice
                                          json filterProducts
 
 {-| Recursive function where we pass a empty vessel of [Products] a list of [String] products to search
-    and we end up with the vessel [Products] not empty anymnore but filled with all search-}
+    and we end up with the vessel [Products] not empty anymore but filled with all search-}
 findProducts :: IORef Manager -> Products -> [String] -> IO Products
 findProducts ioRefManager vesselProduct (product:products) = do newProducts <- findProduct ioRefManager product
                                                                 appendProducts <- appendProducts vesselProduct newProducts
@@ -115,7 +110,7 @@ appendProducts oldProducts newProducts = return $ Products { results = (results 
 
 {-| Using [splitOn] function we pass the delimiter [,] and the String to be split-}
 splitPrograms :: String -> IO [String]
-splitPrograms programs = return $ splitOn "-" programs
+splitPrograms programs = return $ splitOn "|" programs
 
 {-| Function to extract uri params by name-}
 extractUriParam :: LazyText.Text -> ActionM String
@@ -141,8 +136,8 @@ setGenreInUpper :: Products -> IO Products
 setGenreInUpper products = return Products {results = map (\product -> product { primaryGenreName = map toUpper $ primaryGenreName product }) (results products) }
 
 
---lift :: IO a -> ActionM a
---lift a = liftAndCatchIO a
+lift :: IO any -> ActionM any
+lift any = liftAndCatchIO any
 
 {-| ----------------------------------------------}
 {-|                 HTTP CLIENTS                 -}
