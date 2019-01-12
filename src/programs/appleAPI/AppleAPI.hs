@@ -39,7 +39,9 @@ appleServer = do
     scotty servicePort (routes ioRefManager)
 
 {-| We define the routes thanks to REST operators [get, post, put, delete, patch] which expect to
-    receive a [RoutePattern] as a path and a [ActionM] as the action of the request. Then we return a [ScottyM]-}
+    receive a [RoutePattern] as a path and a [ActionM] as the action of the request, so we force in our
+    do block responseXXX to return [ActionM] monad.
+    Then scotty operators [get, post, put, delete] use the [ActionM] monad and transform into [ScottyM] monad-}
 routes :: IORef Manager -> ScottyM()
 routes ioRefManager = do get "/service" responseService
                          get "/author" responseName
