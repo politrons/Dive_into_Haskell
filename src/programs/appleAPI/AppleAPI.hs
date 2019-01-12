@@ -46,7 +46,7 @@ routes ioRefManager = do get "/service" responseService
                          get "/product/:product" $ responseProduct ioRefManager
                          get "/products/:products" $ responseProducts ioRefManager
                          get "/product/:product/min/:minPrice/max/:maxPrice" $ responseProductByPrice ioRefManager
-                         get "/band/:band/album/:album" $ responseBandAndAlbum ioRefManager
+                         get "/product/:product/album/:album" $ responseBandAndAlbum ioRefManager
 
 
 {-| We use [text] operator from scotty we render the response in text/plain-}
@@ -68,7 +68,7 @@ responseProducts ioRefManager = do products <- extractUriParam "products"
                                    json products
 
 responseBandAndAlbum :: IORef Manager -> ActionM ()
-responseBandAndAlbum ioRefManager = do band <- extractUriParam "band"
+responseBandAndAlbum ioRefManager = do band <- extractUriParam "product"
                                        album <- extractUriParam "album"
                                        products <- toActionM $ findProduct ioRefManager band
                                        filterProducts <- toActionM $ filterByAlbum album products
