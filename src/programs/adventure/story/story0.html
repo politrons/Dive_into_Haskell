@@ -1,22 +1,49 @@
 <!DOCTYPE html>
 <html>
-<body background="https://i1.wp.com/geoawesomeness.com/wp-content/uploads/2013/11/lord-of-the-rings-free-middle-earth-map-with-color-cccc-page-254377.jpg?fit=1280%2C1024">
-<h1>Welcome to your own adventure</h1>
+<head>
+    <style>
+div::after {
+  -webkit-filter: blur(5px); /* Safari 6.0 - 9.0 */
+  filter: blur(5px);
+  content: "";
+  display: block;
+  position: absolute;
+  z-index: -1;
+  width: 100%;
+  height: 100%;
+  background-image: url('https://i.pinimg.com/originals/d9/83/ab/d983ab9172dbcf67b88e8d32a21813b6.jpg');
+  background-size: cover;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+}
 
-<p>
-    This game use the url as command to interact with game, all actions or sentence must be passed as uri param in the uri
-</p>
+    </style>
+</head>
+<body>
+<div>
+    <h1><font color="#000000">Welcome to your own adventure</font></h1>
 
-<p>Now we will get some information from you to before start your adventure.</p>
+    <p><font size="4" color="#000000"><b> This game use the url as command to interact with game, all actions or sentence must be passed as uri param in the uri</b></font></p>
 
-<p>Choose a name: ????</p>
-<p>Choose a race: Human, Elf, Wizard, Dwarf</p>
+    <p><font size="4" color="#000000"><b>Now we will get some information from you to before start your adventure.</b></font></p>
 
-<img src="https://static.squarespace.com/static/51b3dc8ee4b051b96ceb10de/51ce6099e4b0d911b4489b79/51ce619ce4b0d911b449a17f/1316719790027/1000w/ranger_and_gondorian_by_otisframpton-d3crwha.jpeg" width="150" height="250">
-<img src="https://static.squarespace.com/static/51b3dc8ee4b051b96ceb10de/51ce6099e4b0d911b4489b79/51ce619ce4b0d911b449a17e/1316719755098/1000w/wizard_and_hobbit_by_otisframpton-d3crwd0.jpeg" width="150" height="250">
-<img src="https://static.squarespace.com/static/51b3dc8ee4b051b96ceb10de/51ce6099e4b0d911b4489b79/51ce619ce4b0d911b449a180/1316719808523/1000w/elf_and_dwarf_by_otisframpton-d3crwmm.jpeg" width="150" height="250">
 
-<p>You can add as para in the url the response http://localhost:3500/adventure/name/your_name/race/your_race</p>
+    <p><font size="4" color="#000000"><b>Choose a name: ????</b></font></p>
+    <p><font size="4" color="#000000"><b>Choose a race: Human, Elf, Wizard, Dwarf</b></font></p>
+
+    <img src="https://static.squarespace.com/static/51b3dc8ee4b051b96ceb10de/51ce6099e4b0d911b4489b79/51ce619ce4b0d911b449a17f/1316719790027/1000w/ranger_and_gondorian_by_otisframpton-d3crwha.jpeg"
+         width="150" height="250">
+    <img src="https://static.squarespace.com/static/51b3dc8ee4b051b96ceb10de/51ce6099e4b0d911b4489b79/51ce619ce4b0d911b449a17e/1316719755098/1000w/wizard_and_hobbit_by_otisframpton-d3crwd0.jpeg"
+         width="150" height="250">
+    <img src="https://static.squarespace.com/static/51b3dc8ee4b051b96ceb10de/51ce6099e4b0d911b4489b79/51ce619ce4b0d911b449a180/1316719808523/1000w/elf_and_dwarf_by_otisframpton-d3crwmm.jpeg"
+         width="150" height="250">
+
+    <p><font size="4" color="#000000"><b>You can add as param in the url the response</b></font></p>
+    <p><font size="4" color="#000000"><b>http://localhost:3500/adventure/name/your_name/race/your_race</b></font></p>
+</div>
 
 </body>
 </html>
+
