@@ -13,6 +13,7 @@ import Data.IORef (IORef,newIORef,readIORef,writeIORef)
 import Control.Monad.IO.Class (liftIO)
 import Data.Text.Lazy (Text)
 import Data.Text.Lazy (pack)
+import Data.Text.Lazy (replace)
 
 servicePort = 3500 :: Int
 
@@ -24,7 +25,7 @@ servicePort = 3500 :: Int
 adventureServer :: IO ()
 adventureServer = do
                     print ("Starting Adventure Server at port " ++ show servicePort)
-                    timelineRef <- newIORef $ AdventureInfo (PlayerInfo "" Human) (TimeLine 0)
+                    timelineRef <- newIORef $ AdventureInfo (PlayerInfo "" (Race "")) (TimeLine 0)
                     scotty servicePort (routes timelineRef)
 
 routes :: IORef AdventureInfo -> ScottyM()
@@ -63,10 +64,10 @@ processAction = do product <- extractUriParam "action"
 
 extractRace :: String -> IO (Maybe Race)
 extractRace race = case race of
-                        "Elf" -> return $ Just Elf
-                        "Human" -> return $ Just Human
-                        "Dwarf" -> return $ Just Dwarf
-                        "Wizard" -> return $ Just Wizard
+                        "Elf" -> return $ Just $ Race "Elf"
+                        "Human" -> return $ Just $ Race "Human"
+                        "Dwarf" -> return $ Just $ Race "Dwarf"
+                        "Wizard" -> return $ Just $ Race "Wizard"
                         _ -> return Nothing
 
 {-| Function to get the maybe race and return the html page with success or error-}
@@ -74,6 +75,8 @@ updatePlayerInfo :: String -> Maybe Race -> IORef AdventureInfo -> IO Text
 updatePlayerInfo name raceMaybe adventureInfoRef = case raceMaybe of
                                                    Just race -> do newPlayerInfo <- writeIORef adventureInfoRef (AdventureInfo (PlayerInfo name race)(TimeLine 1))
                                                                    story <- readStoryTimeLine "playerCreated.html"
+                                                                   story <- return $ replace "#name" (pack name) story
+                                                                   story <- return $ replace "#race" (pack (raceName race)) story
                                                                    return story
                                                    Nothing -> do story <- readStoryTimeLine "error.html"
                                                                  return story
@@ -93,7 +96,7 @@ toActionM any = liftAndCatchIO any
 {-| ----------------------------------------------}
 {-|                    MODEL                    -}
 {-| ----------------------------------------------}
-data Race = Human | Elf | Wizard | Dwarf
+data Race = Race {raceName::String}
 
 data TimeLine = TimeLine {state::Int}
 
