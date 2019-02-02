@@ -70,7 +70,9 @@ extractRace race = case race of
                         "Wizard" -> return $ Just $ Race "Wizard"
                         _ -> return Nothing
 
-{-| Function to get the maybe race and return the html page with success or error-}
+{-| Function to get the maybe race and return the html page with success or error
+    To replace some text from the html pages we use [replace] function
+-}
 updatePlayerInfo :: String -> Maybe Race -> IORef AdventureInfo -> IO Text
 updatePlayerInfo name raceMaybe adventureInfoRef = case raceMaybe of
                                                    Just race -> do newPlayerInfo <- writeIORef adventureInfoRef (AdventureInfo (PlayerInfo name race)(TimeLine 1))
