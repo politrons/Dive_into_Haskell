@@ -9,7 +9,7 @@ import Web.Scotty.Internal.Types (ScottyT, ActionT, Param, RoutePattern, Options
 import Web.Scotty (ScottyM,scotty,ActionM,get,text)
 import qualified Data.Text.Lazy as LazyText
 import Text.RawString.QQ
-import Data.IORef (IORef,newIORef,readIORef)
+import Data.IORef (IORef,newIORef,readIORef,writeIORef)
 import Control.Monad.IO.Class (liftIO)
 import Data.Text.Lazy (Text)
 import Data.Text.Lazy (pack)
@@ -28,10 +28,10 @@ adventureServer = do
                     scotty servicePort (routes timelineRef)
 
 routes :: IORef AdventureInfo -> ScottyM()
-routes timelineRef = do get "/service" responseService
-                        get "/adventure/" $ startAdventure timelineRef
-                        get "/adventure/name/:name/race/:race" processAction
-                        get "/adventure/:action" processAction
+routes adventureInfoRef = do get "/service" responseService
+                             get "/adventure/" $ startAdventure adventureInfoRef
+                             get "/adventure/name/:name/race/:race" $ createCharacter adventureInfoRef
+                             get "/adventure/:action" processAction
 
 {-| We use [text] operator from scotty we render the response in text/plain-}
 responseService :: ActionM ()
@@ -41,21 +41,50 @@ responseService = do
 
 startAdventure :: IORef AdventureInfo -> ActionM ()
 startAdventure adventureInfoRef = do adventureInfo <- liftIO $ readIORef adventureInfoRef
-                                     story <- toActionM $ readStoryTimeLine (timeline adventureInfo)
+                                     story <- toActionM $ readStoryTimeLine ("story" ++ show(state (timeline adventureInfo)) ++ ".html")
                                      html $ mconcat ["",story,""]
+
+createCharacter :: IORef AdventureInfo -> ActionM ()
+createCharacter adventureInfoRef = do adventureInfo <- liftIO $ readIORef adventureInfoRef
+                                      name <- extractUriParam "name"
+                                      race <- extractUriParam "race"
+                                      raceMaybe <- toActionM $ extractRace race
+                                      story <- toActionM $ updatePlayerInfo name raceMaybe adventureInfoRef
+                                      html $ mconcat ["",story,""]
 
 processAction :: ActionM ()
 processAction = do product <- extractUriParam "action"
 --                   products <- toActionM $ findProduct ioRefManager product
                    json product
 
+{-| ----------------------------------------------}
+{-|                    GAME LOGIC                -}
+{-| ----------------------------------------------}
+
+extractRace :: String -> IO (Maybe Race)
+extractRace race = case race of
+                        "Elf" -> return $ Just Elf
+                        "Human" -> return $ Just Human
+                        "Dwarf" -> return $ Just Dwarf
+                        "Wizard" -> return $ Just Wizard
+                        _ -> return Nothing
+
+{-| Function to get the maybe race and return the html page with success or error-}
+updatePlayerInfo :: String -> Maybe Race -> IORef AdventureInfo -> IO Text
+updatePlayerInfo name raceMaybe adventureInfoRef = case raceMaybe of
+                                                   Just race -> do newPlayerInfo <- writeIORef adventureInfoRef (AdventureInfo (PlayerInfo name race)(TimeLine 1))
+                                                                   story <- readStoryTimeLine "playerCreated.html"
+                                                                   return story
+                                                   Nothing -> do story <- readStoryTimeLine "error.html"
+                                                                 return story
+
 {-| Function to extract uri params by name-}
 extractUriParam :: LazyText.Text -> ActionM String
 extractUriParam param = Web.Scotty.param param
 
-readStoryTimeLine :: TimeLine -> IO Text
-readStoryTimeLine timeline = do fileContent <- readFile $ "src/programs/adventure/story/story" ++ show(state timeline) ++ ".html"
-                                return $ pack fileContent
+readStoryTimeLine :: String -> IO Text
+readStoryTimeLine page = do fileContent <- readFile $ "src/programs/adventure/story/" ++ page
+                            return $ pack fileContent
 
 {-| Sugar syntax function where we expect any IO value and we use the Scotty [liftAndCatchIO] function to transform to [ActionM] monad-}
 toActionM :: IO any -> ActionM any
