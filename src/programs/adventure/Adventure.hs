@@ -24,11 +24,12 @@ servicePort = 3500 :: Int
 {-|                    SERVER                    -}
 {-| ----------------------------------------------}
 
-{-| Using [scotty] passing [port] and [routes] we define the http server -}
+{-| Using [scotty] passing [port] and [routes] we define the http server.
+    We also keep the state of the player using [IORef] so we can move that state [AdventureInfo] around the program-}
 adventureServer :: IO ()
 adventureServer = do
                     print ("Starting Adventure Server at port " ++ show servicePort)
-                    timelineRef <- newIORef $ AdventureInfo (PlayerInfo "" (Race "")) (TimeLine 0)
+                    timelineRef <- newIORef $ AdventureInfo (PlayerInfo "" (Race "")) (TimeLine 0 (Attempts 0))
                     scotty servicePort (routes timelineRef)
 
 routes :: IORef AdventureInfo -> ScottyM()
@@ -43,11 +44,13 @@ responseService = do
                   let version = "3.0"
                   html $ mconcat ["<h1>Adventure Haskell server ",version,"</h1>"]
 
+{-| Function to create the adventure and point our hero in the first chapter-}
 startAdventure :: IORef AdventureInfo -> ActionM ()
 startAdventure adventureInfoRef = do adventureInfo <- liftIO $ readIORef adventureInfoRef
                                      story <- toActionM $ readStoryTimeLine ("story" ++ show(state (timeline adventureInfo)) ++ ".html")
                                      html $ mconcat ["",story,""]
 
+{-| Function to create the character with the information provided by the client-}
 createCharacter :: IORef AdventureInfo -> ActionM ()
 createCharacter adventureInfoRef = do adventureInfo <- liftIO $ readIORef adventureInfoRef
                                       name <- extractUriParam "name"
@@ -56,16 +59,13 @@ createCharacter adventureInfoRef = do adventureInfo <- liftIO $ readIORef advent
                                       story <- toActionM $ updatePlayerInfo name raceMaybe adventureInfoRef
                                       html $ mconcat ["",story,""]
 
+{- | Main function of the game where we will process all chapters of the game-}
 processAction :: IORef AdventureInfo -> ActionM ()
 processAction adventureInfoRef = do action <- extractUriParam "action"
                                     playerActions <- return $ splitOn " " action
                                     timeline <- toActionM $ getTimeLineState adventureInfoRef
-                                    puzzleResult <- return $ findActionsInChapterActions timeline playerActions
-                                    storyPage <- toActionM $ case puzzleResult of
-                                                    True -> do page <- getStoryPage adventureInfoRef
-                                                               return page
-                                                    False -> do errorPage <- getStoryErrorPage adventureInfoRef
-                                                                return errorPage
+                                    puzzleResult <- return $ processActionsInChapterActions timeline playerActions
+                                    storyPage <- toActionM $ processChapterResult puzzleResult adventureInfoRef
                                     story <- toActionM $ readStoryTimeLine storyPage
                                     html $ mconcat ["",story,""]
 
@@ -73,18 +73,63 @@ processAction adventureInfoRef = do action <- extractUriParam "action"
 {-|                    GAME LOGIC                -}
 {-| ----------------------------------------------}
 
+{-| Collection with all possible good actions for a puzzle-}
 actionsPerChapter :: Map(Int)[String]
 actionsPerChapter = Map.fromList [(1,["run","chase","race", "speed", "rush", "dash", "hurry", "career", "barrel"])]
 
-
-findActionsInChapterActions ::TimeLine -> [String] -> Bool
-findActionsInChapterActions timeline playerActions = case maybeActions of
+{-| Function to process the action and return true/false-}
+processActionsInChapterActions ::TimeLine -> [String] -> Bool
+processActionsInChapterActions timeline playerActions = case maybeActions of
                                                             Just actions -> (length list) > 0
                                                                  where
                                                                   list = playerActions >>= \playerAction -> filter(\chapterAction -> playerAction == chapterAction) actions
                                                             Nothing -> False
                                                             where
                                                              maybeActions = Map.lookup (state timeline) actionsPerChapter
+
+{-| Function to get the result and in case of error we increase the number of attempts and ultimately end the game-}
+processChapterResult :: Bool -> IORef AdventureInfo -> IO String
+processChapterResult puzzleResult adventureInfoRef = case puzzleResult of
+                                                      True -> do adventureInfoRef <- updatePlayerToNextLevel adventureInfoRef
+                                                                 page <- getStoryPage adventureInfoRef chapterPages
+                                                                 return page
+                                                      False -> do adventureInfoRef <- updatePlayerToError adventureInfoRef
+                                                                  maxAttemptsReached <- processNumberOfErrors adventureInfoRef
+                                                                  page <- case maxAttemptsReached of
+                                                                            True -> do errorPage <- getStoryPage adventureInfoRef chapterGameOverPages
+                                                                                       return errorPage
+                                                                            False -> do errorPage <- getStoryPage adventureInfoRef chapterErrorPages
+                                                                                        return errorPage
+                                                                  return page
+
+{-| Function just to check the max number of errors of the player in one chapter-}
+processNumberOfErrors :: IORef AdventureInfo -> IO Bool
+processNumberOfErrors adventureInfoRef = do adventureInfo <- liftIO $ readIORef adventureInfoRef
+                                            return (number (attempts (timeline adventureInfo)) == 3)
+
+{-| Function to get the maybe race and return the html page with success or error
+    To replace some text from the html pages we use [replace] function -}
+updatePlayerInfo :: String -> Maybe Race -> IORef AdventureInfo -> IO Text
+updatePlayerInfo name raceMaybe adventureInfoRef = case raceMaybe of
+                                                   Just race -> do _ <- writeIORef adventureInfoRef (AdventureInfo (PlayerInfo name race)(TimeLine 1 (Attempts 0)))
+                                                                   story <- readStoryTimeLine "playerCreated.html"
+                                                                   story <- return $ replace "#name" (pack name) story
+                                                                   story <- return $ replace "#race" (pack (raceName race)) story
+                                                                   return story
+                                                   Nothing -> do story <- readStoryTimeLine "error.html"
+                                                                 return story
+
+{-| Function to create a new AdventureInfo with the new information for the next level-}
+updatePlayerToNextLevel :: IORef AdventureInfo -> IO (IORef AdventureInfo)
+updatePlayerToNextLevel adventureInfoRef = do adventureInfo <- liftIO $ readIORef adventureInfoRef
+                                              _ <- writeIORef adventureInfoRef (AdventureInfo (playerInfo adventureInfo)(TimeLine (state (timeline adventureInfo) + 1) (Attempts 0)))
+                                              return adventureInfoRef
+
+{-| Function to create a new AdventureInfo with increasing the number of errors per chapter-}
+updatePlayerToError :: IORef AdventureInfo -> IO (IORef AdventureInfo)
+updatePlayerToError adventureInfoRef = do adventureInfo <- liftIO $ readIORef adventureInfoRef
+                                          _ <- writeIORef adventureInfoRef(AdventureInfo(playerInfo adventureInfo)(TimeLine (state (timeline adventureInfo)) (Attempts (number (attempts (timeline adventureInfo)) + 1))))
+                                          return adventureInfoRef
 
 {-| ----------------------------------------------}
 {-|                    GAME UTILS                -}
@@ -98,35 +143,17 @@ extractRace race = case race of
                         "Wizard" -> return $ Just $ Race "Wizard"
                         _ -> return Nothing
 
-{-| Function to get the maybe race and return the html page with success or error
-    To replace some text from the html pages we use [replace] function -}
-updatePlayerInfo :: String -> Maybe Race -> IORef AdventureInfo -> IO Text
-updatePlayerInfo name raceMaybe adventureInfoRef = case raceMaybe of
-                                                   Just race -> do newPlayerInfo <- writeIORef adventureInfoRef (AdventureInfo (PlayerInfo name race)(TimeLine 1))
-                                                                   story <- readStoryTimeLine "playerCreated.html"
-                                                                   story <- return $ replace "#name" (pack name) story
-                                                                   story <- return $ replace "#race" (pack (raceName race)) story
-                                                                   return story
-                                                   Nothing -> do story <- readStoryTimeLine "error.html"
-                                                                 return story
 
 {-| Function to extract uri params by name-}
 extractUriParam :: LazyText.Text -> ActionM String
 extractUriParam param = Web.Scotty.param param
 
 {-| Function to find the next page in the timeline of your adventure-}
-getStoryPage :: IORef AdventureInfo -> IO String
-getStoryPage adventureInfoRef = do adventureInfo <- liftIO $ readIORef adventureInfoRef
-                                   return $ case Map.lookup (state (timeline adventureInfo)) chapterPages of
-                                              Just page -> page
-                                              Nothing -> "error.html"
-
-{-| Function to find the next error page in the timeline of your adventure-}
-getStoryErrorPage :: IORef AdventureInfo -> IO String
-getStoryErrorPage adventureInfoRef = do adventureInfo <- liftIO $ readIORef adventureInfoRef
-                                        return $ case Map.lookup (state (timeline adventureInfo)) chapterErrorPages of
-                                                  Just page -> page
-                                                  Nothing -> "error.html"
+getStoryPage :: IORef AdventureInfo -> Map(Int)(String) -> IO String
+getStoryPage adventureInfoRef collectionPage = do adventureInfo <- liftIO $ readIORef adventureInfoRef
+                                                  return $ case Map.lookup (state (timeline adventureInfo)) collectionPage of
+                                                            Just page -> page
+                                                            Nothing -> "error.html"
 
 {-| Function to find the timeline of your adventure-}
 getTimeLineState :: IORef AdventureInfo -> IO TimeLine
@@ -145,19 +172,25 @@ toActionM any = liftAndCatchIO any
 {-| ----------------------------------------------}
 {-|                  GAME CHAPTERS               -}
 {-| ----------------------------------------------}
+{-| Collections of chapter, error and game over pages of the game-}
 
 chapterPages :: Map(Int)(String)
 chapterPages = Map.fromList [(0,"story0.html"),(1,"story1.html"),(2,"story2.html"),(3,"story3.html")]
 
 chapterErrorPages :: Map(Int)(String)
-chapterErrorPages = Map.fromList [(0,"storyError0.html"),(1,"storyError1.html"),(2,"storyError2.html"),(3,"storyError3.html")]
+chapterErrorPages = Map.fromList [(1,"storyError1.html"),(2,"storyError2.html"),(3,"storyError3.html")]
+
+chapterGameOverPages :: Map(Int)(String)
+chapterGameOverPages = Map.fromList [(1,"storyOver1.html"),(2,"storyOver2.html"),(3,"storyOver3.html")]
 
 {-| ----------------------------------------------}
 {-|                    MODEL                     -}
 {-| ----------------------------------------------}
+data Attempts = Attempts {number::Int}
+
 data Race = Race {raceName::String}
 
-data TimeLine = TimeLine {state::Int}
+data TimeLine = TimeLine {state::Int, attempts :: Attempts}
 
 data PlayerInfo = PlayerInfo {name::String, race::Race}
 
