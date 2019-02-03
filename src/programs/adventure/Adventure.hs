@@ -64,7 +64,8 @@ processAction adventureInfoRef = do action <- extractUriParam "action"
                                     storyPage <- toActionM $ case puzzleResult of
                                                     True -> do page <- getStoryPage adventureInfoRef
                                                                return page
-                                                    False -> return "errorChapter.html"
+                                                    False -> do errorPage <- getStoryErrorPage adventureInfoRef
+                                                                return errorPage
                                     story <- toActionM $ readStoryTimeLine storyPage
                                     html $ mconcat ["",story,""]
 
@@ -116,7 +117,16 @@ extractUriParam param = Web.Scotty.param param
 {-| Function to find the next page in the timeline of your adventure-}
 getStoryPage :: IORef AdventureInfo -> IO String
 getStoryPage adventureInfoRef = do adventureInfo <- liftIO $ readIORef adventureInfoRef
-                                   return ("story" ++ show(state (timeline adventureInfo)) ++ ".html")
+                                   return $ case Map.lookup (state (timeline adventureInfo)) chapterPages of
+                                              Just page -> page
+                                              Nothing -> "error.html"
+
+{-| Function to find the next error page in the timeline of your adventure-}
+getStoryErrorPage :: IORef AdventureInfo -> IO String
+getStoryErrorPage adventureInfoRef = do adventureInfo <- liftIO $ readIORef adventureInfoRef
+                                        return $ case Map.lookup (state (timeline adventureInfo)) chapterErrorPages of
+                                                  Just page -> page
+                                                  Nothing -> "error.html"
 
 {-| Function to find the timeline of your adventure-}
 getTimeLineState :: IORef AdventureInfo -> IO TimeLine
@@ -131,6 +141,16 @@ readStoryTimeLine page = do fileContent <- readFile $ "src/programs/adventure/st
 {-| Sugar syntax function where we expect any IO value and we use the Scotty [liftAndCatchIO] function to transform to [ActionM] monad-}
 toActionM :: IO any -> ActionM any
 toActionM any = liftAndCatchIO any
+
+{-| ----------------------------------------------}
+{-|                  GAME CHAPTERS               -}
+{-| ----------------------------------------------}
+
+chapterPages :: Map(Int)(String)
+chapterPages = Map.fromList [(0,"story0.html"),(1,"story1.html"),(2,"story2.html"),(3,"story3.html")]
+
+chapterErrorPages :: Map(Int)(String)
+chapterErrorPages = Map.fromList [(0,"storyError0.html"),(1,"storyError1.html"),(2,"storyError2.html"),(3,"storyError3.html")]
 
 {-| ----------------------------------------------}
 {-|                    MODEL                     -}
