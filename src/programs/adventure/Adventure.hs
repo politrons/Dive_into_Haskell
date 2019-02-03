@@ -14,6 +14,8 @@ import Control.Monad.IO.Class (liftIO)
 import Data.Text.Lazy (Text)
 import Data.Text.Lazy (pack)
 import Data.Text.Lazy (replace)
+import Data.Map (Map)
+import qualified Data.Map as Map
 
 servicePort = 3500 :: Int
 
@@ -32,7 +34,7 @@ routes :: IORef AdventureInfo -> ScottyM()
 routes adventureInfoRef = do get "/service" responseService
                              get "/adventure/" $ startAdventure adventureInfoRef
                              get "/adventure/name/:name/race/:race" $ createCharacter adventureInfoRef
-                             get "/adventure/:action" processAction
+                             get "/adventure/:action" $ processAction adventureInfoRef
 
 {-| We use [text] operator from scotty we render the response in text/plain-}
 responseService :: ActionM ()
@@ -53,13 +55,36 @@ createCharacter adventureInfoRef = do adventureInfo <- liftIO $ readIORef advent
                                       story <- toActionM $ updatePlayerInfo name raceMaybe adventureInfoRef
                                       html $ mconcat ["",story,""]
 
-processAction :: ActionM ()
-processAction = do product <- extractUriParam "action"
---                   products <- toActionM $ findProduct ioRefManager product
-                   json product
+processAction :: IORef AdventureInfo -> ActionM ()
+processAction adventureInfoRef = do action <- extractUriParam "action"
+                                    puzzleResult <- return $ chapterOne action
+                                    storyPage <- toActionM $ case puzzleResult of
+                                                    True -> do page <- getStoryPage adventureInfoRef
+                                                               return page
+                                                    False -> return "errorChapter.html"
+--                                    storyPage <- toActionM $ getStoryPage adventureInfoRef
+                                    story <- toActionM $ readStoryTimeLine storyPage
+                                    html $ mconcat ["",story,""]
 
 {-| ----------------------------------------------}
 {-|                    GAME LOGIC                -}
+{-| ----------------------------------------------}
+
+
+chapterOne :: String -> Bool
+chapterOne playerAction = case maybeActions of
+                               Just actions -> playerAction `elem` actions
+                               Nothing -> False
+                          where maybeActions = Map.lookup 1 actionsPerChapter
+
+chaptersFunctions :: Map(Int)(String -> Bool)
+chaptersFunctions = Map.fromList [(1,chapterOne)]
+
+actionsPerChapter :: Map(Int)[String]
+actionsPerChapter = Map.fromList [(1,["run","chase","race", "speed", "rush", "dash", "hurry", "career", "barrel"])]
+
+{-| ----------------------------------------------}
+{-|                    GAME UTILS                -}
 {-| ----------------------------------------------}
 
 extractRace :: String -> IO (Maybe Race)
@@ -87,6 +112,12 @@ updatePlayerInfo name raceMaybe adventureInfoRef = case raceMaybe of
 extractUriParam :: LazyText.Text -> ActionM String
 extractUriParam param = Web.Scotty.param param
 
+{-| Function to find the next page in the timeline of your adventure-}
+getStoryPage :: IORef AdventureInfo -> IO String
+getStoryPage adventureInfoRef = do adventureInfo <- liftIO $ readIORef adventureInfoRef
+                                   return ("story" ++ show(state (timeline adventureInfo)) ++ ".html")
+
+{-| Function to read the html page and transform in Text|-}
 readStoryTimeLine :: String -> IO Text
 readStoryTimeLine page = do fileContent <- readFile $ "src/programs/adventure/story/" ++ page
                             return $ pack fileContent
