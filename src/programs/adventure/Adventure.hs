@@ -16,6 +16,7 @@ import Data.Text.Lazy (pack)
 import Data.Text.Lazy (replace)
 import Data.Map (Map)
 import qualified Data.Map as Map
+import Data.List.Split
 
 servicePort = 3500 :: Int
 
@@ -57,12 +58,13 @@ createCharacter adventureInfoRef = do adventureInfo <- liftIO $ readIORef advent
 
 processAction :: IORef AdventureInfo -> ActionM ()
 processAction adventureInfoRef = do action <- extractUriParam "action"
-                                    puzzleResult <- return $ chapterOne action
+                                    playerActions <- return $ splitOn " " action
+                                    timeline <- toActionM $ getTimeLineState adventureInfoRef
+                                    puzzleResult <- return $ findActionsInChapterActions timeline playerActions
                                     storyPage <- toActionM $ case puzzleResult of
                                                     True -> do page <- getStoryPage adventureInfoRef
                                                                return page
                                                     False -> return "errorChapter.html"
---                                    storyPage <- toActionM $ getStoryPage adventureInfoRef
                                     story <- toActionM $ readStoryTimeLine storyPage
                                     html $ mconcat ["",story,""]
 
@@ -70,18 +72,18 @@ processAction adventureInfoRef = do action <- extractUriParam "action"
 {-|                    GAME LOGIC                -}
 {-| ----------------------------------------------}
 
-
-chapterOne :: String -> Bool
-chapterOne playerAction = case maybeActions of
-                               Just actions -> playerAction `elem` actions
-                               Nothing -> False
-                          where maybeActions = Map.lookup 1 actionsPerChapter
-
-chaptersFunctions :: Map(Int)(String -> Bool)
-chaptersFunctions = Map.fromList [(1,chapterOne)]
-
 actionsPerChapter :: Map(Int)[String]
 actionsPerChapter = Map.fromList [(1,["run","chase","race", "speed", "rush", "dash", "hurry", "career", "barrel"])]
+
+
+findActionsInChapterActions ::TimeLine -> [String] -> Bool
+findActionsInChapterActions timeline playerActions = case maybeActions of
+                                                            Just actions -> (length list) > 0
+                                                                 where
+                                                                  list = playerActions >>= \playerAction -> filter(\chapterAction -> playerAction == chapterAction) actions
+                                                            Nothing -> False
+                                                            where
+                                                             maybeActions = Map.lookup (state timeline) actionsPerChapter
 
 {-| ----------------------------------------------}
 {-|                    GAME UTILS                -}
@@ -96,8 +98,7 @@ extractRace race = case race of
                         _ -> return Nothing
 
 {-| Function to get the maybe race and return the html page with success or error
-    To replace some text from the html pages we use [replace] function
--}
+    To replace some text from the html pages we use [replace] function -}
 updatePlayerInfo :: String -> Maybe Race -> IORef AdventureInfo -> IO Text
 updatePlayerInfo name raceMaybe adventureInfoRef = case raceMaybe of
                                                    Just race -> do newPlayerInfo <- writeIORef adventureInfoRef (AdventureInfo (PlayerInfo name race)(TimeLine 1))
@@ -117,6 +118,11 @@ getStoryPage :: IORef AdventureInfo -> IO String
 getStoryPage adventureInfoRef = do adventureInfo <- liftIO $ readIORef adventureInfoRef
                                    return ("story" ++ show(state (timeline adventureInfo)) ++ ".html")
 
+{-| Function to find the timeline of your adventure-}
+getTimeLineState :: IORef AdventureInfo -> IO TimeLine
+getTimeLineState adventureInfoRef = do adventureInfo <- liftIO $ readIORef adventureInfoRef
+                                       return $ timeline adventureInfo
+
 {-| Function to read the html page and transform in Text|-}
 readStoryTimeLine :: String -> IO Text
 readStoryTimeLine page = do fileContent <- readFile $ "src/programs/adventure/story/" ++ page
@@ -127,7 +133,7 @@ toActionM :: IO any -> ActionM any
 toActionM any = liftAndCatchIO any
 
 {-| ----------------------------------------------}
-{-|                    MODEL                    -}
+{-|                    MODEL                     -}
 {-| ----------------------------------------------}
 data Race = Race {raceName::String}
 

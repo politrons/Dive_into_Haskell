@@ -131,6 +131,8 @@ eitherFunc1 :: String -> Either String Int
 eitherFunc1 "" = Left "String cannot be empty!"
 eitherFunc1 str = Right $ length str
 
+findInTwoListSameValues :: [String] -> [String] -> [String]
+findInTwoListSameValues listA listB = listA >>= \letter -> filter(\letter2 -> letter == letter2) listB
 
 -- | Do Block Vs FlatMap(>>=)
 -- ----------------------------

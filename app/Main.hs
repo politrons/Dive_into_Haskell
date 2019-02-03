@@ -182,6 +182,8 @@ main = adventureServer
 --main = monoidString
 --main = monoidMaybe
 --main = applicativeMaybeIO
+--main = do list <- return $ findInTwoListSameValues ["a","b","c"] ["f","g","c","e","a"]
+--          print $ show list
 
 -- | Async
 -- ------------
