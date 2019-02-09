@@ -75,7 +75,9 @@ processAction adventureInfoRef = do action <- extractUriParam "action"
 
 {-| Collection with all possible good actions for a puzzle-}
 actionsPerChapter :: Map(Int)[String]
-actionsPerChapter = Map.fromList [(1,["run","chase","race", "speed", "rush", "dash", "hurry", "career", "barrel"])]
+actionsPerChapter = Map.fromList [(1,["run","chase","race", "speed", "rush", "dash", "hurry", "career", "barrel"]),
+                                  (2,["fight","duel","battle","action","rumble"])]
+
 
 {-| Function to process the action and return true/false-}
 processActionsInChapterActions ::TimeLine -> [String] -> Bool
