@@ -76,7 +76,10 @@ processAction adventureInfoRef = do action <- extractUriParam "action"
 {-| Collection with all possible good actions for a puzzle-}
 actionsPerChapter :: Map(Int)[String]
 actionsPerChapter = Map.fromList [(1,["run","chase","race", "speed", "rush", "dash", "hurry", "career", "barrel"]),
-                                  (2,["fight","duel","battle","action","rumble"])]
+                                  (2,["fight","duel","battle","attack","action","rumble"]),
+                                  (3,["see","wall","watch","torch","look"]),
+                                  (4,["nothing"])]
+
 
 
 {-| Function to process the action and return true/false-}
@@ -117,6 +120,7 @@ updatePlayerInfo name raceMaybe adventureInfoRef = case raceMaybe of
                                                                    story <- readStoryTimeLine "playerCreated.html"
                                                                    story <- return $ replace "#name" (pack name) story
                                                                    story <- return $ replace "#race" (pack (raceName race)) story
+                                                                   story <- return $ replaceRaceNameByImageInStory story (raceName race)
                                                                    return story
                                                    Nothing -> do story <- readStoryTimeLine "error.html"
                                                                  return story
@@ -137,6 +141,15 @@ updatePlayerToError adventureInfoRef = do adventureInfo <- liftIO $ readIORef ad
 {-|                    GAME UTILS                -}
 {-| ----------------------------------------------}
 
+{-| Function to add in the story the race image using the raceName-}
+replaceRaceNameByImageInStory :: Text -> String -> Text
+replaceRaceNameByImageInStory story raceName = case raceName of
+                                      "Human" -> replace "#playerImage" humanImage story
+                                      "Elf" -> replace "#playerImage" elfImage story
+                                      "Dwarf" -> replace "#playerImage" elfImage story
+                                      "Wizard" -> replace "#playerImage" wizardImage story
+
+{-| Function to transform the input race from the customer in the Game Race type-}
 extractRace :: String -> IO (Maybe Race)
 extractRace race = case race of
                         "Elf" -> return $ Just $ Race "Elf"
@@ -177,13 +190,13 @@ toActionM any = liftAndCatchIO any
 {-| Collections of chapter, error and game over pages of the game-}
 
 chapterPages :: Map(Int)(String)
-chapterPages = Map.fromList [(0,"story0.html"),(1,"story1.html"),(2,"story2.html"),(3,"story3.html")]
+chapterPages = Map.fromList [(0,"story0.html"),(1,"story1.html"),(2,"story2.html"),(3,"story3.html"),(4,"story4.html"),(5,"story5.html")]
 
 chapterErrorPages :: Map(Int)(String)
-chapterErrorPages = Map.fromList [(1,"storyError1.html"),(2,"storyError2.html"),(3,"storyError3.html")]
+chapterErrorPages = Map.fromList [(1,"storyError1.html"),(2,"storyError2.html"),(3,"storyError3.html"),(4,"storyError4.html")]
 
 chapterGameOverPages :: Map(Int)(String)
-chapterGameOverPages = Map.fromList [(1,"storyOver1.html"),(2,"storyOver2.html"),(3,"storyOver3.html")]
+chapterGameOverPages = Map.fromList [(1,"storyOver1.html"),(2,"storyOver2.html"),(3,"storyOver3.html"),(4,"storyOver4.html")]
 
 {-| ----------------------------------------------}
 {-|                    MODEL                     -}
@@ -197,3 +210,7 @@ data TimeLine = TimeLine {state::Int, attempts :: Attempts}
 data PlayerInfo = PlayerInfo {name::String, race::Race}
 
 data AdventureInfo = AdventureInfo {playerInfo :: PlayerInfo, timeline :: TimeLine}
+
+humanImage= "https://static.squarespace.com/static/51b3dc8ee4b051b96ceb10de/51ce6099e4b0d911b4489b79/51ce619ce4b0d911b449a17f/1316719790027/1000w/ranger_and_gondorian_by_otisframpton-d3crwha.jpeg"
+wizardImage="https://static.squarespace.com/static/51b3dc8ee4b051b96ceb10de/51ce6099e4b0d911b4489b79/51ce619ce4b0d911b449a17e/1316719755098/1000w/wizard_and_hobbit_by_otisframpton-d3crwd0.jpeg"
+elfImage="https://static.squarespace.com/static/51b3dc8ee4b051b96ceb10de/51ce6099e4b0d911b4489b79/51ce619ce4b0d911b449a180/1316719808523/1000w/elf_and_dwarf_by_otisframpton-d3crwmm.jpeg"

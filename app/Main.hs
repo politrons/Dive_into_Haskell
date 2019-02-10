@@ -40,11 +40,14 @@ import Adventure
 
 main :: IO ()
 
+-- | Adventure Game
+-- ------------------------
 
 main = adventureServer
 
 -- | Apple API
 -- ------------------------
+
 --main = appleServer
 
 -- | File transfer program
