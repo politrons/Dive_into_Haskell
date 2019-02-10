@@ -4,7 +4,7 @@
 
 It´s a game created purely in Haskell based on decision that you need to type in your browser.
 
-The code of the game can be found [here](src/programs/adventure/Adventure.hs)
+The code of the game can be found [here](Adventure.hs)
 
 ### How to Play
 
