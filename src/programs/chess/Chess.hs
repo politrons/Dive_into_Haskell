@@ -1,4 +1,3 @@
-{-# LANGUAGE DeriveGeneric     #-}
 {-# LANGUAGE OverloadedStrings #-}
 
 module Chess where
@@ -23,8 +22,11 @@ import           Web.Scotty
 import           Web.Scotty                (ActionM, ScottyM, get, scotty, text)
 import           Web.Scotty.Internal.Types (ActionT, File, Options, Param,
                                             RoutePattern, ScottyT)
+import Data.Maybe (fromMaybe)
 
 servicePort = 3700 :: Int
+chessBoardPath = "src/programs/chess/table/table.html" :: String
+playersTag = "#Players" :: Text
 
 {-| ----------------------------------------------}
 {-|                    SERVER                    -}
@@ -40,7 +42,7 @@ chessServer = do
 routes :: IORef ChessInfo -> ScottyM ()
 routes chessInfoRef = do
   get "/service" responseService
-  get "/chess/register/:player" $ registerPlayer chessInfoRef
+  get "/chess/register/:playerName" $ registerPlayer chessInfoRef
   get "/chess/players" $ getPlayersInGame chessInfoRef
   get "/chess/:player/:move" undefined -- $ processAction adventureInfoRef
 
@@ -50,15 +52,22 @@ responseService = do
   let version = "1.0"
   html $ mconcat ["<h1>Chess Haskell server ", version, "</h1>"]
 
+{-| Function to register the new PlayerInfo in case we not reach the max number of players already-}
 registerPlayer :: IORef ChessInfo -> ActionM ()
 registerPlayer chessInfoRef = do
+  playerName <- extractUriParam "playerName"
   chessInfo <- liftIO $ readIORef chessInfoRef
-  page <- toActionM $ readFile "src/programs/chess/table/table.hrml"
+  page <- toActionM $ readFile chessBoardPath
   let playersList = players chessInfo
   if length playersList == 2
-    then do page <- undefined -- return $ replace "#name" "Max number of users reach" page
-            html $ mconcat ["", page, ""]
-    else html $ ""
+    then do
+      let replacePage = replace playersTag "Max number of users reach" (pack page)
+      html $ mconcat ["", replacePage, ""]
+    else do
+      let playerInfoList = players chessInfo ++ [PlayerInfo playerName]
+      newChessInfo <- toActionM $ writeChessInfoInIORef chessInfoRef playerInfoList
+      let replacePage = replaceNameInPage page playerName
+      html $ mconcat ["", replacePage, ""]
 
 {-| Function to return the board chess page with the number of users that are playing-}
 getPlayersInGame :: IORef ChessInfo -> ActionM ()
@@ -67,18 +76,34 @@ getPlayersInGame chessInfoRef = do
   page <- toActionM $ replacePlayersInChessBoard $ players chessInfo
   html $ mconcat ["", page, ""]
 
+{-| ----------------------------------------------}
+{-|                    GAME UTILS                -}
+{-| ----------------------------------------------}
+writeChessInfoInIORef :: IORef ChessInfo -> [PlayerInfo] -> IO ()
+writeChessInfoInIORef chessInfoRef playerInfoList = writeIORef chessInfoRef $ ChessInfo playerInfoList
+
+replaceNameInPage :: String -> String -> Text
+replaceNameInPage page name = replace playersTag (pack name) (pack page)
+
 {-| Function to read the html page and transform in Text, also we use fmap name players to iterate the players collection
     and return a new one with only the attribute specify, in here it would be a list of names::String.
-    We use the unwords function to extract the String in the list and concatenate |-}
+    We use the unwords function to extract the String in the list and concatenate.
+    We also use [fromMaybe] sugar syntax function to extract the value of the maybe or else return default value.|-}
 replacePlayersInChessBoard :: [PlayerInfo] -> IO Text
 replacePlayersInChessBoard players = do
-  page <- readFile "src/programs/chess/table/table.hrml"
+  page <- readFile chessBoardPath
   let playerNamesList = fmap name players
-  let playersName = unwords playerNamesList
-  let pageWithName = replace "#name" (pack playersName) (pack page)
+  let maybePlayersName = Just $ unwords playerNamesList
+  let playersName = fromMaybe "No players register" maybePlayersName
+  let pageWithName = replace playersTag (pack playersName) (pack page)
   return pageWithName
 
-{-| Sugar syntax function where we expect any IO value and we use the Scotty [liftAndCatchIO] function to transform to [ActionM] monad-}
+{-| Function to extract uri params by name-}
+extractUriParam :: LazyText.Text -> ActionM String
+extractUriParam = Web.Scotty.param
+
+{-| Sugar syntax function where we expect any IO value and we use the Scotty [liftAndCatchIO] function to transform to [ActionM] monad
+    Thanks to "eta reduction" sugar syntax we can skip function arguments. f a = x a  -> f = x-}
 toActionM :: IO any -> ActionM any
 toActionM = liftAndCatchIO
 

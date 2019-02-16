@@ -42,12 +42,12 @@ import Chess
 main :: IO ()
 
 
---main = chessServer
+main = chessServer
 
 -- | Adventure Game
 -- ------------------------
 
-main = adventureServer
+--main = adventureServer
 
 -- | Apple API
 -- ------------------------
