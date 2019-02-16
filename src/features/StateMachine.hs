@@ -1,13 +1,14 @@
 module StateMachine where
+
 -- | Author Pablo Perez Garcia
-import Control.Monad      (foldM)
-import Data.Text          (Text)
-import Text.Printf        (printf)
+import           Control.Monad (foldM)
+import           Data.Text     (Text)
+import           Text.Printf   (printf)
 
 -- | State machine implementation
 -- -------------------------------
 {-| Alias Function for to avoid duplicate types in the function declaration.-}
-type StateMachine state action =  state -> action -> IO state
+type StateMachine state action = state -> action -> IO state
 
 {-|Haskell has a very elegant way to do overload of functions, more than overload to catch invocation values
    to assign to a specific function implementation.
@@ -16,7 +17,7 @@ type StateMachine state action =  state -> action -> IO state
    You can think about this like a giant pattern matching.
    The function expect to receive two arguments the current state of the machine and the action,
    then it return a new state. -}
-myBasket:: StateMachine States Actions
+myBasket :: StateMachine States Actions
 {-| First state we don't have items so we create the basket with one product -}
 myBasket EmptyBasket (AddItem item) = return (ItemsInBasket $ createBasket item)
 {-| Possible second state add more items-}
@@ -50,25 +51,46 @@ That make a recursive call to sum an element of the list and call the function a
   (item:items) with collection is a cool feature of Haskell where when you have a collection you receive
   the item and the list of items without that item. Very handy for reduce.-}
 sumAllPrices :: Double -> [Item] -> Double
+
 sumAllPrices totalPrice (item:items) = sumAllPrices (totalPrice + (price item)) items
 sumAllPrices totalPrice [] = totalPrice -- Last condition. When the list is empty we break the recursion
 
+{-| Same function but using foldl and eta reduction-}
+--sumAllPrices = foldl (\totalPrice item -> totalPrice + price item)
 -- | State machine Types
 -- -------------------------------
 {-| Types for the shopping-}
-data Item = Item {desc::String, price::Double} deriving (Show, Eq)
-data Card = Card String deriving (Show, Eq)
-data Money = Money Double deriving (Show, Eq)
-data Total = Total Double deriving (Show, Eq)
-data Basket = Basket [Item] Money
+data Item = Item
+  { desc  :: String
+  , price :: Double
+  } deriving (Show, Eq)
+
+newtype Card =
+  Card String
+  deriving (Show, Eq)
+
+newtype Money =
+  Money Double
+  deriving (Eq, Show)
+
+newtype Total =
+  Total Double
+  deriving (Show, Eq)
+
+data Basket =
+  Basket [Item]
+         Money
 
 {-| State Types for the state machine-}
 data States
-   = EmptyBasket
+  = EmptyBasket
   | ItemsInBasket [Item]
-  | NoPaymentSelected {items::[Item]}
-  | PaymentSelected [Item] (Either Card Money)
-  | Check [Item] Total (Either Card Money)
+  | NoPaymentSelected { items :: [Item] }
+  | PaymentSelected [Item]
+                    (Either Card Money)
+  | Check [Item]
+          Total
+          (Either Card Money)
   deriving (Show, Eq)
 
 {-| Actions Types for the state machine, that make the machine change from one state to another-}
@@ -82,37 +104,38 @@ data Actions
 
 -- | Runner
 -- -----------
-goShoppingWithMoney :: IO()
-goShoppingWithMoney = do state <- myBasket EmptyBasket $ AddItem (Item "Pepsi" 1.95)
-                         print ("EmptyBasket: "++ show state)
-                         state <- myBasket state $ AddItem (Item "Donuts" 1.50)
-                         print ("AddItem: "++ show state)
-                         state <- myBasket state $ AddItem (Item "Burgers" 4.50)
-                         print ("AddItem: "++ show state)
-                         state <- myBasket state $ RemoveItem (Item "Donuts" 1.50)
-                         print ("RemoveItem: "++ show state)
-                         state <- myBasket state $ AddItem (Item "Budbeiser pack" 6.00)
-                         print ("AddItem: "++ show state)
-                         state <- myBasket state Checkout
-                         print ("Checkout: "++ show state)
-                         state <- myBasket state $ AddPayment (Right $ Money $ sumAllPrices 0 (items state))
-                         print ("AddPayment: "++ show state)
-                         state <- myBasket state Confirm
-                         print ("Confirm: "++ show state)
+goShoppingWithMoney :: IO ()
+goShoppingWithMoney = do
+  state <- myBasket EmptyBasket $ AddItem (Item "Pepsi" 1.95)
+  print ("EmptyBasket: " ++ show state)
+  state <- myBasket state $ AddItem (Item "Donuts" 1.50)
+  print ("AddItem: " ++ show state)
+  state <- myBasket state $ AddItem (Item "Burgers" 4.50)
+  print ("AddItem: " ++ show state)
+  state <- myBasket state $ RemoveItem (Item "Donuts" 1.50)
+  print ("RemoveItem: " ++ show state)
+  state <- myBasket state $ AddItem (Item "Budbeiser pack" 6.00)
+  print ("AddItem: " ++ show state)
+  state <- myBasket state Checkout
+  print ("Checkout: " ++ show state)
+  state <- myBasket state $ AddPayment (Right $ Money $ sumAllPrices 0 (items state))
+  print ("AddPayment: " ++ show state)
+  state <- myBasket state Confirm
+  print ("Confirm: " ++ show state)
 
-goShoppingWithCard :: IO()
-goShoppingWithCard = do state <- myBasket EmptyBasket $ AddItem (Item "Coca-cola" 1.95)
-                        print ("EmptyBasket: "++ show state)
-                        state <- myBasket state $ AddItem (Item "Twix" 1.50)
-                        print ("AddItem: "++ show state)
-                        state <- myBasket state $ AddItem (Item "Pizza" 9.50)
-                        print ("AddItem: "++ show state)
-                        state <- myBasket state $ RemoveItem (Item "Twix" 1.50)
-                        print ("RemoveItem: "++ show state)
-                        state <- myBasket state Checkout
-                        print ("Checkout: "++ show state)
-                        state <- myBasket state $ AddPayment (Left $ Card "1234-5678-9123-5678")
-                        print ("AddPayment: "++ show state)
-                        state <- myBasket state Confirm
-                        print ("Confirm: "++ show state)
-
+goShoppingWithCard :: IO ()
+goShoppingWithCard = do
+  state <- myBasket EmptyBasket $ AddItem (Item "Coca-cola" 1.95)
+  print ("EmptyBasket: " ++ show state)
+  state <- myBasket state $ AddItem (Item "Twix" 1.50)
+  print ("AddItem: " ++ show state)
+  state <- myBasket state $ AddItem (Item "Pizza" 9.50)
+  print ("AddItem: " ++ show state)
+  state <- myBasket state $ RemoveItem (Item "Twix" 1.50)
+  print ("RemoveItem: " ++ show state)
+  state <- myBasket state Checkout
+  print ("Checkout: " ++ show state)
+  state <- myBasket state $ AddPayment (Left $ Card "1234-5678-9123-5678")
+  print ("AddPayment: " ++ show state)
+  state <- myBasket state Confirm
+  print ("Confirm: " ++ show state)
