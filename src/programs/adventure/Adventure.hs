@@ -82,7 +82,7 @@ processAction adventureInfoRef = do
 {-|                    GAME LOGIC                -}
 {-| ----------------------------------------------}
 {-| Collection with all possible good actions for a puzzle-}
-actionsPerChapter :: Map (Int) [String]
+actionsPerChapter :: Map Int [String]
 actionsPerChapter =
   Map.fromList
     [ (1, ["run", "chase", "race", "speed", "rush", "dash", "hurry", "career", "barrel"])

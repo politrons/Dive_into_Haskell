@@ -10,22 +10,27 @@ import           Data.List.Split
 import           Data.Map                  (Map)
 import qualified Data.Map                  as Map
 import           Data.Monoid               ((<>))
-import           Data.Text.Lazy            (Text)
+import           Data.Text.Lazy            (Text, unpack)
 import           Data.Text.Lazy            (pack)
 import           Data.Text.Lazy            (replace)
 import qualified Data.Text.Lazy            as LazyText
 import           GHC.Generics
 import           Text.RawString.QQ
 
+import           Data.Maybe                (fromMaybe)
+
+import           System.IO.Streams.Process (system)
+
 --Server
 import           Web.Scotty
 import           Web.Scotty                (ActionM, ScottyM, get, scotty, text)
 import           Web.Scotty.Internal.Types (ActionT, File, Options, Param,
                                             RoutePattern, ScottyT)
-import Data.Maybe (fromMaybe)
 
 servicePort = 3700 :: Int
+
 chessBoardPath = "src/programs/chess/table/table.html" :: String
+
 playersTag = "#Players" :: Text
 
 {-| ----------------------------------------------}
@@ -44,7 +49,7 @@ routes chessInfoRef = do
   get "/service" responseService
   get "/chess/register/:playerName" $ registerPlayer chessInfoRef
   get "/chess/players" $ getPlayersInGame chessInfoRef
-  get "/chess/:player/:move" undefined -- $ processAction adventureInfoRef
+  get "/chess/:player/:from/:to" undefined -- $ processAction adventureInfoRef
 
 {-| We use [text] operator from scotty we render the response in text/plain-}
 responseService :: ActionM ()
@@ -58,10 +63,11 @@ registerPlayer chessInfoRef = do
   playerName <- extractUriParam "playerName"
   chessInfo <- liftIO $ readIORef chessInfoRef
   page <- toActionM $ readFile chessBoardPath
+  page <- toActionM prepareBoard
   let playersList = players chessInfo
   if length playersList == 2
     then do
-      let replacePage = replace playersTag "Max number of users reach" (pack page)
+      let replacePage = replace playersTag "Max number of users reach" page
       html $ mconcat ["", replacePage, ""]
     else do
       let playerInfoList = players chessInfo ++ [PlayerInfo playerName]
@@ -73,29 +79,56 @@ registerPlayer chessInfoRef = do
 getPlayersInGame :: IORef ChessInfo -> ActionM ()
 getPlayersInGame chessInfoRef = do
   chessInfo <- liftIO $ readIORef chessInfoRef
-  page <- toActionM $ replacePlayersInChessBoard $ players chessInfo
+  page <- toActionM prepareBoard
+  page <- toActionM $ replacePlayersInChessBoard page (players chessInfo)
   html $ mconcat ["", page, ""]
+
+makeMoveInGame :: IORef ChessInfo -> ActionM ()
+makeMoveInGame chessInfoRef = do
+  playerName <- extractUriParam "player"
+  from <- extractUriParam "from"
+  to <- extractUriParam "to"
+  return undefined
 
 {-| ----------------------------------------------}
 {-|                    GAME UTILS                -}
 {-| ----------------------------------------------}
+prepareBoardMain :: IO ()
+prepareBoardMain = do
+  page <- prepareBoard
+  print page
+
+prepareBoard :: IO Text
+prepareBoard = do
+  page <- readFile chessBoardPath
+  return $ replacePiecesInBoard (pack page) (Map.toList boardGame)
+
+{-| Using [foldl] foldLeft function we can do the tail recursive calls just, together with eta reduce we can receive in
+    any invocation of the function the page which is propagated in every recursive call together with the next iteration of
+     the list of tuples.
+    Also to get the first element of the tuple we use [fst] function and to get the second just [snd]-}
+replacePiecesInBoard :: Text -> [(String, String)] -> Text
+replacePiecesInBoard = foldl (\page tuple -> replace (pack ("#" ++ fst tuple)) (pack (snd tuple)) page)
+
+{-| Classic no sugar syntax to do a fold over the list of tuples and propagate the applied changes over the page-}
+--replacePage page (tuple:listOfTuples) = replacePage (replace (pack ("#" ++ fst tuple)) (pack (snd tuple)) page) listOfTuples
+--replacePage page [] = page
 writeChessInfoInIORef :: IORef ChessInfo -> [PlayerInfo] -> IO ()
 writeChessInfoInIORef chessInfoRef playerInfoList = writeIORef chessInfoRef $ ChessInfo playerInfoList
 
-replaceNameInPage :: String -> String -> Text
-replaceNameInPage page name = replace playersTag (pack name) (pack page)
+replaceNameInPage :: Text -> String -> Text
+replaceNameInPage page name = replace playersTag (pack name) page
 
 {-| Function to read the html page and transform in Text, also we use fmap name players to iterate the players collection
     and return a new one with only the attribute specify, in here it would be a list of names::String.
     We use the unwords function to extract the String in the list and concatenate.
     We also use [fromMaybe] sugar syntax function to extract the value of the maybe or else return default value.|-}
-replacePlayersInChessBoard :: [PlayerInfo] -> IO Text
-replacePlayersInChessBoard players = do
-  page <- readFile chessBoardPath
+replacePlayersInChessBoard :: Text -> [PlayerInfo] -> IO Text
+replacePlayersInChessBoard page players = do
   let playerNamesList = fmap name players
   let maybePlayersName = Just $ unwords playerNamesList
   let playersName = fromMaybe "No players register" maybePlayersName
-  let pageWithName = replace playersTag (pack playersName) (pack page)
+  let pageWithName = replace playersTag (pack playersName) page
   return pageWithName
 
 {-| Function to extract uri params by name-}
@@ -114,3 +147,23 @@ newtype PlayerInfo = PlayerInfo
 newtype ChessInfo = ChessInfo
   { players :: [PlayerInfo]
   }
+
+boardGame =
+  Map.fromList
+    [ ("a1", "<div class='white'>&#9820;</div>")
+    , ("b1", "<div class='black'>&#9822;</div>")
+    , ("c1", "<div class='white'>&#9821;</div>")
+    , ("d1", "<div class='black'>&#9819;</div>")
+    , ("e1", "<div class='white'>&#9818;</div>")
+    , ("f1", "<div class='black'>&#9821;</div>")
+    , ("g1", "<div class='white'>&#9822;</div>")
+    , ("h1", "<div class='black'>&#9820;</div>")
+    , ("a2", "<div class='black'>&#9821;</div>")
+    , ("b2", "<div class='white'>&#9821;</div>")
+    , ("c2", "<div class='black'>&#9821;</div>")
+    , ("d2", "<div class='white'>&#9821;</div>")
+    , ("e2", "<div class='black'>&#9821;</div>")
+    , ("f2", "<div class='white'>&#9821;</div>")
+    , ("g2", "<div class='black'>&#9821;</div>")
+    , ("h2", "<div class='white'>&#9821;</div>")
+    ] :: Map String String

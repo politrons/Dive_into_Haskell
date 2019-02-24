@@ -43,6 +43,7 @@ main :: IO ()
 
 
 main = chessServer
+--main = prepareBoardMain
 
 -- | Adventure Game
 -- ------------------------
@@ -290,6 +291,8 @@ main = chessServer
 --main = print transformToUpperCaseByKey
 --main = print mapFoundByKeyAndLength
 --main = print mapNotFoundByKeyAndLength
+--main = mainMapFeatures
+
 
 -- | Zip
 
