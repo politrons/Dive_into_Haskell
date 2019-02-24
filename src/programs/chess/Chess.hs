@@ -41,7 +41,7 @@ playersTag = "#Players" :: Text
 chessServer :: IO ()
 chessServer = do
   print ("Starting Adventure Server at port " ++ show servicePort)
-  chessInfo <- newIORef $ ChessInfo []
+  chessInfo <- newIORef $ ChessInfo [] initBoardGame
   scotty servicePort (routes chessInfo)
 
 routes :: IORef ChessInfo -> ScottyM ()
@@ -63,7 +63,7 @@ registerPlayer chessInfoRef = do
   playerName <- extractUriParam "playerName"
   chessInfo <- liftIO $ readIORef chessInfoRef
   page <- toActionM $ readFile chessBoardPath
-  page <- toActionM prepareBoard
+  page <- toActionM $ prepareBoard chessInfo
   let playersList = players chessInfo
   if length playersList == 2
     then do
@@ -79,7 +79,7 @@ registerPlayer chessInfoRef = do
 getPlayersInGame :: IORef ChessInfo -> ActionM ()
 getPlayersInGame chessInfoRef = do
   chessInfo <- liftIO $ readIORef chessInfoRef
-  page <- toActionM prepareBoard
+  page <- toActionM $ prepareBoard chessInfo
   page <- toActionM $ replacePlayersInChessBoard page (players chessInfo)
   html $ mconcat ["", page, ""]
 
@@ -93,15 +93,10 @@ makeMoveInGame chessInfoRef = do
 {-| ----------------------------------------------}
 {-|                    GAME UTILS                -}
 {-| ----------------------------------------------}
-prepareBoardMain :: IO ()
-prepareBoardMain = do
-  page <- prepareBoard
-  print page
-
-prepareBoard :: IO Text
-prepareBoard = do
+prepareBoard ::ChessInfo ->  IO Text
+prepareBoard chessInfo = do
   page <- readFile chessBoardPath
-  return $ replacePiecesInBoard (pack page) (Map.toList boardGame)
+  return $ replacePiecesInBoard (pack page) (Map.toList (boardGame chessInfo))
 
 {-| Using [foldl] foldLeft function we can do the tail recursive calls just, together with eta reduce we can receive in
     any invocation of the function the page which is propagated in every recursive call together with the next iteration of
@@ -114,7 +109,7 @@ replacePiecesInBoard = foldl (\page tuple -> replace (pack ("#" ++ fst tuple)) (
 --replacePage page (tuple:listOfTuples) = replacePage (replace (pack ("#" ++ fst tuple)) (pack (snd tuple)) page) listOfTuples
 --replacePage page [] = page
 writeChessInfoInIORef :: IORef ChessInfo -> [PlayerInfo] -> IO ()
-writeChessInfoInIORef chessInfoRef playerInfoList = writeIORef chessInfoRef $ ChessInfo playerInfoList
+writeChessInfoInIORef chessInfoRef playerInfoList = writeIORef chessInfoRef $ ChessInfo playerInfoList initBoardGame
 
 replaceNameInPage :: Text -> String -> Text
 replaceNameInPage page name = replace playersTag (pack name) page
@@ -144,11 +139,12 @@ newtype PlayerInfo = PlayerInfo
   { name :: String
   }
 
-newtype ChessInfo = ChessInfo
-  { players :: [PlayerInfo]
+data ChessInfo = ChessInfo
+  { players   :: [PlayerInfo]
+  , boardGame :: Map String String
   }
 
-boardGame =
+initBoardGame =
   Map.fromList
     [ ("a1", "<div class='white'>&#9820;</div>")
     , ("b1", "<div class='black'>&#9822;</div>")
