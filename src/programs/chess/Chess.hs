@@ -71,7 +71,7 @@ registerPlayer chessInfoRef = do
       html $ mconcat ["", replacePage, ""]
     else do
       let playerInfoList = players chessInfo ++ [PlayerInfo playerName]
-      newChessInfo <- toActionM $ writeChessInfoInIORef chessInfoRef playerInfoList
+      newChessInfo <- toActionM $ writeChessInfoInIORef chessInfoRef playerInfoList initBoardGame
       let replacePage = replaceNameInPage page playerName
       html $ mconcat ["", replacePage, ""]
 
@@ -79,21 +79,32 @@ registerPlayer chessInfoRef = do
 getPlayersInGame :: IORef ChessInfo -> ActionM ()
 getPlayersInGame chessInfoRef = do
   chessInfo <- liftIO $ readIORef chessInfoRef
-  page <- toActionM $ prepareBoard chessInfo
-  page <- toActionM $ replacePlayersInChessBoard page (players chessInfo)
-  html $ mconcat ["", page, ""]
+  prepareBoardPage chessInfo
 
 makeMoveInGame :: IORef ChessInfo -> ActionM ()
 makeMoveInGame chessInfoRef = do
   playerName <- extractUriParam "player"
   from <- extractUriParam "from"
   to <- extractUriParam "to"
-  return undefined
+  chessInfo <- liftIO $ readIORef chessInfoRef
+  chessInfo <- toActionM $ changeBoardPieces chessInfo from to
+  prepareBoardPage chessInfo
+
+prepareBoardPage :: ChessInfo -> ActionM ()
+prepareBoardPage chessInfo = do
+  page <- toActionM $ prepareBoard chessInfo
+  page <- toActionM $ replacePlayersInChessBoard page (players chessInfo)
+  html $ mconcat ["", page, ""]
 
 {-| ----------------------------------------------}
 {-|                    GAME UTILS                -}
 {-| ----------------------------------------------}
-prepareBoard ::ChessInfo ->  IO Text
+changeBoardPieces :: ChessInfo -> String -> String -> IO ChessInfo
+changeBoardPieces chessInfo from to = undefined
+
+{-| Function which having the chessInfo data type with the current game, we get the chess board page and
+    we do the replacements of the pieces in the board-}
+prepareBoard :: ChessInfo -> IO Text
 prepareBoard chessInfo = do
   page <- readFile chessBoardPath
   return $ replacePiecesInBoard (pack page) (Map.toList (boardGame chessInfo))
@@ -108,8 +119,9 @@ replacePiecesInBoard = foldl (\page tuple -> replace (pack ("#" ++ fst tuple)) (
 {-| Classic no sugar syntax to do a fold over the list of tuples and propagate the applied changes over the page-}
 --replacePage page (tuple:listOfTuples) = replacePage (replace (pack ("#" ++ fst tuple)) (pack (snd tuple)) page) listOfTuples
 --replacePage page [] = page
-writeChessInfoInIORef :: IORef ChessInfo -> [PlayerInfo] -> IO ()
-writeChessInfoInIORef chessInfoRef playerInfoList = writeIORef chessInfoRef $ ChessInfo playerInfoList initBoardGame
+writeChessInfoInIORef :: IORef ChessInfo -> [PlayerInfo] -> Map String String -> IO ()
+writeChessInfoInIORef chessInfoRef playerInfoList initBoardGame =
+  writeIORef chessInfoRef $ ChessInfo playerInfoList initBoardGame
 
 replaceNameInPage :: Text -> String -> Text
 replaceNameInPage page name = replace playersTag (pack name) page
