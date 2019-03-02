@@ -50,7 +50,7 @@ routes chessInfoRef = do
   get "/service" responseService
   get "/chess/register/:playerName" $ registerPlayer chessInfoRef
   get "/chess/players" $ getPlayersInGame chessInfoRef
-  get "/chess/:player/:from/:to" undefined -- $ processAction adventureInfoRef
+  get "/chess/:player/:from/:to" $ makeMoveInGame chessInfoRef
 
 {-| We use [text] operator from scotty we render the response in text/plain-}
 responseService :: ActionM ()
@@ -72,7 +72,7 @@ registerPlayer chessInfoRef = do
       html $ mconcat ["", replacePage, ""]
     else do
       let playerPieces = getPlayerPieces (Map.elems playersMap)
-      let playerInfoList =  Map.insert playerName (PlayerInfo playerName playerPieces) playersMap
+      let playerInfoList = Map.insert playerName (PlayerInfo playerName playerPieces) playersMap
       newChessInfo <- toActionM $ writeChessInfoInIORef chessInfoRef playerInfoList initBoardGame
       let replacePage = replaceNameInPage page playerName
       html $ mconcat ["", replacePage, ""]
@@ -88,8 +88,7 @@ makeMoveInGame chessInfoRef = do
   playerName <- extractUriParam "player"
   from <- extractUriParam "from"
   to <- extractUriParam "to"
-  chessInfo <- liftIO $ readIORef chessInfoRef
-  chessInfo <- toActionM $ changeBoardPieces chessInfo playerName from to
+  chessInfo <- toActionM $ changeBoardPieces chessInfoRef playerName from to
   prepareBoardPage chessInfo
 
 prepareBoardPage :: ChessInfo -> ActionM ()
@@ -98,24 +97,27 @@ prepareBoardPage chessInfo = do
   page <- toActionM $ replacePlayersInChessBoard page (Map.elems $ players chessInfo)
   html $ mconcat ["", page, ""]
 
+
 {-| ----------------------------------------------}
 {-|                    GAME UTILS                -}
 {-| ----------------------------------------------}
-changeBoardPieces :: ChessInfo -> String -> String -> String -> IO ChessInfo
-changeBoardPieces chessInfo playerName from to = do
+changeBoardPieces :: IORef ChessInfo -> String -> String -> String -> IO ChessInfo
+changeBoardPieces chessInfoRef playerName from to = do
+  chessInfo <- liftIO $ readIORef chessInfoRef
   let player = fromMaybe (PlayerInfo "" Map.empty) $ Map.lookup playerName (players chessInfo)
   newPlayerMovements <- replacePlayerMovements (movements player) from to
   let playerInfo = PlayerInfo (name player) newPlayerMovements
-  --update chess in IORef
-  return undefined
-
+  let playersWithoutMe = filter (\entry -> fst entry /= playerName) (Map.toList $ players chessInfo)
+  let newChessInfo = ChessInfo (Map.fromList $ playersWithoutMe ++ [(playerName, playerInfo)]) (boardGame chessInfo)
+  writeIORef chessInfoRef newChessInfo
+  return newChessInfo
 
 replacePlayerMovements :: Map String String -> String -> String -> IO (Map String String)
 replacePlayerMovements playerMovements from to = do
   let fromPiece = fromMaybe "" $ Map.lookup from playerMovements
   let mapNewValue = Map.filter (/= from) $ Map.filter (/= to) playerMovements
-  return $ Map.insert from "" $ Map.insert to fromPiece mapNewValue
-
+  let newPlayerMovement = Map.insert from "" $ Map.insert to fromPiece mapNewValue
+  return newPlayerMovement
 
 {-| Function which having the chessInfo data type with the current game, we get the chess board page and
     we do the replacements of the pieces in the board-}
@@ -204,31 +206,32 @@ toActionM :: IO any -> ActionM any
 toActionM = liftAndCatchIO
 
 data PlayerInfo = PlayerInfo
-  { name          :: String
+  { name      :: String
   , movements :: Map String String
-  }
+  } deriving (Show, Eq)
 
 data ChessInfo = ChessInfo
   { players   :: Map String PlayerInfo
   , boardGame :: Map String String
-  }
+  } deriving (Show, Eq)
 
 -------------------
 --testReplacePlayerPieceInBoard :: IO ()
 --testReplacePlayerPieceInBoard = do
---  response <-
---    replaceMovementsInBoard $
---    ChessInfo ([PlayerInfo "pol" initPlayerPieces1] ++ [PlayerInfo "esther" initPlayerPieces2]) initBoardGame
---  print response
+--  let from = "d1"
+--  let to = "d3"
+--  ioRefChess <-
+--    newIORef $
+--    ChessInfo
+--      (Map.fromList $
+--       [("Pol", (PlayerInfo "pol" initPlayerPieces1))] ++ [("esther", (PlayerInfo "esther" initPlayerPieces2))])
+--      initBoardGame
+--  chessInfo <- changeBoardPieces ioRefChess "Pol" from to
+--  print (players chessInfo)
+--  print "-------------------------------------------------------------------"
+--  page <- readFile chessBoardPath
+--  boardGameWithMovements <- replaceMovementsInBoard chessInfo
+--  print boardGameWithMovements
+--  print "-------------------------------------------------------------------"
+--  print $ replacePiecesInPhysicalBoard (pack page) (Map.toList boardGameWithMovements)
 
---recursiveList :: Text -> [(String, String)] -> IO Text
---recursiveList value (tuple:xs) = do
---  let to = "c1"
---  let from = "a1"
---  let fromPiece = fromMaybe "" $ Map.lookup from playerPieces1
---  let mapAfter =
---        if fst tuple == to
---          then fromPiece
---          else snd tuple
---  return $ pack mapAfter
---recursiveList value [] = return value
