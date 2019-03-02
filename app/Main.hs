@@ -41,8 +41,11 @@ import Chess
 
 main :: IO ()
 
+-- | Chess Online Game
+-- ------------------------
 
 main = chessServer
+--main = testReplacePlayerPieceInBoard
 --main = prepareBoardMain
 
 -- | Adventure Game
