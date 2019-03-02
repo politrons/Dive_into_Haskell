@@ -133,11 +133,6 @@ replaceMovementsInBoard chessInfo = do
           (Map.toList (boardGame chessInfo))
   return playersMovementsInBoard
 
---  let player2MovementsInBoard =
---        foldl
---          (\previousMap tuple -> Map.insert (fst tuple) (replacePlayerPieceInBoard tuple player2Pieces) previousMap)
---          emptyMap
---          (Map.toList player1MovementsInBoard)
 {-| Function to replace the memory board [#movement] by the Player-}
 replacePlayerPiecesInBoard :: (String, String) -> Map String String -> Map String String -> String
 replacePlayerPiecesInBoard (key, boardPosition) player1Pieces player2Pieces =
