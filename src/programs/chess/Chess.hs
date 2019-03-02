@@ -42,7 +42,7 @@ playersTag = "#Players" :: Text
 chessServer :: IO ()
 chessServer = do
   print ("Starting Adventure Server at port " ++ show servicePort)
-  chessInfo <- newIORef $ ChessInfo [] initBoardGame
+  chessInfo <- newIORef $ ChessInfo Map.empty initBoardGame
   scotty servicePort (routes chessInfo)
 
 routes :: IORef ChessInfo -> ScottyM ()
@@ -65,14 +65,14 @@ registerPlayer chessInfoRef = do
   chessInfo <- liftIO $ readIORef chessInfoRef
   page <- toActionM $ readFile chessBoardPath
   page <- toActionM $ prepareBoard chessInfo
-  let playersList = players chessInfo
-  if length playersList == 2
+  let playersMap = players chessInfo
+  if length playersMap == 2
     then do
       let replacePage = replace playersTag "Max number of users reach" page
       html $ mconcat ["", replacePage, ""]
     else do
-      let playerPieces = getPlayerPieces playersList
-      let playerInfoList = players chessInfo ++ [PlayerInfo playerName playerPieces]
+      let playerPieces = getPlayerPieces (Map.elems playersMap)
+      let playerInfoList =  Map.insert playerName (PlayerInfo playerName playerPieces) playersMap
       newChessInfo <- toActionM $ writeChessInfoInIORef chessInfoRef playerInfoList initBoardGame
       let replacePage = replaceNameInPage page playerName
       html $ mconcat ["", replacePage, ""]
@@ -89,20 +89,33 @@ makeMoveInGame chessInfoRef = do
   from <- extractUriParam "from"
   to <- extractUriParam "to"
   chessInfo <- liftIO $ readIORef chessInfoRef
-  chessInfo <- toActionM $ changeBoardPieces chessInfo from to
+  chessInfo <- toActionM $ changeBoardPieces chessInfo playerName from to
   prepareBoardPage chessInfo
 
 prepareBoardPage :: ChessInfo -> ActionM ()
 prepareBoardPage chessInfo = do
   page <- toActionM $ prepareBoard chessInfo
-  page <- toActionM $ replacePlayersInChessBoard page (players chessInfo)
+  page <- toActionM $ replacePlayersInChessBoard page (Map.elems $ players chessInfo)
   html $ mconcat ["", page, ""]
 
 {-| ----------------------------------------------}
 {-|                    GAME UTILS                -}
 {-| ----------------------------------------------}
-changeBoardPieces :: ChessInfo -> String -> String -> IO ChessInfo
-changeBoardPieces chessInfo from to = undefined
+changeBoardPieces :: ChessInfo -> String -> String -> String -> IO ChessInfo
+changeBoardPieces chessInfo playerName from to = do
+  let player = fromMaybe (PlayerInfo "" Map.empty) $ Map.lookup playerName (players chessInfo)
+  newPlayerMovements <- replacePlayerMovements (movements player) from to
+  let playerInfo = PlayerInfo (name player) newPlayerMovements
+  --update chess in IORef
+  return undefined
+
+
+replacePlayerMovements :: Map String String -> String -> String -> IO (Map String String)
+replacePlayerMovements playerMovements from to = do
+  let fromPiece = fromMaybe "" $ Map.lookup from playerMovements
+  let mapNewValue = Map.filter (/= from) $ Map.filter (/= to) playerMovements
+  return $ Map.insert from "" $ Map.insert to fromPiece mapNewValue
+
 
 {-| Function which having the chessInfo data type with the current game, we get the chess board page and
     we do the replacements of the pieces in the board-}
@@ -120,11 +133,11 @@ replaceMovementsInBoard chessInfo = do
   let player1Pieces =
         if null (players chessInfo)
           then initPlayerPieces1
-          else playersPieces (head (players chessInfo))
+          else movements (head (Map.elems $ players chessInfo))
   let player2Pieces =
         if isNullOrHasOnePlayer chessInfo
           then initPlayerPieces2
-          else playersPieces (last (players chessInfo))
+          else movements (last (Map.elems $ players chessInfo))
   let playersMovementsInBoard =
         foldl
           (\previousMap tuple ->
@@ -152,7 +165,7 @@ replacePiecesInPhysicalBoard = foldl (\page tuple -> replace (pack ("#" ++ fst t
 {-| Classic no sugar syntax to do a fold over the list of tuples and propagate the applied changes over the page-}
 --replacePage page (tuple:listOfTuples) = replacePage (replace (pack ("#" ++ fst tuple)) (pack (snd tuple)) page) listOfTuples
 --replacePage page [] = page
-writeChessInfoInIORef :: IORef ChessInfo -> [PlayerInfo] -> Map String String -> IO ()
+writeChessInfoInIORef :: IORef ChessInfo -> Map String PlayerInfo -> Map String String -> IO ()
 writeChessInfoInIORef chessInfoRef playerInfoList initBoardGame =
   writeIORef chessInfoRef $ ChessInfo playerInfoList initBoardGame
 
@@ -192,19 +205,13 @@ toActionM = liftAndCatchIO
 
 data PlayerInfo = PlayerInfo
   { name          :: String
-  , playersPieces :: Map String String
+  , movements :: Map String String
   }
 
 data ChessInfo = ChessInfo
-  { players   :: [PlayerInfo]
+  { players   :: Map String PlayerInfo
   , boardGame :: Map String String
   }
-
-replacePlayerMovements :: Map String String -> String -> String -> IO (Map String String)
-replacePlayerMovements playerMovements from to = do
-  let fromPiece = fromMaybe "" $ Map.lookup from playerMovements
-  let mapNewValue = Map.filter (/= from) $ Map.filter (/= to) playerMovements
-  return $ Map.insert from "" $ Map.insert to fromPiece mapNewValue
 
 -------------------
 --testReplacePlayerPieceInBoard :: IO ()
