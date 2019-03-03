@@ -100,6 +100,9 @@ prepareBoardPage chessInfo = do
 {-| ----------------------------------------------}
 {-|                    GAME UTILS                -}
 {-| ----------------------------------------------}
+{-| Function that receive the [chessInfo] [playerName] and movements [from][to] which we use to change in the
+   player movement map the new pieces and set those new in the board. Here in order to be pure FP we have to recreate
+   the chessInfo with the new info of the movements of the player that just move.-}
 changeBoardPieces :: IORef ChessInfo -> String -> String -> String -> IO ChessInfo
 changeBoardPieces chessInfoRef playerName from to = do
   chessInfo <- liftIO $ readIORef chessInfoRef
@@ -111,6 +114,8 @@ changeBoardPieces chessInfoRef playerName from to = do
   writeIORef chessInfoRef newChessInfo
   return newChessInfo
 
+{-| Function to create a new Map of movements of the player with the new movements. Here we have to use [filter]
+   function to just get the movements of my player, filter by old [from] to the new [to] -}
 replacePlayerMovements :: Map String String -> String -> String -> IO (Map String String)
 replacePlayerMovements playerMovements from to = do
   let fromPiece = fromMaybe "" $ Map.lookup from playerMovements
