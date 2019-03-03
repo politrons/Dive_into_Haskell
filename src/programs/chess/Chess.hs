@@ -24,7 +24,6 @@ import           Web.Scotty
 import           Web.Scotty                (ActionM, ScottyM, get, scotty, text)
 import           Web.Scotty.Internal.Types (ActionT, File, Options, Param,
                                             RoutePattern, ScottyT)
-
 --Board
 import           ChessBoard
 

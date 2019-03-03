@@ -14,16 +14,17 @@ You can see the explanation and implementation of game [Here](Chess.hs)
     main = chessServer
     ```
 
-* Open your browser and register yourself
+* Open your browser and register yourself in the input field
     ```
-    http://localhost:3700/chess/register/politrons
+    http://localhost:3700/chess/players
     ```
+    ![My image](../../../img/register.png)
+
 * Ask the second player to also register to start playing
 
-* To start making moves you just need to mark the coordinates with your alias register before **name** **from** and **to**
+    ![My image](../../../img/register2.png)
 
-    ```
-    http://localhost:3700/chess/politrons/d2/d3
-    ```
+* To start making moves you just need to click in the piece that you want to move and click again in the destination
+
 
 ![My image](../../../img/chess.png)
