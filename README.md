@@ -43,7 +43,7 @@ If you want to reference to the official documentation visit [Here](https://www.
 * **[File transfer system](src/programs/fileSystem/)**
 * **[Apple music API](src/programs/appleAPI/)**
 * **[Make your own adventure](src/programs/adventure/)**
-
+* **[Chess online](src/programs/chess/README.md)**
 
 ![My image](img/connector.png)
 ## Connectors
