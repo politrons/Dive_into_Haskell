@@ -215,23 +215,4 @@ data ChessInfo = ChessInfo
   , boardGame :: Map String String
   } deriving (Show, Eq)
 
--------------------
---testReplacePlayerPieceInBoard :: IO ()
---testReplacePlayerPieceInBoard = do
---  let from = "d1"
---  let to = "d3"
---  ioRefChess <-
---    newIORef $
---    ChessInfo
---      (Map.fromList $
---       [("Pol", (PlayerInfo "pol" initPlayerPieces1))] ++ [("esther", (PlayerInfo "esther" initPlayerPieces2))])
---      initBoardGame
---  chessInfo <- changeBoardPieces ioRefChess "Pol" from to
---  print (players chessInfo)
---  print "-------------------------------------------------------------------"
---  page <- readFile chessBoardPath
---  boardGameWithMovements <- replaceMovementsInBoard chessInfo
---  print boardGameWithMovements
---  print "-------------------------------------------------------------------"
---  print $ replacePiecesInPhysicalBoard (pack page) (Map.toList boardGameWithMovements)
 

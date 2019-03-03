@@ -49,11 +49,13 @@
     display: table-cell;
     vertical-align:middle;
 }
-</style>
+
+    </style>
     <meta http-equiv="refresh" content="5;URL=http://192.168.1.247:3700/chess/players">
 </head>
-<body>
 <div>Players in the board: #Players</div>
+<input type="text" id="playerName"/>
+<button onclick="register(document.getElementById('playerName').value)">Register</button>
 <div class="chessboard">
     <!-- base -->
     <div class="base">A</div>
@@ -147,3 +149,39 @@
     <div class="numbers">8</div>
 </div>
 </body>
+<script type="text/javascript">
+var name=""
+var from=""
+var to=""
+
+function register(clicked_id){
+    if(name === ""){
+      name=clicked_id
+      sessionStorage.setItem("SessionName",name)
+      var xhr = new XMLHttpRequest();
+      xhr.open('GET', "http://localhost:3700/chess/register/"+name, true);
+      xhr.send();
+      let baseUrl = window.location.origin
+      window.location.replace("http://localhost:3700/chess/players");
+    }
+}
+
+function move(clicked_id){
+    if(from === ""){
+      from=clicked_id
+    }else{
+      var name=sessionStorage.getItem("SessionName")
+      to=clicked_id
+      var url="http://localhost:3700"
+      var xhr = new XMLHttpRequest();
+      xhr.open('GET', url + "/chess/"+name+"/"+from+"/"+to, true);
+      xhr.send();
+
+      let baseUrl = window.location.origin
+      window.location.replace(url + "/chess/players");
+    }
+}
+
+
+</script>
+</html>
