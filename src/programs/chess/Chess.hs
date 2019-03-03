@@ -82,6 +82,7 @@ getPlayersInGame chessInfoRef = do
   chessInfo <- liftIO $ readIORef chessInfoRef
   prepareBoardPage chessInfo
 
+{-| Function to make the move of the player, once we extract the name and from to movements-}
 makeMoveInGame :: IORef ChessInfo -> ActionM ()
 makeMoveInGame chessInfoRef = do
   playerName <- extractUriParam "player"
