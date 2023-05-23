@@ -1,4 +1,4 @@
-Author Pablo Perez Garcia
+Author Pablo Picouto Garcia
 
 # ![My image](img/haskell-logo.svg)
 
